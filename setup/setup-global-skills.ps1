@@ -25,7 +25,7 @@
     - VS Code (winget install Microsoft.VisualStudioCode)
 
 .PARAMETER SkipForks
-  Skip cloning the 22 JZKK720 fork mirror repos (saves time if you don't need backups).
+  Skip cloning the JZKK720 fork mirror repos (saves time if you don't need backups).
 
 .PARAMETER SkipAudit
   Skip the final audit pass.
@@ -441,19 +441,31 @@ if (-not $SkipForks) {
   $allaTarget = Join-Path $dest "awesome-llm-apps"
   if (-not (Test-Path $allaTarget)) {
     cmd /c "git clone --depth 1 https://github.com/Shubhamsaboo/awesome-llm-apps.git `"$allaTarget`" >nul 2>nul"
-  }  # Non-JZKK720 fork mirror: tt-a1i/archify (MIT, v2.13.0).
-  # Interactive architecture diagram skill. 5 diagram types, zero-dep renderer.
+  }  # Non-JZKK720 fork mirror: tt-a1i/archify (MIT, v2.17).
+  # Interactive architecture diagram skill. 5 diagram types, typed JSON IR, validator.
   # Supports Claude Code, Codex CLI, Cursor, OpenCode.
+  #
+  # FIXED 2026-09-13: this line previously read `$archifyTarget` with an ESCAPED dollar
+  # (backtick-dollar), which interpolated nothing and ran `git clone ... $<path>` — the
+  # clone silently failed, which is why ~/dev/forks/JZKK720/archify was never created by
+  # the installer. Same bug fixed on the book-to-skill line below.
+  # The `archify` SKILL itself is not installed from here: upstream is SkillSpector-blocked
+  # (HIGH MP3), so the bundle ships a clean methodology-only port at upstream/archify/.
+  # This mirror is still cloned because the port's SKILL.md tells the agent to use this
+  # checkout when it needs the real renderer (bin/archify.mjs validate|deliver|visual-check).
   $archifyTarget = Join-Path $dest "archify"
   if (-not (Test-Path $archifyTarget)) {
-    cmd /c "git clone --depth 1 https://github.com/tt-a1i/archify.git `$"archifyTarget`" >nul 2>nul"
+    cmd /c "git clone --depth 1 https://github.com/tt-a1i/archify.git `"$archifyTarget`" >nul 2>nul"
   }
   # Non-JZKK720 fork mirror: virgiliojr94/book-to-skill (MIT).
   # Converts books/documents into structured agent skills. Supports Copilot
-  # CLI, Claude Code, Amp. Python extraction scripts with stdlib fallbacks.
+  # CLI, Claude Code, Amp.
+  # FIXED 2026-09-13: escaped-dollar bug (see note above) — the clone never ran.
+  # NOTE: upstream is SkillSpector-blocked (CRITICAL), so the bundle installs a clean
+  # methodology-only port that uses the `markitdown` CLI for extraction instead.
   $btsTarget = Join-Path $dest "book-to-skill"
   if (-not (Test-Path $btsTarget)) {
-    cmd /c "git clone --depth 1 https://github.com/virgiliojr94/book-to-skill.git `$"btsTarget`" >nul 2>nul"
+    cmd /c "git clone --depth 1 https://github.com/virgiliojr94/book-to-skill.git `"$btsTarget`" >nul 2>nul"
   }
   # Non-JZKK720 fork mirror: alchaincyf/huashu-design (MIT).
   # Bilingual (CN/EN) design skill: prototypes, slides, animations, infographics,
@@ -474,6 +486,28 @@ if (-not $SkipForks) {
   $witrTarget = Join-Path $dest "witr"
   if (-not (Test-Path $witrTarget)) {
     cmd /c "git clone --depth 1 https://github.com/pranshuparmar/witr.git `"$witrTarget`" >nul 2>nul"
+  }
+
+  # ---------------------------------------------------------------------------
+  # Added 2026-09-13 (v1.8.0, 14-repo evaluation). JZKK720 forks, so the plain
+  # `JZKK720/<name>` form applies. Two names are deliberately NOT the upstream repo
+  # name — see the note in sync-fork-upstreams.ps1: the naive name for each collided
+  # with an unrelated pre-existing fork (addyosmani/agent-skills and vercel-labs/skills).
+  # ---------------------------------------------------------------------------
+  $evaluationMirrors = @(
+    "tech-leads-club-agent-skills",  # <- tech-leads-club/agent-skills (name collided)
+    "openai-skills",                 # <- openai/skills (name collided)
+    "marketingskills",               # <- coreyhaines31/marketingskills
+    "diagram-design",                # <- cathrynlavery/diagram-design
+    "humanizer",                     # <- blader/humanizer (SKILL.md at repo root)
+    "no-ai-slop",                    # <- petergyang/no-ai-slop
+    "firstmate",                     # <- kunchenguid/firstmate
+    "humanlayer-skills"              # <- humanlayer/skills
+  )
+  foreach ($m in $evaluationMirrors) {
+    $mTarget = Join-Path $dest $m
+    if (Test-Path $mTarget) { continue }
+    cmd /c "git clone --depth 1 https://github.com/JZKK720/$m.git `"$mTarget`" >nul 2>nul"
   }
   $forkCount = (Get-ChildItem $dest -Directory).Count
   Write-OK "$forkCount fork repos mirrored"

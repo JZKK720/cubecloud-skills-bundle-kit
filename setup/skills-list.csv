@@ -27,7 +27,13 @@ Nutlope/hallmark|hallmark||
 Leonxlnx/taste-skill|taste-skill|skills/taste-skill|
 JuliusBrussee/caveman|caveman||true
 JZKK720/andrej-karpathy-skills|karpathy-guidelines||
-ayghri/i-have-adhd|i-have-adhd|.cursor/skills/i-have-adhd|
+# i-have-adhd (ayghri/i-have-adhd, MIT): ADHD-aware output-shape guidance.
+# PATH FIX 2026-09-13: upstream restructured and the skill now lives at
+# skills/i-have-adhd/ (the legacy .cursor/skills/i-have-adhd/ copy also still exists).
+# The old .cursor path was left in this manifest after the move, so the row would
+# fail with "SKILL.md not found" on any fresh machine. Repointed at the canonical
+# skills/ path; both copies gate PASS.
+ayghri/i-have-adhd|i-have-adhd|skills/i-have-adhd|
 # oz-skills (JZKK720 fork of orca/oz-skills). 14 active, 1 blocked by SkillSpector (webapp-testing: HIGH TM1).
 JZKK720/oz-skills|analysis-artifacts|.agents/skills/analysis-artifacts|
 JZKK720/oz-skills|ci-fix|.agents/skills/ci-fix|
@@ -309,17 +315,29 @@ Shubhamsaboo/awesome-llm-apps|project-graveyard|agent_skills/project-graveyard|
 # pass stops retrying and re-blocking them on every run.
 # Shubhamsaboo/awesome-llm-apps|commit-archaeologist|agent_skills/commit-archaeologist|
 # Shubhamsaboo/awesome-llm-apps|scope-creep-detector|agent_skills/scope-creep-detector|
-# --- archify (tt-a1i, MIT, v2.13.0): interactive architecture diagram skill ---
+# --- archify (tt-a1i, MIT, v2.17): interactive architecture diagram skill ---
 # Turns plain-English system descriptions or codebases into self-contained HTML
-# diagrams (architecture, workflow, sequence, dataflow, lifecycle). Zero-dep
-# renderer, typed JSON IR, validation, PNG/SVG/WebM export. Supports Claude
-# Code, Codex CLI, Cursor, OpenCode.
-# NOTE: this entry is BLOCKED by SkillSpector (HIGH YR4 YARA rule
-# `agent_skill_mcp_tool_poisoning_metadata` on its bundled MCP metadata). The correct
-# SkillRelPath is archify/archify, which was missing here. Pruned 2026-09-13 so the
-# install-missing pass stops retrying it; parked as a comment.
+# diagrams (architecture, workflow, sequence, dataflow, lifecycle). Typed JSON IR,
+# validation, PNG/SVG/WebM export. Supports Claude Code, Codex CLI, Cursor, OpenCode.
+#
+# BLOCKED BY SKILLSPECTOR (re-confirmed 2026-09-13): exit 1, HIGH MP3 "Memory
+# Manipulation", reported against the bundled MCP metadata. The earlier note here
+# recorded the same block as "HIGH YR4 agent_skill_mcp_tool_poisoning_metadata"; the
+# rule has been re-classified since, but the verdict is unchanged and the block is real.
+#
+# A clean methodology-only port now supplies this skill instead, following the same
+# pattern used for book-to-skill, diagram-design, webapp-testing and brainstorming.
+# The port keeps the authoring contract, type router, invariant list, Mermaid
+# conversion rules and the validate -> deliver -> visual-check sequence. It drops the
+# renderer, schemas, examples and brand-mark database, which is where the gate fired.
+# Source lives at upstream/archify/SKILL.md and gates 0/100 SAFE.
+#
+# COST OF THIS DECISION: a port is methodology only. Upstream's real value is its
+# validated renderer (bin/archify.mjs validate, 9 showcase checks) and that is not
+# installed. The SKILL.md tells the agent to use the fork-mirror checkout for the CLI
+# and to report truthfully if it is absent, rather than implying a pass.
 # Fork mirror: ~/dev/forks/JZKK720/archify/
-# tt-a1i/archify|archify|archify|
+local/archify|archify||upstream/archify
 # --- book-to-skill (virgiliojr94, MIT): convert books into agent skills ---
 # Converts PDF/EPUB/DOCX/HTML/Markdown/RTF/MOBI into structured agent skills
 # (frameworks, mental models, decision rules, anti-patterns). Generates per-
@@ -424,3 +442,242 @@ local/evidence-graph-review|evidence-graph-review||upstream/evidence-graph-revie
 # --- ops-authorization-methodology (auth/scope check for security tasks) ---
 # Clean methodology-only port; no scripts, no toolchain coupling.
 local/ops-authorization-methodology|ops-authorization-methodology||upstream/ops-authorization-methodology
+
+# ============================================================================
+# 14-repo evaluation, 2026-09-13  (v1.8.0)
+# See docs/plans/2026-09-13-skills-bundle-integration-evaluation.md
+# 104 candidate skills were gated with `skillspector scan --no-llm`. Adopted entries
+# below are all exit 0. Gate-blocked and high-finding entries are parked as comments
+# with their reason codes so the gate result stays visible without being re-attempted.
+# ============================================================================
+
+# --- tech-leads-club/agent-skills (MIT): Nx monorepo, npm @tech-leads-club/agent-skills ---
+# Skills live at packages/skills-catalog/skills/(category)/<name>/ — the parentheses are
+# literal, so every row needs an explicit -SkillRelPath.
+#
+# NAME COLLISION HANDLED: the naive fork name for this repo is `agent-skills`, which is
+# ALREADY TAKEN by JZKK720/agent-skills (the addyosmani mirror used by 23 existing rows).
+# Forked as JZKK720/tech-leads-club-agent-skills instead.
+# Fork mirror: ~/dev/forks/JZKK720/tech-leads-club-agent-skills/
+#
+# The (architecture) block below is adopted AS A SET: it is one DDD methodology staged
+# as six skills that reference each other. Installing a subset would leave dangling
+# references. All gate PASS with no high findings.
+JZKK720/tech-leads-club-agent-skills|domain-analysis|packages/skills-catalog/skills/(architecture)/domain-analysis|
+JZKK720/tech-leads-club-agent-skills|domain-identification-grouping|packages/skills-catalog/skills/(architecture)/domain-identification-grouping|
+JZKK720/tech-leads-club-agent-skills|coupling-analysis|packages/skills-catalog/skills/(architecture)/coupling-analysis|
+JZKK720/tech-leads-club-agent-skills|decomposition-planning-roadmap|packages/skills-catalog/skills/(architecture)/decomposition-planning-roadmap|
+JZKK720/tech-leads-club-agent-skills|tactical-ddd|packages/skills-catalog/skills/(architecture)/tactical-ddd|
+JZKK720/tech-leads-club-agent-skills|modular-design-principles|packages/skills-catalog/skills/(architecture)/modular-design-principles|
+# create-technical-design-doc is a 1055-line technical-design-doc guide — the deepest
+# planning artifact in any candidate. Pairs with documentation-and-adrs.
+JZKK720/tech-leads-club-agent-skills|create-technical-design-doc|packages/skills-catalog/skills/(creation)/create-technical-design-doc|
+JZKK720/tech-leads-club-agent-skills|create-rfc|packages/skills-catalog/skills/(creation)/create-rfc|
+# harness-eval audits an agent harness (AGENTS.md, rules, skills, skill refs) for broken
+# paths/commands, redundancy and dead references. This bundle's own manifest + MCP config
+# are exactly that surface, so it is directly useful here.
+JZKK720/tech-leads-club-agent-skills|harness-eval|packages/skills-catalog/skills/(development)/harness-eval|
+# spec-driven-eval scores an implementation against a PRD/spec case by case.
+JZKK720/tech-leads-club-agent-skills|spec-driven-eval|packages/skills-catalog/skills/(development)/spec-driven-eval|
+# not-your-babysitter = evidence-before-completion discipline for autonomous work.
+JZKK720/tech-leads-club-agent-skills|not-your-babysitter|packages/skills-catalog/skills/(development)/not-your-babysitter|
+# learning-opportunities offers deliberate-practice exercises after architectural work.
+JZKK720/tech-leads-club-agent-skills|learning-opportunities|packages/skills-catalog/skills/(learning)/learning-opportunities|
+#
+# EXCLUDED FROM THIS CATALOG — gate PASS but HIGH findings (not installed):
+#   the-fool, the-jury            HIGH AR2 anti-refusal statement
+#   mermaid-studio                HIGH PE3 credential access
+#   codenavi                      HIGH MP3 memory manipulation
+#   react-composition-patterns    HIGH MP3 memory manipulation
+#   evolutionary-modular-architecture  HIGH P2 hidden instructions
+#   core-web-vitals, seo, web-best-practices  HIGH P2 hidden instructions
+#   security-best-practices       HIGH OH1 unvalidated output injection
+#   create-adr, tlc-spec-driven, figma-implement-design  HIGH E4 context leakage
+#   vercel-deploy, react-native-expert  HIGH PE3 credential access
+#   cloudflare-deploy, sentry     HIGH E2 env variable harvesting
+#   react-best-practices          HIGH OH1 unvalidated output injection
+# BLOCKED (exit 1, do_not_install) — parked as comments:
+#   shopify-developer             CRITICAL YR1 YARA agent_skill_credential_exfiltration_webhook
+#   security-ownership-map        HIGH P6 direct prompt extraction
+# JZKK720/tech-leads-club-agent-skills|shopify-developer|packages/skills-catalog/skills/(development)/shopify-developer|
+# JZKK720/tech-leads-club-agent-skills|security-ownership-map|packages/skills-catalog/skills/(security)/security-ownership-map|
+# EXCLUDED BY SCOPE (framework/platform/domain-specific, or duplicate):
+#   (gtm) category — all 18 skills (ai-cold-outreach, ai-pricing, ai-sdr, ai-seo,
+#     ai-ugc-ads, content-to-pipeline, expansion-retention, gtm-engineering, gtm-metrics,
+#     lead-enrichment, multi-platform-launch, paid-creative-ai, partner-affiliate,
+#     positioning-icp, sales-motion-design, social-selling, solo-founder-gtm, video-outreach)
+#   rails-dev, nestjs-modular-monolith, react-native-expert, nx-* (4) — framework-specific
+#   tlc-discover/tlc-plan/tlc-implement/tlc-spec-driven/tlc-spec-lean — duplicate
+#     spec-driven-development and spec-kit's /speckit.* command set
+#   confluence-assistant, jira-assistant — tool-specific MCP coupling
+#   docs-writer, gh-address-comments, gh-fix-ci, coding-guidelines, subagent-creator,
+#     cursor-subagent-creator, web-design-guidelines, frontend-design, figma,
+#     playwright-skill, the-judge, chrome-devtools, excalidraw-studio, nx-ci-monitor,
+#     nx-generate, nx-run-tasks, nx-workspace, perf-* (4), web-quality-audit,
+#     web-accessibility, security-threat-model, skill-architect,
+#     tlc-generative-engine-optimization — overlap existing bundle skills
+
+# --- coreyhaines31/marketingskills (MIT): 50 skills, 8 adopted ---
+# The repo also ships tools/ (60+ integration .js files under clis/, composio/,
+# integrations/) as a separate optional layer. That tree is deliberately NOT installed:
+# it is a broad third-party integration surface that should not land on a user machine
+# silently, and none of the adopted skills require it.
+# Fork mirror: ~/dev/forks/JZKK720/marketingskills/
+#
+# Adopted on the bundle's framework-agnostic rule: general marketing discipline in,
+# platform-specific execution out. Largely closes the marketing gap (the bundle
+# previously had only seo-aeo-audit, brand-discovery, brand-voice, marketing-campaign).
+JZKK720/marketingskills|product-marketing|skills/product-marketing|
+JZKK720/marketingskills|copywriting|skills/copywriting|
+JZKK720/marketingskills|content-strategy|skills/content-strategy|
+JZKK720/marketingskills|competitor-profiling|skills/competitor-profiling|
+JZKK720/marketingskills|launch|skills/launch|
+JZKK720/marketingskills|pricing|skills/pricing|
+# marketing-loops — recurring self-running marketing workflows; bridges to the bundle's
+# loop family (loop-engineering, continuous-agent-loop, loopy).
+JZKK720/marketingskills|marketing-loops|skills/marketing-loops|
+JZKK720/marketingskills|marketing-psychology|skills/marketing-psychology|
+#
+# EXCLUDED — ad-creative is BLOCKED (exit 1). marketing-plan is HIGH AR1 anti-refusal.
+# JZKK720/marketingskills|ad-creative|skills/ad-creative|
+# JZKK720/marketingskills|marketing-plan|skills/marketing-plan|
+# EXCLUDED BY SCOPE: ads, meta-ads, linkedin-ads, tiktok-ads, google-ads (platform);
+#   seo-audit, ai-seo, programmatic-seo, site-architecture, schema (overlap seo-aeo-audit);
+#   emails, cold-email, sms, popups, social, video, image, events, public-relations,
+#   community-marketing, influencer-marketing, directory-submissions, free-tools,
+#   lead-magnets, referrals, co-marketing, partnerstack, prospecting, sales-enablement,
+#   revops, customer-research, attribution, analytics, cro, a-b-testing, onboarding,
+#   paywalls, signup, churn-prevention, aso, copy-editing, marketing-council,
+#   marketing-ideas (channel-specific or duplicate).
+
+# --- openai/skills (Apache-2.0 PER-SKILL): 39 curated, 5 adopted ---
+# The repo root has NO LICENSE file, but every skill directory ships its own LICENSE.txt
+# and the sampled set (including all five below) is Apache-2.0, matching the README.
+# The repo carries a deprecation notice pointing at openai/plugins, but the skills
+# remain permissively licensed and self-contained. Provenance recorded here deliberately.
+# Fork mirror: ~/dev/forks/JZKK720/openai-skills/
+#
+# NAME COLLISION HANDLED: `JZKK720/skills` is ALREADY a fork of vercel-labs/skills, so
+# the naive name would have collided with unrelated content. Forked as JZKK720/openai-skills.
+#
+# figma — the bundle already configures the Figma MCP but ships no workflow contract for
+#   it. This supplies the required flow (get_design_context -> get_metadata ->
+#   get_screenshot -> implement), asset handling, and design-token discipline.
+JZKK720/openai-skills|figma|skills/.curated/figma|
+# screenshot — OS-level desktop/window/region capture with a save-location rule and a
+#   macOS permission preflight. The bundle has browser capture (Playwright tools) but no
+#   desktop capture. Complements the browser MCPs.
+JZKK720/openai-skills|screenshot|skills/.curated/screenshot|
+# pdf / transcribe — document and audio workflows; complement markitdown and watch-skill.
+JZKK720/openai-skills|pdf|skills/.curated/pdf|
+JZKK720/openai-skills|transcribe|skills/.curated/transcribe|
+# security-threat-model — structured threat modelling; complements security-review and
+#   security-and-hardening without duplicating either.
+JZKK720/openai-skills|security-threat-model|skills/.curated/security-threat-model|
+#
+# EXCLUDED — BLOCKED (exit 1, do_not_install):
+#   figma-use              HIGH P6 direct prompt extraction (sibling of the adopted figma;
+#                          the block is specific to figma-use's content)
+#   security-ownership-map HIGH P6 direct prompt extraction — blocked here AND in the
+#                          tech-leads-club catalog, i.e. two independent copies agree
+#   migrate-to-codex       BLOCK; Codex-specific anyway
+# JZKK720/openai-skills|figma-use|skills/.curated/figma-use|
+# JZKK720/openai-skills|security-ownership-map|skills/.curated/security-ownership-map|
+# JZKK720/openai-skills|migrate-to-codex|skills/.curated/migrate-to-codex|
+#
+# EXCLUDED — gate PASS but HIGH findings: speech (P6), jupyter-notebook (RA1),
+#   cli-creator (AS1), sentry (SC2); speech and sentry also overlap existing skills.
+#
+# EXCLUDED — the whole skills/.system set (5 skills). Two are BLOCKED and three are HIGH,
+#   and all five describe Codex's OWN skill/plugin system, which is not this harness:
+#   imagegen BLOCK HIGH P6 · skill-installer BLOCK HIGH E2 env harvesting ·
+#   openai-docs HIGH P6 · plugin-creator HIGH RA1 · skill-creator HIGH RA1
+# JZKK720/openai-skills|skill-creator|skills/.system/skill-creator|
+# JZKK720/openai-skills|plugin-creator|skills/.system/plugin-creator|
+# JZKK720/openai-skills|openai-docs|skills/.system/openai-docs|
+# JZKK720/openai-skills|imagegen|skills/.system/imagegen|
+# JZKK720/openai-skills|skill-installer|skills/.system/skill-installer|
+#
+# EXCLUDED BY SCOPE: chatgpt-apps, gh-address-comments, gh-fix-ci, linear, notion-* (4),
+#   render-deploy, netlify-deploy, vercel-deploy, cloudflare-deploy, winui-app, yeet,
+#   hatch-pet, define-goal, playwright, playwright-interactive, openai-docs,
+#   figma-code-connect-components, figma-create-design-system-rules, figma-create-new-file,
+#   figma-generate-design, figma-generate-library, figma-implement-design (also HIGH E4),
+#   aspnet-core, security-best-practices.
+
+# --- prose de-slopping: two independent implementations, kept as complements ---
+# The bundle already ships write-concisely (density) and brand-voice (derive a voice from
+# source). Neither covers de-slopping EXISTING prose, which is what the AIS-style track
+# inside anti-autoresearch audits for. These two are not duplicates of each other:
+# different provenance, different failure modes.
+#
+# humanizer (blader/humanizer, MIT, v3.0) — 291 lines. Based on Wikipedia's "Signs of AI
+# writing". Numbered tells ranked strongest-first, with explicit weak-alone marking that
+# requires corroborating tells before acting; plus voice preservation and a fiction
+# exemption. No name collision: verified 2026-09-13 that no other installed skill is
+# called `humanizer` (only `improve` / `improve-ui` match the substring), so it keeps its
+# upstream name. (An earlier draft of this row renamed it `humanizer-prose` on the
+# assumption that the name was taken; that assumption was wrong and is corrected here.)
+#
+# SKILL.md sits at the repo ROOT, not under skills/. The installer's default relPath is
+# "skills/<name>", which does not exist here, so the row passes "." explicitly — the same
+# convention already used by the (now-retired) huashu-design row. Installing from upstream
+# rather than porting is deliberate: the helper does a byte-level Copy-Item, so the file's
+# UTF-8 encoding is preserved. A local port would have required re-encoding the text
+# through PowerShell, and an earlier draft of this row was mojibake-corrupted that way.
+# Fork mirror: ~/dev/forks/JZKK720/humanizer/
+JZKK720/humanizer|humanizer|.|
+# no-ai-slop (petergyang/no-ai-slop, MIT) — 61 lines, dense. Two modes (edit / detect),
+# banned word list, named pattern catalogue, self-check against eval.md. Gates 0 findings
+# at any severity. The compact counterweight to the 291-line humanizer.
+# Fork mirror: ~/dev/forks/JZKK720/no-ai-slop/
+JZKK720/no-ai-slop|no-ai-slop|skills/no-ai-slop|
+
+# --- humanlayer/skills (MIT): 5 skills, 3 adopted ---
+# Plugins live at plugins/<name>/skills/<name>/.
+# Fork mirror: ~/dev/forks/JZKK720/humanlayer-skills/
+#
+# show-me — visual explanation of the current topic: small diagrams, code-shape sketches,
+#   focused HTML artifacts. Complements ce-explain and diagram-design.
+JZKK720/humanlayer-skills|show-me|plugins/show-me/skills/show-me|
+# improve-claude-md — rewrites instruction files using `<important if>` blocks so
+#   conditionally-relevant guidance is not discounted by the harness. KEPT UNDER ITS
+#   UPSTREAM NAME deliberately: the technique works by mirroring the XML tag pattern in
+#   Claude Code's OWN system prompt, so it is genuinely Claude-Code-specific. Renaming it
+#   to something harness-neutral would claim a generality it does not have. Claude Code is
+#   a first-class target here (the installer mirrors to ~/.claude/skills), so the skill is
+#   in scope as-is.
+JZKK720/humanlayer-skills|improve-claude-md|plugins/improve-claude-md/skills/improve-claude-md|
+# narrow-react-prop-types — narrows component prop types to what is actually used.
+#   Framework-flavoured but stack-generic; the bundle ships no other prop-narrowing content.
+JZKK720/humanlayer-skills|narrow-react-prop-types|plugins/narrow-react-prop-types/skills/narrow-react-prop-types|
+#
+# EXCLUDED — both gate PASS but carry HIGH E2 env variable harvesting, and both overlap
+# continuous-agent-loop, loop-design-check and the @cobusgreyling/loop CLI already present:
+# JZKK720/humanlayer-skills|build-iterated-agentic-loop|plugins/build-iterated-agentic-loop/skills/build-iterated-agentic-loop|
+# JZKK720/humanlayer-skills|design-control-loop|plugins/design-control-loop/skills/design-control-loop|
+
+# --- firstmate (kunchenguid/firstmate, MIT): 22 gated, 4 adopted ---
+# A crew/supervisor orchestration system. 21 of 22 passed the gate, but most are bound to
+# firstmate's own daemon and bin/fm-*.sh scripts, so they are not portable. The four below
+# are genuinely universal and carry no runtime dependency.
+# Fork mirror: ~/dev/forks/JZKK720/firstmate/
+#
+# bearings             — orientation snapshot for a fresh agent joining a session
+# diagnostic-reasoning — evidence-first diagnostic loop
+# bootstrap-diagnostics— environment triage
+# project-management   — cross-session issue tracking
+JZKK720/firstmate|bearings|.agents/skills/bearings|
+JZKK720/firstmate|diagnostic-reasoning|.agents/skills/diagnostic-reasoning|
+JZKK720/firstmate|bootstrap-diagnostics|.agents/skills/bootstrap-diagnostics|
+JZKK720/firstmate|project-management|.agents/skills/project-management|
+#
+# BLOCKED (exit 1): stow — HIGH E4 context leakage.
+# JZKK720/firstmate|stow|.agents/skills/stow|
+# EXCLUDED — gate PASS but HIGH findings: harness-adapters (AS1 agent config dir access),
+#   quota-array-dispatch (RA1 self-modification), updatefirstmate (RA1 self-modification).
+#   updatefirstmate is the one that would be worth de-daemonising later; excluded for now.
+# EXCLUDED — daemon/script-bound (bin/fm-*.sh, FM_AFK_* flags): afk, quiet, ahoy,
+#   captain-hold-lifecycle, decision-hold-lifecycle, secondmate-provisioning,
+#   stuck-crewmate-recovery, firstmate-codexapp, firstmate-coding-guidelines,
+#   firstmate-orca, fmx-respond, process-event-sources.

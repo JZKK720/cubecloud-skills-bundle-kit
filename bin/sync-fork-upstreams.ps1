@@ -82,6 +82,20 @@ $upstreamMap = @{
     "awesome-claude-skills"       = "ComposioHQ/awesome-claude-skills"
     "ui-skills"                   = "ibelick/ui-skills"
     # NOTE: "loop-engineering" is already mapped further up this table.
+    # Added 2026-09-13 (14-repo evaluation, v1.8.0). NOTE the two deliberate renames:
+    # the naive local dir name for each would have collided with an unrelated
+    # already-existing fork, so the JZKK720 fork was created under a new name and that
+    # name is what maps here.
+    #   tech-leads-club/agent-skills -> `agent-skills` collided with addyosmani/agent-skills
+    #   openai/skills                -> `skills` collided with vercel-labs/skills
+    "tech-leads-club-agent-skills" = "tech-leads-club/agent-skills"
+    "openai-skills"                = "openai/skills"
+    "marketingskills"              = "coreyhaines31/marketingskills"
+    "diagram-design"               = "cathrynlavery/diagram-design"
+    "humanizer"                    = "blader/humanizer"
+    "no-ai-slop"                   = "petergyang/no-ai-slop"
+    "firstmate"                    = "kunchenguid/firstmate"
+    "humanlayer-skills"            = "humanlayer/skills"
 }
 
 if (-not (Test-Path $ForksRoot)) {

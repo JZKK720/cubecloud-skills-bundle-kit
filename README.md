@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 187 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 223 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-187-2ea44f)](#whats-included)
+[![Skills](https://img.shields.io/badge/skills-223-2ea44f)](#whats-included)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.6.1-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.8.0-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,10 +22,10 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills          | **187** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, and more                                                                                                                                                                                         |
+| 🧠 Skills          | **223** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, and more                                                                                                                                                                                         |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
-| 📚 Fork mirrors    | **39**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, semantica-agi/semantica, pranshuparmar/witr |
+| 📚 Fork mirrors    | **48**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design |
 | 🎨 DESIGN.md files | **74**  | Real-world design systems (Apple, Stripe, Linear, Vercel, Notion, Airbnb, Tesla…) indexed by the `design-md-library` skill                                                                                                                                                                                                                                                                      |
 | 🔒 Security-gated  | **yes** | Every skill scanned by SkillSpector before install; 5 skills blocked by design                                                                                                                                                                                                                                                                                                                  |
 
@@ -85,7 +85,7 @@ graph TB
 ## Quick start
 
 ```powershell
-git clone https://github.com/JZKK720/cubecloud-skilldbundle-setup.git ~/dev/setup
+git clone https://github.com/JZKK720/cubecloud-skills-bundle-kit.git ~/dev/setup
 powershell -NoProfile -ExecutionPolicy Bypass -File ~/dev/setup/setup-global-skills.ps1
 ```
 
@@ -109,7 +109,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (187 in manifest — 1 disabled, 17 gate-blocked entries parked as comments)
+### Skills (223 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -158,6 +158,37 @@ Custom implementations maintained in this setup are `agent-reach` and `gstack-re
 - **design-md-library** — indexes the 74 DESIGN.md files in the awesome-design-md fork mirror so agents can self-serve "make it look like Stripe" requests
 - **idea-to-design** — clean port of obra/superpowers `brainstorming` (upstream blocked by SkillSpector for tool parameter abuse in `stop-server.sh`). Methodology only: collaborative design dialogue, hard gate before implementation, spec self-review, user review gate. No browser server, no scripts.
 - **webapp-testing** — clean port of JZKK720/oz-skills `webapp-testing` (upstream blocked by SkillSpector for `shell=True` tool parameter abuse in `scripts/with_server.py`). Methodology only: reconnaissance-then-action pattern, static vs dynamic decision tree. No bundled scripts; agent writes native Playwright or uses browser MCP tools.
+- **archify** — clean port of [tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT, v2.17). Upstream is blocked by SkillSpector (`HIGH MP3`), so the port keeps the authoring contract, type router, invariant list, Mermaid conversion rules and the validate → deliver → visual-check sequence, and drops the renderer/schemas/examples. Gates 0/100 SAFE. **Methodology only** — the upstream CLI lives in the fork mirror; the SKILL.md says so explicitly rather than implying an unrun validation passed.
+
+**tech-leads-club/agent-skills (12 active)** from [tech-leads-club/agent-skills](https://github.com/tech-leads-club/agent-skills) (MIT):
+
+- **Domain-driven design, installed as a set (6)** — `domain-analysis` · `domain-identification-grouping` · `coupling-analysis` · `decomposition-planning-roadmap` · `tactical-ddd` · `modular-design-principles`. These reference each other, so a partial subset would leave dangling references.
+- **Planning and evaluation (6)** — `create-technical-design-doc` (1055 lines) · `create-rfc` · `harness-eval` · `spec-driven-eval` · `not-your-babysitter` · `learning-opportunities`
+
+**marketingskills (8 active)** from [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) (MIT):
+`product-marketing` · `copywriting` · `content-strategy` · `competitor-profiling` · `launch` · `pricing` · `marketing-loops` · `marketing-psychology`
+
+General marketing discipline in, platform-specific execution out. The repo's `tools/` tree (60+ optional integration scripts) is deliberately not installed.
+
+**openai/skills (5 active)** from [openai/skills](https://github.com/openai/skills) (**Apache-2.0 per skill**):
+`figma` · `screenshot` · `pdf` · `transcribe` · `security-threat-model`
+
+The repo root has no LICENSE, but every skill directory ships its own `LICENSE.txt` and the adopted set is Apache-2.0, matching the README. Provenance is recorded deliberately because the root looks ambiguous.
+
+**firstmate (4 active)** from [kunchenguid/firstmate](https://github.com/kunchenguid/firstmate) (MIT):
+`bearings` · `diagnostic-reasoning` · `bootstrap-diagnostics` · `project-management`
+
+Four of 22 — the rest are bound to firstmate's own supervisor daemon and `bin/fm-*.sh` scripts, with one gate block (`stow`) and three high-severity findings.
+
+**humanlayer/skills (3 active)** from [humanlayer/skills](https://github.com/humanlayer/skills) (MIT):
+`show-me` · `improve-claude-md` · `narrow-react-prop-types`
+
+**Prose de-slopping (2 active):**
+
+- **humanizer** — [blader/humanizer](https://github.com/blader/humanizer) (MIT, 291 lines). Wikipedia's "Signs of AI writing": numbered tells ranked strongest-first with explicit weak-alone marking, plus voice preservation and a fiction exemption.
+- **no-ai-slop** — [petergyang/no-ai-slop](https://github.com/petergyang/no-ai-slop) (MIT, 61 lines). Edit and detect modes, banned word list, pattern catalogue, `eval.md` self-check. Gates 0 findings at any severity.
+
+Two independent implementations kept as complements. The bundle's `write-concisely` covers density and `brand-voice` covers deriving a voice from source material, but neither de-slopped *existing* prose.
 
 **Disabled by default:**
 
@@ -172,6 +203,36 @@ Custom implementations maintained in this setup are `agent-reach` and `gstack-re
 | ui-ux-pro-max              | Prompt extraction + unsafe defaults                                           | No — use `hallmark` + `taste-skill`     |
 | anysearch                  | Vulnerable `requests==2.20` (8 CVEs)                                          | No                                      |
 | webapp-testing (oz-skills) | HIGH TM1 — tool parameter abuse (`shell=True` in `scripts/with_server.py:69`) | **Yes** → `webapp-testing` (clean port) |
+| archify (tt-a1i)           | HIGH MP3 — memory manipulation (re-classified from YR4)                       | **Yes** → `archify` (clean port)        |
+| diagram-design (upstream)  | HIGH AR2 — anti-refusal statement                                             | **Yes** → `diagram-design` (port)       |
+
+**Added v1.8.0 — blocked or high-risk entries found in the 14-repo evaluation:**
+
+| Skill(s)                        | Source repo                                | Blocked by                                                    |
+| ------------------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| `shopify-developer`             | tech-leads-club/agent-skills               | **CRITICAL** `YR1` — YARA credential-exfiltration webhook     |
+| `security-ownership-map`        | openai/skills · tech-leads-club/agent-skills | HIGH `P6` — direct prompt extraction (blocked in both catalogs) |
+| `figma-use`                     | openai/skills                              | HIGH `P6` — direct prompt extraction                          |
+| `imagegen`, `skill-installer`   | openai/skills (`.system`)                  | HIGH `P6` / HIGH `E2` — prompt extraction, env harvesting     |
+| `migrate-to-codex`              | openai/skills                              | BLOCK (Codex-specific anyway)                                 |
+| `ad-creative`                   | coreyhaines31/marketingskills              | BLOCK                                                          |
+| `stow`                          | kunchenguid/firstmate                      | HIGH `E4` — context leakage                                   |
+
+Also skipped for HIGH findings even though the gate returned 0: `the-fool`, `the-jury`
+(HIGH `AR2` anti-refusal), `mermaid-studio` (HIGH `PE3`), `codenavi` and
+`react-composition-patterns` (HIGH `MP3`), `cloudflare-deploy` / `sentry` (HIGH `E2`),
+`vercel-deploy` / `react-native-expert` (HIGH `PE3`), `core-web-vitals` / `seo` /
+`web-best-practices` (HIGH `P2`), `security-best-practices` / `react-best-practices`
+(HIGH `OH1`), `create-adr` / `tlc-spec-driven` / `figma-implement-design` (HIGH `E4`),
+`speech` (HIGH `P6`), `jupyter-notebook` (HIGH `RA1`), `cli-creator` (HIGH `AS1`),
+`sentry` (HIGH `SC2`), `marketing-plan` (HIGH `AR1`), `harness-adapters` (HIGH `AS1`),
+`quota-array-dispatch` / `updatefirstmate` (HIGH `RA1`),
+`build-iterated-agentic-loop` / `design-control-loop` (HIGH `E2`).
+
+> `AR2` (anti-refusal) is a consistent tell across catalogs: skills that instruct
+> adversarial or persistent behaviour tend to phrase it as an override of the model's own
+> judgement. The policy is to exclude on `AR2`, and where the value is high enough, port the
+> *methodology* without the override.
 
 These manifest entries are advertised by the install manifest but **blocked by the
 SkillSpector hard gate** at install time (verified 2026-09-13). They are not a defect —
@@ -206,6 +267,13 @@ excluded"). Excluding them keeps the bundle coherent.
 | `master-agreement-generator`, `esign-field-placement` (ECC)                     | Domain-niche legal (contract drafting, e-signature field placement)   |
 | `tasteforge-video` (ECC)                                                        | Orchestrator over the taste video stack, whose siblings are blocked   |
 | `Gskills` (google/skills, 137 skills — mirror only)                             | 118/137 are GCP `cloud` (GKE, BigQuery, AlloyDB, IAM, Cloud Run); this is a Windows/Copilot/Azure kit |
+| `OpenMontage` (calesthio, 138 skills — **mirror only**)                          | **AGPL-3.0.** Strong video/3D/motion content, but AGPL's network copyleft attaches to distribution and this bundle redistributes to end-user machines |
+| `WeKnora` (Tencent — **not mirrored**)                                           | Not a skill package: a Go RAG platform whose 2 real skills drive its own CLI against its own server. Tencent custom licence |
+| `OpenMAIC` (THU-MAIC — **not mirrored**)                                         | Not a skill package: a Next.js learning product. All 25 skills are its own runtime content (curriculum, slides, K12) |
+| `(gtm)` category (tech-leads-club, 18 skills)                                    | Go-to-market platform/domain-specific (cold outreach, ads, SDR) — same rule as `Gskills` |
+| `marketingskills` platform set (ads, emails, sms, social, video, …)              | Platform-specific execution; general marketing discipline was taken instead |
+| `marketingskills` `tools/` tree (60+ scripts)                                    | Optional third-party integration surface — should not land on a user machine silently |
+| `openai/skills` `.system` (5 skills)                                             | Blocked/high-risk **and** Codex-internal (they describe Codex's own skill system) |
 
 ### CLIs installed
 
@@ -296,12 +364,12 @@ Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 ├── setup/                      # the one-command installer + config
 │   ├── setup-global-skills.ps1 # master installer
 │   ├── install-skill.ps1       # security-gated skill install helper
-│   ├── skills-list.csv         # manifest of 154 entries (153 active + 1 disabled)
+│   ├── skills-list.csv         # manifest of 223 entries (222 active + 1 disabled)
 │   ├── mcp.json.template       # 11 MCP server config
 │   └── SETUP_GUIDE.md          # detailed guide
-├── bin/                        # 17 audit/fix/install helper scripts
-├── upstream/                   # governance docs + design-md-library wrapper skill
-└── forks/JZKK720/              # 39 read-only fork mirrors (gitignored, re-cloned)
+├── bin/                        # 19 audit/fix/install helper scripts
+├── upstream/                   # governance docs + hand-authored port skills
+└── forks/JZKK720/              # 48 read-only fork mirrors (gitignored, re-cloned)
 ```
 
 ## How to use after setup
@@ -318,6 +386,11 @@ In Copilot Chat, try:
 - _"use **loop-engineering** to set up automated daily triage on this repo"_
 - _"use **watch-skill** to analyze this meeting recording"_
 - _"use **wigolo** to research what's new in React 19"_
+- _"use **domain-analysis** to find the bounded contexts in this codebase"_
+- _"use **create-technical-design-doc** to write the design doc for this feature"_
+- _"use **humanizer** to make this README not sound like AI wrote it"_
+- _"use **figma** to implement this design at 1:1 parity"_
+- _"use **product-marketing** to sharpen our positioning for the OEM page"_
 
 ## To update later
 
@@ -357,6 +430,69 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.8.0 (2026-09-13)
+
+**35 new skills from a 14-repo evaluation, one gate-blocked skill ported, and a manifest row repaired.**
+
+**223 skills in manifest · 18 CLIs · 11 MCP servers · 48 fork mirrors · 271 active total**
+
+Fourteen candidate repositories were cloned, surveyed for shape and licence, and every
+skill in scope was run through the same `skillspector scan --no-llm` gate the installer
+uses — **104 candidate skills gated in total**. Full write-up:
+[`docs/plans/2026-09-13-skills-bundle-integration-evaluation.md`](docs/plans/2026-09-13-skills-bundle-integration-evaluation.md).
+
+**Added (35)**
+
+- **Domain-driven design, as a set (6)** — from [tech-leads-club/agent-skills](https://github.com/tech-leads-club/agent-skills) (MIT): `domain-analysis`, `domain-identification-grouping`, `coupling-analysis`, `decomposition-planning-roadmap`, `tactical-ddd`, `modular-design-principles`. These six reference each other, so they are installed together rather than as a partial subset.
+- **Planning and evaluation (6)** — same source: `create-technical-design-doc` (1055 lines — the deepest planning artifact in any candidate), `create-rfc`, `harness-eval` (audits an agent harness for broken paths, duplication and dead refs — this bundle's own manifest and MCP config are exactly that surface), `spec-driven-eval`, `not-your-babysitter` (evidence-before-completion discipline), `learning-opportunities`.
+- **Marketing (8)** — from [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) (MIT): `product-marketing`, `copywriting`, `content-strategy`, `competitor-profiling`, `launch`, `pricing`, `marketing-loops`, `marketing-psychology`. General discipline in, platform-specific execution out.
+- **OpenAI curated skills (5)** — from [openai/skills](https://github.com/openai/skills) (Apache-2.0, per-skill): `figma` (the workflow contract for the Figma MCP this bundle already configures), `screenshot` (OS-level desktop capture — the bundle had browser capture but no desktop capture), `pdf`, `transcribe`, `security-threat-model`.
+- **Agent self-management (4)** — from [kunchenguid/firstmate](https://github.com/kunchenguid/firstmate) (MIT): `bearings`, `diagnostic-reasoning`, `bootstrap-diagnostics`, `project-management`. Four of 22 — the rest are bound to firstmate's own daemon and shell scripts.
+- **Visual explanation and instruction files (3)** — from [humanlayer/skills](https://github.com/humanlayer/skills) (MIT): `show-me`, `improve-claude-md`, `narrow-react-prop-types`.
+- **Prose de-slopping (2)** — `humanizer` from [blader/humanizer](https://github.com/blader/humanizer) (291 lines, based on Wikipedia's "Signs of AI writing") and `no-ai-slop` from [petergyang/no-ai-slop](https://github.com/petergyang/no-ai-slop) (61 lines, gates 0 findings at any severity). Two independent implementations kept as complements — the bundle's `write-concisely` covers density and `brand-voice` covers deriving a voice, but neither de-slops existing prose.
+- **`archify` (1)** — see below.
+
+**Ported: `archify`**
+
+[tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT) failed the gate on the exact entry the roadmap wanted:
+
+```
+HIGH: MP3 - Memory Manipulation
+```
+
+This re-confirms the block recorded during the v1.6.3 pruning (then classified `HIGH YR4`). A clean methodology-only port now supplies the skill, following the same pattern as `book-to-skill`, `diagram-design`, and `webapp-testing`. The port keeps the authoring contract, type router, invariant list, Mermaid conversion rules and the validate → deliver → visual-check sequence, and gates **0/100 SAFE**. It drops the renderer, schemas, examples and brand-mark database — which is where the gate fired.
+
+> **The cost of that decision is real.** A port is methodology only. `archify`'s genuine value is its validated renderer (`bin/archify.mjs validate`, 9 showcase checks), and that is not installed. The ported SKILL.md tells the agent to use the fork-mirror checkout for the CLI and to report truthfully when it is absent, rather than implying an unrun validation passed.
+
+**Fixed: two latent installer bugs**
+
+1. **`i-have-adhd` would have failed on every fresh machine.** Upstream moved its skill from `.cursor/skills/i-have-adhd/` to `skills/i-have-adhd/`, but the manifest still pointed at the old path — so that row would die with `SKILL.md not found`. Repointed; both copies gate PASS.
+2. **Two fork names would have collided with unrelated forks.** The installer clones `JZKK720/<last-path-segment>`, and the naive names were already taken:
+
+   | Candidate | Naive name | Already occupied by | Forked as |
+   | --- | --- | --- | --- |
+   | `tech-leads-club/agent-skills` | `agent-skills` | `addyosmani/agent-skills` — this bundle's **active** mirror | `tech-leads-club-agent-skills` |
+   | `openai/skills` | `skills` | `vercel-labs/skills` | `openai-skills` |
+
+   A naive clone would have overwritten the addyosmani mirror that 23 existing rows depend on. Both were forked under explicit non-colliding names.
+
+**Excluded, and why**
+
+- **`calesthio/OpenMontage` is AGPL-3.0** — 138 skills of video/3D/motion content, and a hard no. AGPL's network-copyleft obligation attaches to distribution, and this bundle redistributes to end-user machines and mirrors publicly.
+- **`Tencent/WeKnora` and `THU-MAIC/OpenMAIC` are products, not skill packages** — a Go RAG platform and a Next.js learning app respectively. Their `skills/` trees are their own runtime content.
+- **`openai/skills` `.system` (5 skills)** — two blocked, three high-risk, and all five describe Codex's own skill/plugin system, which is not this harness.
+- **19 gate-blocked entries parked as comments** with per-skill reason codes, so `install-missing-skills.ps1` stops retrying them. New this round: `shopify-developer` (CRITICAL YR1 credential-exfiltration webhook), `security-ownership-map` (HIGH P6, blocked in two independent catalogs), `figma-use` (HIGH P6), `migrate-to-codex`, `ad-creative`, `stow` (HIGH E4), plus the `.system` pair.
+- **HIGH-severity passes skipped by policy** — `the-fool` and `the-jury` (HIGH AR2 anti-refusal), `mermaid-studio` (HIGH PE3), `codenavi` (HIGH MP3), `cloudflare-deploy` / `sentry` (HIGH E2), and others. `AR2` is a consistent tell across catalogs: skills that instruct adversarial or persistent behaviour tend to phrase it as an override of the model's own judgement.
+
+**Verified**
+
+- `install-missing-skills.ps1` → `Installed: 0 / Blocked: 0 / Skipped: 223` on re-run (idempotent)
+- `full-audit.ps1` → **`PASS: 51 | FAIL: 0`**
+- `sync-fork-upstreams.ps1` → all 9 new mirrors tracked, `Failed: 0`
+- `skills-ref` valid count **167 → 196**; all 271 installed skills have a SKILL.md
+- `humanizer` is **byte-identical** to upstream (29102 bytes, SHA-256 match) — installed from upstream rather than ported specifically to avoid the re-encoding that corrupted the `book-to-skill` port
+- Every one of the 9 `install-skill.ps1` copies still hashes identically (`4C94C9CC…`)
 
 ### v1.7.0 (2026-09-13)
 
