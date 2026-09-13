@@ -34,18 +34,29 @@
   Also configure MCP + Copilot utility model pins for Code - Insiders, Cursor, and VSCodium
   user profiles in addition to VS Code Stable.
 
+.PARAMETER IncludeArchifyCli
+  Also install a bare `archify` command into ~/.local/bin, as a thin shim over the archify
+  fork mirror. archify is a zero-runtime-dependency Node CLI, so this needs no package
+  manager and performs no global npm install.
+
+  OPT-IN because every other phase in this script is unconditional, and this one makes a new
+  command visible on the user's PATH. Requires the archify fork mirror, so it is incompatible
+  with -SkipForks (the script warns and skips rather than failing).
+
 .EXAMPLE
   .\setup-global-skills.ps1
   .\setup-global-skills.ps1 -SkipForks
   .\setup-global-skills.ps1 -SkipForks -SkipAudit
   .\setup-global-skills.ps1 -IncludeAdditionalEditorProfiles
+  .\setup-global-skills.ps1 -IncludeArchifyCli
 #>
 
 [CmdletBinding()]
 param(
   [switch]$SkipForks,
   [switch]$SkipAudit,
-  [switch]$IncludeAdditionalEditorProfiles
+  [switch]$IncludeAdditionalEditorProfiles,
+  [switch]$IncludeArchifyCli
 )
 
 $ErrorActionPreference = 'Stop'
@@ -514,6 +525,62 @@ if (-not $SkipForks) {
 }
 
 # ============================================================
+# PHASE 3b: OPTIONAL archify CLI shim
+# ============================================================
+# archify is a zero-runtime-dependency Node CLI: bin/archify.mjs imports only node:
+# stdlib, and the mirror has no node_modules and needs none. So the bare command can be
+# offered without a package manager, a registry, or a global npm install.
+#
+# Why this SHIPS AS A SHIM and not an npm install:
+#   - upstream package.json sets "private": true, so archify can never be published to or
+#     installed from the npm registry;
+#   - it needs Node >= 18 (already a prerequisite of this script) and nothing else;
+#   - a 2-line .cmd has no version to drift, no lockfile, and nothing to uninstall.
+#
+# Why OPT-IN: every other phase in this script is unconditional. This one puts a new
+# command on the user's PATH, which is a visible system change, so it requires
+# -IncludeArchifyCli.
+#
+# Note the SKILL/CLI split: upstream is SkillSpector-blocked (HIGH MP3), which is why the
+# *skill* installs as a clean port (see skills-list.csv -> local/archify). The CLI is a
+# separate concern and the gate does not apply to it. This phase adds only the command.
+if ($IncludeArchifyCli) {
+  Write-Step "Phase 3b: archify CLI shim (opt-in)"
+
+  $archifyCli = "$env:USERPROFILE\dev\forks\JZKK720\archify\archify\bin\archify.mjs"
+  $shimDir = "$env:USERPROFILE\.local\bin"
+  $shimPath = Join-Path $shimDir "archify.cmd"
+
+  if (-not (Test-Path $archifyCli)) {
+    # Reachable when the user passed -SkipForks, or the mirror clone failed.
+    Write-Warn "archify mirror not found at $archifyCli"
+    Write-Warn "  The shim IS the mirror's CLI, so it needs the mirror. Re-run without"
+    Write-Warn "  -SkipForks, or run bin/sync-fork-upstreams.ps1, then re-add -IncludeArchifyCli."
+  }
+  else {
+    # Verify the CLI actually runs before advertising it. `doctor` is read-only and checks
+    # the Node version plus every renderer, schema and reference the CLI depends on, so a
+    # passing doctor is real evidence the shim will work -- not just that a file exists.
+    $doctorOut = cmd /c "node `"$archifyCli`" doctor 2>&1" | Out-String
+    if ($LASTEXITCODE -eq 0 -and $doctorOut -match "Archify is ready") {
+      New-Item -ItemType Directory -Force -Path $shimDir | Out-Null
+      # %USERPROFILE% is expanded when the shim RUNS, not when it is written, so the file
+      # stays valid across re-clones and for whatever user it lives under.
+      @(
+        "@echo off",
+        "node `"%USERPROFILE%\dev\forks\JZKK720\archify\archify\bin\archify.mjs`" %*"
+      ) | Out-File $shimPath -Encoding ASCII
+      Write-OK "archify CLI ready -> $shimPath"
+      Write-OK "  try: archify doctor | archify render architecture in.json out.html"
+    }
+    else {
+      Write-Warn "archify CLI present but 'doctor' did not pass; shim not written."
+      Write-Host $doctorOut
+    }
+  }
+}
+
+# ============================================================
 # PHASE 4: SKILLS INSTALL (via install-skill.ps1)
 # ============================================================
 Write-Step "Phase 4: Skills install (security-gated)"
@@ -776,6 +843,16 @@ if (-not $SkipAudit) {
     if (Get-Command $c -ErrorAction SilentlyContinue) { $cliOk++ } else { $cliFail++ }
   }
   Write-OK "CLI tools: $cliOk OK, $cliFail missing"
+
+  if ($IncludeArchifyCli) {
+    $archifyCmd = Get-Command archify -ErrorAction SilentlyContinue
+    if ($archifyCmd) {
+      Write-OK "archify CLI shim: $($archifyCmd.Source)"
+    }
+    else {
+      Write-Warn "archify CLI shim requested but not on PATH - see Phase 3b above"
+    }
+  }
 
   $claudeCount = (Get-ChildItem "$env:USERPROFILE\.claude\skills" -Directory -ErrorAction SilentlyContinue).Count
   Write-OK "Claude Code skills: $claudeCount"

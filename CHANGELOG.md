@@ -2,6 +2,41 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.8.1] — 2026-09-14
+
+### Added
+
+- **Opt-in `archify` CLI** via `setup-global-skills.ps1 -IncludeArchifyCli`. Writes a single
+  86-byte `~/.local/bin/archify.cmd` shim that forwards to the archify fork mirror's
+  `bin/archify.mjs`.
+
+  `archify` is a **zero-runtime-dependency** Node CLI — `bin/archify.mjs` imports only `node:`
+  stdlib, and the mirror has no `node_modules` and needs none. Verified before shipping:
+
+  ```
+  archify doctor                                     -> exit 0, all 15 checks ok
+  archify render architecture production-deployment  -> 820,813 bytes, exit 0
+  archify validate architecture ... --quality showcase -> exit 0, receipt present
+  ```
+
+  **Why a shim and not an npm install:** upstream `package.json` sets `"private": true`, so
+  the package can never be published to or installed from the npm registry. It also needs
+  nothing but Node >= 18, which the installer already requires. A two-line `.cmd` has no
+  version to drift, no lockfile, and nothing to uninstall.
+
+  **Why opt-in:** every other phase of the installer is unconditional. This one puts a new
+  command on the user's PATH — a visible system change — so it requires the switch. It also
+  depends on the archify fork mirror, so it is incompatible with `-SkipForks`; the installer
+  warns and continues rather than failing.
+
+  The phase runs `archify doctor` before writing the shim, so it never advertises a command it
+  has not verified. The `%USERPROFILE%` reference is expanded when the shim *runs*, not when it
+  is written, so it survives re-clones.
+
+  This is a **CLI-only** addition. The archify *skill* is still the clean methodology port at
+  `upstream/archify/` — upstream the skill is SkillSpector-blocked (HIGH MP3), and the gate does
+  not apply to the CLI as a separate concern.
+
 ## [1.8.0] — 2026-09-13
 
 14-repo evaluation. 104 candidate skills gated with `skillspector scan --no-llm`.

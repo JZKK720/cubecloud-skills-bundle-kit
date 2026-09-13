@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.8.0-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.8.1-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -159,6 +159,28 @@ Custom implementations maintained in this setup are `agent-reach` and `gstack-re
 - **idea-to-design** — clean port of obra/superpowers `brainstorming` (upstream blocked by SkillSpector for tool parameter abuse in `stop-server.sh`). Methodology only: collaborative design dialogue, hard gate before implementation, spec self-review, user review gate. No browser server, no scripts.
 - **webapp-testing** — clean port of JZKK720/oz-skills `webapp-testing` (upstream blocked by SkillSpector for `shell=True` tool parameter abuse in `scripts/with_server.py`). Methodology only: reconnaissance-then-action pattern, static vs dynamic decision tree. No bundled scripts; agent writes native Playwright or uses browser MCP tools.
 - **archify** — clean port of [tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT, v2.17). Upstream is blocked by SkillSpector (`HIGH MP3`), so the port keeps the authoring contract, type router, invariant list, Mermaid conversion rules and the validate → deliver → visual-check sequence, and drops the renderer/schemas/examples. Gates 0/100 SAFE. **Methodology only** — the upstream CLI lives in the fork mirror; the SKILL.md says so explicitly rather than implying an unrun validation passed.
+
+  **Optional: the `archify` CLI.** The renderer itself can also be exposed as a bare command:
+
+  ```powershell
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-global-skills.ps1 -IncludeArchifyCli
+  ```
+
+  This writes one 86-byte `~/.local/bin/archify.cmd` shim that forwards to the fork mirror's
+  `bin/archify.mjs`. It is **opt-in** because every other phase of the installer is
+  unconditional and this one adds a command to your PATH. `archify` is a **zero-runtime-dependency**
+  Node CLI — `bin/archify.mjs` imports only `node:` stdlib, and the mirror has no `node_modules`
+  and needs none — so the shim needs no package manager, no registry, and no global npm install.
+  (An npm install is not even possible: upstream `package.json` sets `"private": true`.)
+  It requires the `archify` fork mirror, so it is incompatible with `-SkipForks`; the installer
+  warns and continues rather than failing. The installer runs `archify doctor` before writing the
+  shim, so it will not advertise a command it has not verified.
+
+  ```powershell
+  archify doctor
+  archify render architecture diagram.json out.html
+  archify validate architecture diagram.json --quality showcase --json
+  ```
 
 **tech-leads-club/agent-skills (12 active)** from [tech-leads-club/agent-skills](https://github.com/tech-leads-club/agent-skills) (MIT):
 
@@ -391,6 +413,7 @@ In Copilot Chat, try:
 - _"use **humanizer** to make this README not sound like AI wrote it"_
 - _"use **figma** to implement this design at 1:1 parity"_
 - _"use **product-marketing** to sharpen our positioning for the OEM page"_
+- _"run **archify validate architecture diagram.json --quality showcase"_** (requires `-IncludeArchifyCli`)
 
 ## To update later
 
@@ -430,6 +453,30 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.8.1 (2026-09-14)
+
+**Optional `archify` CLI.** The archify renderer can now be exposed as a bare command:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-global-skills.ps1 -IncludeArchifyCli
+```
+
+It writes one 86-byte `~/.local/bin/archify.cmd` shim forwarding to the fork mirror's
+`bin/archify.mjs`. `archify` is a **zero-runtime-dependency** Node CLI (`bin/archify.mjs`
+imports only `node:` stdlib; the mirror has no `node_modules` and needs none), so this needs no
+package manager, no registry, and no global npm install. An npm install is not even possible —
+upstream `package.json` sets `"private": true`.
+
+Verified before shipping: `archify doctor` → exit 0 (15/15 checks), `render` → 820,813-byte HTML,
+`validate --quality showcase` → exit 0 with receipt. The installer runs `doctor` first, so it
+never advertises a command it has not verified.
+
+**Opt-in** because every other phase of the installer is unconditional and this one adds a command
+to your PATH. Requires the archify fork mirror, so it warns and skips under `-SkipForks`.
+
+This is CLI-only. The archify *skill* remains the clean methodology port (`upstream/archify/`) —
+upstream the skill is gate-blocked (`HIGH MP3`), and that gate does not apply to the CLI.
 
 ### v1.8.0 (2026-09-13)
 
