@@ -1,4 +1,4 @@
-$tmp = "C:\Users\KkJz-Th\AppData\Local\Temp\karpathy_probe"
+$tmp = "$env:TEMP\karpathy_probe"
 if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
 cmd /c "git clone --depth 1 https://github.com/JZKK720/andrej-karpathy-skills.git `"$tmp`" >nul 2>nul"
 Write-Output "clone exit: $LASTEXITCODE"

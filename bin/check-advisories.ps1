@@ -1,4 +1,4 @@
-$env:PATH = "C:\Users\KkJz-Th\.local\bin;$env:PATH"
+$env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
 $env:PYTHONUTF8 = "1"
 $skills = @("airunway-aks-setup","hallmark","ponytail","taste-skill")
 foreach ($s in $skills) {

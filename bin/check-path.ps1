@@ -9,9 +9,9 @@ $userPath -split ';' | ForEach-Object { if ($_ -ne '') { Write-Output "  $_" } }
 Write-Output ""
 Write-Output "=== Required bin dirs for MCP/CLI support ==="
 $required = @(
-  "C:\Users\KkJz-Th\.local\bin",           # uv tools (skillspector, skills-ref, specify, skillopt, agent-reach, graphify, markitdown, scrapling)
-  "C:\Users\KkJz-Th\.bun\bin",             # bun globals (gbrain, gstack)
-  "C:\Users\KkJz-Th\AppData\Roaming\npm"   # npm globals (uipro, firecrawl, ponytail)
+  "$env:USERPROFILE\.local\bin",           # uv tools (skillspector, skills-ref, specify, skillopt, agent-reach, graphify, markitdown, scrapling)
+  "$env:USERPROFILE\.bun\bin",             # bun globals (gbrain, gstack)
+  "$env:APPDATA\npm"   # npm globals (uipro, firecrawl, ponytail)
 )
 
 foreach ($dir in $required) {

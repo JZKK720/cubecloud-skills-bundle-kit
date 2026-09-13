@@ -66,6 +66,13 @@ $upstreamMap = @{
     "huashu-design"               = "alchaincyf/huashu-design"
     "semantica"                   = "semantica-agi/semantica"
     "witr"                        = "pranshuparmar/witr"
+    # Added 2026-09-13: previously cloned as fork mirrors but absent from this
+    # map, so they were silently SKIPped and never tracked upstream.
+    "context-engineering-kit"     = "NeoLabHQ/context-engineering-kit"
+    "crucible"                    = "chaseai-yt/crucible"
+    "claude-skills-llm-council"   = "aiwithremy/claude-skills-llm-council"
+    "awesome-claude-skills"       = "ComposioHQ/awesome-claude-skills"
+    "ui-skills"                   = "ibelick/ui-skills"
 }
 
 if (-not (Test-Path $ForksRoot)) {
@@ -74,6 +81,18 @@ if (-not (Test-Path $ForksRoot)) {
 }
 
 $ok = 0; $skipped = 0; $failed = 0
+
+# Local branch name -> upstream default branch, for repos where they differ.
+# These need a human decision (branch rename / unrelated history), not a guess.
+$manualReview = @{
+    "graphify" = "v8"   # local tracks v4, upstream default is now v8
+}
+
+# Fork mirrors that intentionally carry a fork-only commit and therefore can
+# never fast-forward. Skipped with an explicit reason instead of failed.
+$expectedDivergent = @(
+    "caveman"   # fork adds a "chore: sync SKILL.md copies [skip ci]" commit
+)
 
 foreach ($dir in (Get-ChildItem $ForksRoot -Directory | Sort-Object Name)) {
     $name = $dir.Name
@@ -85,9 +104,43 @@ foreach ($dir in (Get-ChildItem $ForksRoot -Directory | Sort-Object Name)) {
     $upstream = $upstreamMap[$name]
     $repo = $dir.FullName
 
-    # Determine default branch
-    $defaultBranch = git -C $repo symbolic-ref --short HEAD 2>$null
-    if (-not $defaultBranch) { $defaultBranch = "main" }
+    # Skip anything that is not actually a git checkout. Some mapped directories
+    # (e.g. loop-engineering) may be plain drop-in folders rather than clones.
+    # Without this guard `git symbolic-ref` writes to stderr, and because
+    # $ErrorActionPreference is 'Stop' that aborts the whole run.
+    if (-not (Test-Path (Join-Path $repo ".git"))) {
+        Write-Host "  SKIP $name (not a git checkout)" -ForegroundColor DarkYellow
+        $skipped++
+        continue
+    }
+
+    # Determine default branch. Capture stderr so a git message is never
+    # promoted to a terminating error under $ErrorActionPreference = 'Stop'.
+    # NOTE: do not inspect $LASTEXITCODE here — a pipeline resets it to the exit
+    # code of the last pipeline command (Select-Object), which is 0, but the
+    # variable also leaks a stale non-zero value from any earlier git call and
+    # would then wrongly force the fallback branch. Validate the text instead.
+    $defaultBranch = (& git -C $repo symbolic-ref --short HEAD 2>&1 | Select-Object -First 1)
+    if (-not $defaultBranch -or "$defaultBranch" -match '^fatal:') {
+        $defaultBranch = "main"
+    }
+
+    # Repos whose upstream default branch no longer matches the locally checked
+    # out branch. Fast-forwarding across a default-branch change is a deliberate
+    # decision, so report and skip instead of guessing.
+    if ($manualReview.ContainsKey($name)) {
+        Write-Host "  SKIP $name (upstream default branch changed: local '$defaultBranch' vs upstream '$($manualReview[$name])' - manual review)" -ForegroundColor DarkYellow
+        $skipped++
+        continue
+    }
+
+    # Repos that carry an intentional fork-only commit on top of upstream. These
+    # can never fast-forward, so reporting them as failures every run is noise.
+    if ($expectedDivergent -contains $name) {
+        Write-Host "  SKIP $name (expected divergence: fork carries a fork-only commit)" -ForegroundColor DarkYellow
+        $skipped++
+        continue
+    }
 
     if ($DryRun) {
         Write-Host "  [dry-run] $name : add upstream=$upstream, fetch, ff $defaultBranch"
@@ -95,22 +148,29 @@ foreach ($dir in (Get-ChildItem $ForksRoot -Directory | Sort-Object Name)) {
     }
 
     try {
+        # Git writes ordinary progress output ("Updating files: 61% ...") and
+        # hints to stderr. With $ErrorActionPreference = 'Stop' PowerShell
+        # promotes that to a terminating NativeCommandError, so a perfectly
+        # successful fast-forward was being reported as FAILED. Merge stderr
+        # into stdout and judge success by $LASTEXITCODE instead.
+        $ErrorActionPreference = 'Continue'
+
         # Add upstream remote if missing
-        $remotes = git -C $repo remote
+        $remotes = @(& git -C $repo remote 2>&1)
         if ($remotes -notcontains "upstream") {
-            git -C $repo remote add upstream "https://github.com/$upstream.git" 2>$null
+            & git -C $repo remote add upstream "https://github.com/$upstream.git" 2>&1 | Out-Null
             Write-Host "  $name : added upstream -> $upstream" -ForegroundColor Green
         }
 
         # Fetch upstream
-        git -C $repo fetch upstream 2>$null
+        & git -C $repo fetch upstream 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "fetch failed" }
 
         # Fast-forward local default branch to upstream default branch
         $upstreamBranch = "upstream/$defaultBranch"
-        $localHead = git -C $repo rev-parse HEAD 2>$null
-        $upstreamHead = git -C $repo rev-parse "$upstreamBranch" 2>$null
-        if (-not $upstreamHead) {
+        $localHead = (& git -C $repo rev-parse HEAD 2>&1 | Select-Object -First 1)
+        $upstreamHead = (& git -C $repo rev-parse "$upstreamBranch" 2>&1 | Select-Object -First 1)
+        if (-not $upstreamHead -or "$upstreamHead" -match '^(fatal|error):') {
             Write-Host "  $name : upstream branch '$upstreamBranch' not found, skipping" -ForegroundColor DarkYellow
             $skipped++
             continue
@@ -120,7 +180,7 @@ foreach ($dir in (Get-ChildItem $ForksRoot -Directory | Sort-Object Name)) {
             $skipped++
             continue
         }
-        git -C $repo merge --ff-only "$upstreamBranch" 2>$null
+        & git -C $repo merge --ff-only "$upstreamBranch" 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "ff merge failed (local changes?)" }
         Write-Host "  $name : fast-forwarded to upstream ($upstreamBranch)" -ForegroundColor Green
         $ok++

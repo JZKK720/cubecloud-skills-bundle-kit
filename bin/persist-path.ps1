@@ -1,5 +1,5 @@
 # Permanently add ~/.bun\bin to user PATH (for gbrain and other bun globals)
-$dir = "C:\Users\KkJz-Th\.bun\bin"
+$dir = "$env:USERPROFILE\.bun\bin"
 $userPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
 
 if ($userPath -like "*$dir*") {

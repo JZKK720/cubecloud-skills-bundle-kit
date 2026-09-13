@@ -1,11 +1,11 @@
-$env:PATH = "C:\Users\KkJz-Th\.local\bin;C:\Users\KkJz-Th\.bun\bin;C:\Users\KkJz-Th\AppData\Roaming\npm;$env:PATH"
+$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:PATH"
 $env:PYTHONUTF8 = "1"
 
 Write-Output "=== graphify-mcp --help ==="
-cmd /c "graphify-mcp --help > C:\Users\KkJz-Th\AppData\Local\Temp\graphify_mcp_help.log 2>&1"
-Get-Content "C:\Users\KkJz-Th\AppData\Local\Temp\graphify_mcp_help.log" -ErrorAction SilentlyContinue | Select-Object -First 15
+cmd /c "graphify-mcp --help > $env:TEMP\graphify_mcp_help.log 2>&1"
+Get-Content "$env:TEMP\graphify_mcp_help.log" -ErrorAction SilentlyContinue | Select-Object -First 15
 
 Write-Output ""
 Write-Output "=== scrapling --help (look for mcp subcommand) ==="
-cmd /c "scrapling --help > C:\Users\KkJz-Th\AppData\Local\Temp\scrapling_help.log 2>&1"
-Get-Content "C:\Users\KkJz-Th\AppData\Local\Temp\scrapling_help.log" -ErrorAction SilentlyContinue | Select-Object -First 15
+cmd /c "scrapling --help > $env:TEMP\scrapling_help.log 2>&1"
+Get-Content "$env:TEMP\scrapling_help.log" -ErrorAction SilentlyContinue | Select-Object -First 15

@@ -232,7 +232,10 @@ Shubhamsaboo/awesome-llm-apps|project-graveyard|agent_skills/project-graveyard|
 # Turns plain-English system descriptions or codebases into self-contained HTML
 # diagrams (architecture, workflow, sequence, dataflow, lifecycle). Zero-dep
 # renderer, typed JSON IR, validation, PNG/SVG/WebM export. Supports Claude
-# Code, Codex CLI, Cursor, OpenCode. SKILL.md at archify/archify/SKILL.md.
+# Code, Codex CLI, Cursor, OpenCode.
+# NOTE: this entry currently FAILS at install with a HIGH YARA hit
+# (`agent_skill_mcp_tool_poisoning_metadata`) on its bundled MCP metadata.
+# The correct SkillRelPath is archify/archify, which was missing here.
 # Fork mirror: ~/dev/forks/JZKK720/archify/
 tt-a1i/archify|archify|archify|
 # --- book-to-skill (virgiliojr94, MIT): convert books into agent skills ---
@@ -246,9 +249,11 @@ local/book-to-skill|book-to-skill||upstream/book-to-skill
 # --- huashu-design (alchaincyf, MIT): bilingual design skill ---
 # Chinese/English design skill for prototypes, slides, animations, infographics,
 # expert reviews. 40+ design styles, references, assets, scripts. Agent-agnostic
-# (Claude Code, Cursor, Codex, OpenClaw, Hermes). SKILL.md at repo root.
+# (Claude Code, Cursor, Codex, OpenClaw, Hermes). SKILL.md sits at the repo ROOT
+# (not under skills/), so SkillRelPath must be "." or install fails with
+# "SKILL.md not found at skills/huashu-design".
 # Fork mirror: ~/dev/forks/JZKK720/huashu-design/
-alchaincyf/huashu-design|huashu-design||
+alchaincyf/huashu-design|huashu-design|.|
 # --- anti-slop (miqdadbadjuber/anti-slop, MIT): anti-AI-slop design & copy rules ---
 # 38 rules across 3 tiers (Hard Gate / Purpose-Gate / Quality Locks) + Liveliness
 # Toolkit + mandatory Delivery Gate. Upstream ships a raw antislop.md (not yet a
@@ -323,3 +328,9 @@ JZKK720/context-engineering-kit|traiage-review|skills/traiage-review|
 JZKK720/context-engineering-kit|tree-of-thoughts|skills/tree-of-thoughts|
 JZKK720/context-engineering-kit|why|skills/why|
 JZKK720/context-engineering-kit|write-concisely|skills/write-concisely|
+# --- evidence-graph-review (methodology extraction from reverse-skill): scope/evidence/finding/path contract ---
+# Clean methodology-only port; no scripts, no toolchain coupling.
+local/evidence-graph-review|evidence-graph-review||upstream/evidence-graph-review
+# --- ops-authorization-methodology (auth/scope check for security tasks) ---
+# Clean methodology-only port; no scripts, no toolchain coupling.
+local/ops-authorization-methodology|ops-authorization-methodology||upstream/ops-authorization-methodology

@@ -1,5 +1,5 @@
 # Fast audit - no MCP daemon tests (those block). Checks everything else.
-$env:PATH = "C:\Users\KkJz-Th\.local\bin;C:\Users\KkJz-Th\.bun\bin;C:\Users\KkJz-Th\AppData\Roaming\npm;$env:PATH"
+$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:PATH"
 $env:PYTHONUTF8 = "1"
 $reportFile = "$env:USERPROFILE\dev\upstream\AUDIT_REPORT.md"
 $r = @()

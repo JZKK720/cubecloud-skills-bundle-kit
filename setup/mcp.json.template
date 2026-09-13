@@ -62,9 +62,9 @@
     "skillopt": {
       "type": "stdio",
       "command": "python",
-      "args": ["C:\\Users\\KkJz-Th\\dev\\forks\\JZKK720\\SkillOpt\\plugins\\copilot\\skillopt\\mcp_server.py"],
+      "args": ["${env:USERPROFILE}\\dev\\forks\\JZKK720\\SkillOpt\\plugins\\copilot\\skillopt\\mcp_server.py"],
       "env": {
-        "SKILLOPT_REPO": "C:\\Users\\KkJz-Th\\dev\\forks\\JZKK720\\SkillOpt",
+        "SKILLOPT_REPO": "${env:USERPROFILE}\\dev\\forks\\JZKK720\\SkillOpt",
         "PYTHONUTF8": "1"
       }
     }

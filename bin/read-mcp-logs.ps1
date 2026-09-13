@@ -1,8 +1,8 @@
 $servers = @("markitdown","skillspector","firecrawl","scrapling","gbrain")
 foreach ($n in $servers) {
   Write-Output "=== $n ==="
-  $errPath = "C:\Users\KkJz-Th\AppData\Local\Temp\mcpfinal_${n}_err.log"
-  $outPath = "C:\Users\KkJz-Th\AppData\Local\Temp\mcpfinal_${n}_out.log"
+  $errPath = "$env:TEMP\mcpfinal_${n}_err.log"
+  $outPath = "$env:TEMP\mcpfinal_${n}_out.log"
   $errSize = if (Test-Path $errPath) { (Get-Item $errPath).Length } else { "N/A" }
   $outSize = if (Test-Path $outPath) { (Get-Item $outPath).Length } else { "N/A" }
   Write-Output "  out=${outSize}B err=${errSize}B"
@@ -14,6 +14,6 @@ foreach ($n in $servers) {
 }
 Write-Output ""
 Write-Output "=== graphify (no log - likely crashed) ==="
-$gErr = "C:\Users\KkJz-Th\AppData\Local\Temp\mcpfinal_graphify_err.log"
-$gOut = "C:\Users\KkJz-Th\AppData\Local\Temp\mcpfinal_graphify_out.log"
+$gErr = "$env:TEMP\mcpfinal_graphify_err.log"
+$gOut = "$env:TEMP\mcpfinal_graphify_out.log"
 Write-Output "  err exists: $(Test-Path $gErr) | out exists: $(Test-Path $gOut)"

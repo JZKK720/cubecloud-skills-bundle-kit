@@ -35,7 +35,7 @@
 .EXAMPLE
   .\install-skill.ps1 -Repo "obra/superpowers" -Name "test-driven-development"
   .\install-skill.ps1 -Repo "JuliusBrussee/caveman" -Name "caveman" -Disabled
-  .\install-skill.ps1 -Name "hallmark" -SourcePath "C:\Users\KkJz-Th\dev\upstream\hallmark\skills\hallmark"
+  .\install-skill.ps1 -Name "hallmark" -SourcePath "$env:USERPROFILE\dev\upstream\hallmark\skills\hallmark"
 #>
 
 [CmdletBinding()]
