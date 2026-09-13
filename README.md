@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.8.1-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.8.2-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -454,6 +454,22 @@ cd ~/dev/bin
 
 ## Changelog
 
+### v1.8.2 (2026-09-14)
+
+**Release verification caught two real doc/repo defects.** No feature changes.
+
+1. **Two `local/*` port sources were never committed to git.** `local/evidence-graph-review` and
+   `local/ops-authorization-methodology` were advertised by the manifest, but their `upstream/`
+   directories did not exist and had never been committed. Because the installer treats a missing
+   local source as a silent `SKIP`, **any fresh machine quietly skipped both** and still reported
+   success. Both installed copies were real content (82 and 87 lines) and were recovered
+   byte-exactly into `upstream/`. All 20 `local/*` rows now resolve — verified 20/20.
+2. **Stale `local/*` count (21 → 20)** in the CHANGELOG and evaluation plan, left over from an
+   edit made *after* the count was taken. Also corrected a `36 new rows` reference to `35`.
+
+Method worth keeping: this was found by checking every manifest row's **source path** against the
+filesystem, not by reading the docs. A counter-only audit passes while the repo is still broken.
+
 ### v1.8.1 (2026-09-14)
 
 **Optional `archify` CLI.** The archify renderer can now be exposed as a bare command:
@@ -477,6 +493,19 @@ to your PATH. Requires the archify fork mirror, so it warns and skips under `-Sk
 
 This is CLI-only. The archify *skill* remains the clean methodology port (`upstream/archify/`) —
 upstream the skill is gate-blocked (`HIGH MP3`), and that gate does not apply to the CLI.
+
+**Also fixed: two `local/*` port sources were never committed to git.** The manifest advertised
+`local/evidence-graph-review` and `local/ops-authorization-methodology`, but neither
+`upstream/` directory existed on disk and neither had **ever** been committed. The installer's
+guard is a silent `SKIP (local source missing or no SKILL.md)`, not an error — so on **any fresh
+machine** those two rows were quietly skipped and the install still reported success.
+
+Both installed copies are real content (82 and 87 lines), so the text was **recoverable**, not
+lost. Recovered byte-exactly from `~/.agents/skills/` into `upstream/` after confirming neither
+copy carried an install-time `argument-hint:` that must not be written back.
+
+Found by checking every manifest row's source path against the filesystem — a count-only audit
+would not have caught it.
 
 ### v1.8.0 (2026-09-13)
 

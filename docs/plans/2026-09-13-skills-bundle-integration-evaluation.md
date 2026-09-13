@@ -27,7 +27,7 @@
 | ⛔ Exclude (no fit / gate)  | 1     | `openai/skills` `.system` — 2 blocked, 3 high-risk, Codex-internal      |
 
 **Result: 35 new skills accepted, 1 clean port, 1 repaired entry.**
-Manifest: 188 → 223 active rows (21 of them `local/*` ports).
+Manifest: 188 → 223 active rows (20 of them `local/*` ports).
 
 | #  | Repo                             | Licence         | ★      | Verdict                |
 | -- | -------------------------------- | --------------- | ------ | ---------------------- |
@@ -424,7 +424,7 @@ Pre-existing and reused: `archify` (← `tt-a1i/archify`), `i-have-adhd`,
 | `openai/skills` | 5 |
 | `kunchenguid/firstmate` | 4 |
 | `humanlayer/skills` | 3 |
-| `blader/humanizer` | 1 (local port row for encoding control) |
+| `blader/humanizer` | 1 (installed from upstream, not ported) |
 | `petergyang/no-ai-slop` | 1 |
 | `tt-a1i/archify` | 1 (local port) |
 | **Total** | **35** |
@@ -433,7 +433,7 @@ Pre-existing and reused: `archify` (← `tt-a1i/archify`), `i-have-adhd`,
 
 | File | Change |
 | --- | --- |
-| `setup/skills-list.csv` | 36 new rows, `i-have-adhd` path fixed, `local/archify` added, blocked entries parked with reasons |
+| `setup/skills-list.csv` | 35 new rows, `i-have-adhd` path fixed, `local/archify` added, blocked entries parked with reasons |
 | `bin/sync-fork-upstreams.ps1` | 8 new `$upstreamMap` entries |
 | `bin/install-skill.ps1` + `setup/install-skill.ps1` | copy of deployed helper (3-way hash parity) |
 | `upstream/archify/SKILL.md` | New — clean methodology-only port |

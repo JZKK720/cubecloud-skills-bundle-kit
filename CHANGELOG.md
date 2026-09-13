@@ -2,6 +2,41 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.8.2] — 2026-09-14
+
+Release verification. No feature changes.
+
+### Fixed — two `local/*` port sources were never committed to git
+
+`local/evidence-graph-review` and `local/ops-authorization-methodology` were advertised by the
+manifest, but `upstream/evidence-graph-review/` and `upstream/ops-authorization-methodology/`
+did not exist on disk and had **never** existed in git history (`git log --all -- <path>` is
+empty).
+
+The installer's guard is a silent `SKIP`, never an error:
+
+```
+SKIP (local source missing or no SKILL.md)
+```
+
+So on **any fresh machine** those two rows were quietly skipped and counted as "skipped", while
+the install still reported success. The skills existed here only because they were hand-authored
+in place. Both installed copies are real content (82 and 87 lines), so the port text was
+**recoverable, not lost** — unlike the `book-to-skill` incident in v1.7.0.
+
+Recovered byte-exactly from `~/.agents/skills/<name>/SKILL.md` back into `upstream/`, after
+confirming neither copy carried an install-time `argument-hint:` that must not be written back.
+All 20 `local/*` rows now resolve; verified 20/20.
+
+Found by checking every manifest row's **source path** against the filesystem. A count-only audit
+would have missed it entirely.
+
+### Fixed — stale counters
+
+- `21 are local/* ports` → **20**, in CHANGELOG v1.8.0 and the 2026-09-13 evaluation plan.
+  The count was taken before `local/humanizer` was converted to an upstream install.
+- `36 new rows` → **35**, in the same evaluation plan's file-changes table.
+
 ## [1.8.1] — 2026-09-14
 
 ### Added
@@ -77,9 +112,34 @@ All notable changes to the CubeCloud Skills Bundle.
 - **19 gate-blocked entries parked as comments** with reason codes, so the installer stops
   retrying them.
 
-### Changed
+### Fixed — pre-existing, found during release verification
 
-- Skills: 188 → 223 active manifest rows (21 are `local/*` ports)
+- **Two `local/*` port sources were never committed to git.** The manifest advertised
+  `local/evidence-graph-review` and `local/ops-authorization-methodology`, but
+  `upstream/evidence-graph-review/` and `upstream/ops-authorization-methodology/` did not
+  exist on disk and had **never** existed in git history (`git log --all -- <path>` is empty).
+
+  The installer's guard is a silent `SKIP`, never an error:
+
+  ```
+  SKIP (local source missing or no SKILL.md)
+  ```
+
+  So on **any fresh machine** those two rows are quietly skipped and counted as "skipped",
+  and the install still reports success. The skills exist here only because they were
+  hand-authored in place. Both installed copies are real content (82 and 87 lines), so the
+  port text was **recoverable, not lost** — unlike the `book-to-skill` incident in v1.7.0.
+
+  Recovered byte-exactly from `~/.agents/skills/<name>/SKILL.md` back into `upstream/`,
+  after confirming neither copy carried an install-time `argument-hint:` that must not be
+  written back. All 20 `local/*` rows now resolve; verified 20/20.
+
+  Worth noting how this was found: not by reading the docs, but by checking every row's
+  source path against the filesystem. A count-only audit would have missed it entirely.
+
+### Fixed — counters (v1.8.1 era)
+
+- Skills: 188 → 223 active manifest rows (20 are `local/*` ports)
 - Fork mirrors: 39 → 48
 - Installed: 236 → 271 in `~/.agents/skills/`
 - `skills-ref` valid: 167 → 196
