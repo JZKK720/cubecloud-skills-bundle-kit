@@ -302,20 +302,24 @@ EveryInc/compound-engineering-plugin|lfg|skills/lfg|
 # SKIP self-improving-agent-skills (standalone FastAPI+Next.js web app, not a drop-in skill).
 # SKIP advisor-orchestrator-worker, thinking-out-loud (lighter value, can add later).
 # Fork mirror: ~/dev/forks/JZKK720/awesome-llm-apps/
-Shubhamsaboo/awesome-llm-apps|commit-archaeologist|agent_skills/commit-archaeologist|
-Shubhamsaboo/awesome-llm-apps|scope-creep-detector|agent_skills/scope-creep-detector|
 Shubhamsaboo/awesome-llm-apps|dependency-doctor|agent_skills/dependency-doctor|
 Shubhamsaboo/awesome-llm-apps|project-graveyard|agent_skills/project-graveyard|
+# BLOCKED BY SKILLSPECTOR (pruned 2026-09-13) - both fail with MEDIUM RP1 (unpinned MCP)
+# plus HIGH OH1 (unvalidated output injection). Parked as comments so the install-missing
+# pass stops retrying and re-blocking them on every run.
+# Shubhamsaboo/awesome-llm-apps|commit-archaeologist|agent_skills/commit-archaeologist|
+# Shubhamsaboo/awesome-llm-apps|scope-creep-detector|agent_skills/scope-creep-detector|
 # --- archify (tt-a1i, MIT, v2.13.0): interactive architecture diagram skill ---
 # Turns plain-English system descriptions or codebases into self-contained HTML
 # diagrams (architecture, workflow, sequence, dataflow, lifecycle). Zero-dep
 # renderer, typed JSON IR, validation, PNG/SVG/WebM export. Supports Claude
 # Code, Codex CLI, Cursor, OpenCode.
-# NOTE: this entry currently FAILS at install with a HIGH YARA hit
-# (`agent_skill_mcp_tool_poisoning_metadata`) on its bundled MCP metadata.
-# The correct SkillRelPath is archify/archify, which was missing here.
+# NOTE: this entry is BLOCKED by SkillSpector (HIGH YR4 YARA rule
+# `agent_skill_mcp_tool_poisoning_metadata` on its bundled MCP metadata). The correct
+# SkillRelPath is archify/archify, which was missing here. Pruned 2026-09-13 so the
+# install-missing pass stops retrying it; parked as a comment.
 # Fork mirror: ~/dev/forks/JZKK720/archify/
-tt-a1i/archify|archify|archify|
+# tt-a1i/archify|archify|archify|
 # --- book-to-skill (virgiliojr94, MIT): convert books into agent skills ---
 # Converts PDF/EPUB/DOCX/HTML/Markdown/RTF/MOBI into structured agent skills
 # (frameworks, mental models, decision rules, anti-patterns). Generates per-
@@ -329,9 +333,11 @@ local/book-to-skill|book-to-skill||upstream/book-to-skill
 # expert reviews. 40+ design styles, references, assets, scripts. Agent-agnostic
 # (Claude Code, Cursor, Codex, OpenClaw, Hermes). SKILL.md sits at the repo ROOT
 # (not under skills/), so SkillRelPath must be "." or install fails with
-# "SKILL.md not found at skills/huashu-design".
+# "SKILL.md not found at skills/huashu-design". That path bug is fixed, but the entry is
+# BLOCKED by SkillSpector anyway: HIGH SC4 known vulnerable dependency sharp==0.34.5
+# (2 advisories). Pruned 2026-09-13 so the install-missing pass stops retrying it.
 # Fork mirror: ~/dev/forks/JZKK720/huashu-design/
-alchaincyf/huashu-design|huashu-design|.|
+# alchaincyf/huashu-design|huashu-design|.|
 # --- anti-slop (miqdadbadjuber/anti-slop, MIT): anti-AI-slop design & copy rules ---
 # 38 rules across 3 tiers (Hard Gate / Purpose-Gate / Quality Locks) + Liveliness
 # Toolkit + mandatory Delivery Gate. Upstream ships a raw antislop.md (not yet a
