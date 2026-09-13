@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 223 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 238 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-223-2ea44f)](#whats-included)
+[![Skills](https://img.shields.io/badge/skills-238-2ea44f)](#whats-included)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.8.2-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.0-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,10 +22,10 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills          | **223** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, and more                                                                                                                                                                                         |
+| 🧠 Skills          | **238** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, and the impeccable design-methodology series |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
-| 📚 Fork mirrors    | **48**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design |
+| 📚 Fork mirrors    | **49**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable |
 | 🎨 DESIGN.md files | **74**  | Real-world design systems (Apple, Stripe, Linear, Vercel, Notion, Airbnb, Tesla…) indexed by the `design-md-library` skill                                                                                                                                                                                                                                                                      |
 | 🔒 Security-gated  | **yes** | Every skill scanned by SkillSpector before install; 5 skills blocked by design                                                                                                                                                                                                                                                                                                                  |
 
@@ -109,7 +109,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (223 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
+### Skills (238 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -386,12 +386,12 @@ Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 ├── setup/                      # the one-command installer + config
 │   ├── setup-global-skills.ps1 # master installer
 │   ├── install-skill.ps1       # security-gated skill install helper
-│   ├── skills-list.csv         # manifest of 223 entries (222 active + 1 disabled)
+│   ├── skills-list.csv         # manifest of 238 entries (237 active + 1 disabled)
 │   ├── mcp.json.template       # 11 MCP server config
 │   └── SETUP_GUIDE.md          # detailed guide
 ├── bin/                        # 19 audit/fix/install helper scripts
 ├── upstream/                   # governance docs + hand-authored port skills
-└── forks/JZKK720/              # 48 read-only fork mirrors (gitignored, re-cloned)
+└── forks/JZKK720/              # 49 read-only fork mirrors (gitignored, re-cloned)
 ```
 
 ## How to use after setup
@@ -453,6 +453,69 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.0 (2026-09-14)
+
+**Traced the `impeccable` upstream, repaired its provenance, and completed the port set (6 → 21).**
+
+The 6 `impeccable-*` ports shipped in v1.8.0 were correct but **unreproducible**. The manifest
+cited `~/dev/forks/impeccable/skill/reference/*.md` as their source — a path that has never
+existed on this machine. The fork `JZKK720/impeccable` was live on GitHub but had never been
+cloned, so nothing on disk could confirm what the ports were derived from, and
+`sync-fork-upstreams.ps1` silently `SKIP`ped the repo as "no upstream mapping". Same failure
+shape as the two orphaned `local/*` sources fixed in v1.8.2: an advertised source that does not
+exist, behind a gate that reports success while doing nothing.
+
+1. **Mirror created and tracked.** `~/dev/forks/JZKK720/impeccable` is now a **sparse,
+   blob-filtered checkout (~11 MB)** of the fork, fast-forwarded to `pbakaus/impeccable`
+   `upstream/main` at `cb56ed6c1`, and mapped in `sync-fork-upstreams.ps1` as
+   `"impeccable" = "pbakaus/impeccable"`. Full clone would have been ~338 MB; the sparse path
+   keeps only `skill/reference`, `.agents/skills/impeccable/reference`, and both `SKILL.md`
+   files, while still supporting the script's fetch/fast-forward contract.
+2. **Port set completed 6 → 21.** Upstream exposes **35** compiled reference docs; v1.8.0
+   ported the 6 whose names matched existing skills. A coupling audit found **21 of the 35 are
+   pure prose** — zero instructions to run a bundled script and no dependency on upstream-only
+   artifacts. The missing 15 were added: `adapt`, `adapt-native`, `audit`, `audit-native`,
+   `android`, `ios`, `colorize`, `craft-floor`, `extract`, `harden`, `operate`, `optimize`,
+   `overdrive`, `quieter`, `shape`. The other **14 were excluded at the document level**, not by
+   keyword: `live`, `live-setup`, `init`, `new-work`, `critique`, `visualize` (live browser
+   iteration), `hooks`, `doctor`, `routing` (script-driven), `layout`, `typeset`, `polish`
+   (script-coupled), `craft` (deprecated alias), `document` (28 refs to `PRODUCT.md` /
+   `.impeccable/design.json` / "the live panel").
+3. **Why ports, not a direct install — verified, not assumed.** Upstream ships one catch-all
+   skill that mandates `node scripts/context.mjs`. Its `.agents/skills/impeccable` payload is
+   **153 files**, including a 513 KB live-browser bundle, a 260 KB detector ruleset, a 121 KB
+   question server, a 97 KB hook library, and `hook-before-edit.mjs`, which **intercepts every
+   file edit**. That is a code-execution surface, not a prose library; installing it would drag
+   the application into a skills directory. Ports stay.
+4. **Ports regenerated from the current upstream, not the stale revision.** The mirror was four
+   skill-versions behind (`f88b2837` = v4.1.1 → `cb56ed6c1`). Four ported docs had already
+   changed — `adapt` (+6), `audit` (+2/-1), `audit.native` (+1/-1), `harden` (+9) — all new
+   touch/gesture prose (`pointercancel`, `lostpointercapture`, interrupted gestures). All 15 were
+   regenerated from `upstream/main` so they ship current rather than recreating the drift.
+5. **A BOM bug the gate caught.** The first generation pass used PowerShell's
+   `Set-Content -Encoding UTF8`, which writes a UTF-8 BOM on PowerShell 5.1. That byte order
+   mark is an invisible character at `SKILL.md:1`, so **all 15 ports failed both** SkillSpector
+   (`HIGH: Hidden Instructions`, 60% confidence) **and** `skills-ref` (`must start with YAML
+   frontmatter`). Writing BOM-free UTF-8 through `UTF8Encoding($false)` cleared both at once.
+6. **`document` dropped after porting.** It passed the coupling screen but carried 28 references
+   to upstream-only artifacts and "the live panel". Porting it would have shipped prose that
+   cannot stand alone, so it was removed and the count corrected 16 → 15.
+7. **Mojibake in the ported bodies.** After the BOM fix the gate was green, but a byte-level
+   audit found **70 corrupted characters** — `U+9225` (鈥) where em-dashes belonged and
+   `U+922B` (鈫) where arrows (`→`) belonged, in 15 of the 21 ports. Cause: PowerShell 5.1
+   decodes a BOM-less file as ANSI, so both `Get-Content -Raw` on the upstream source and the
+   non-ASCII literals in the generation script itself were mangled. Fixed by reading sources
+   through an explicit UTF-8 decoder and keeping the authored descriptions pure ASCII; arrows
+   and em-dashes now survive as real `U+2192` / `U+2014`. Verified 70 → **0** corrupted
+   characters. Worth noting the gate did **not** catch this — SkillSpector and `skills-ref` both
+   passed on the mojibake, so it needed a byte-level check.
+
+**Counters:** manifest 223 → **238** (237 active + 1 disabled); `local/*` rows 20 → **35**; fork
+mirrors 48 → **49**; installed 271 → **286** in `~/.agents/skills/` and 491 → **506** in
+`~/.claude/skills/`. All 15 new ports pass the SkillSpector gate (**0 blocked**) and
+`skills-ref validate` (**15/15 valid**); 21/21 `impeccable-*` sources resolve, and installed
+copies hash-match their sources 15/15. No empty fork mirrors, no skill missing a `SKILL.md`.
 
 ### v1.8.2 (2026-09-14)
 

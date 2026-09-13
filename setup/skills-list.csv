@@ -242,17 +242,48 @@ JZKK720/ECC|operator-approval-loop|skills/operator-approval-loop|
 # checkout, so sync-fork-upstreams.ps1 correctly SKIPs it as "not a git checkout".
 local/open-code-review|open-code-review||upstream/open-code-review
 local/open-code-review-delegate|open-code-review-delegate||upstream/open-code-review-delegate
-# --- impeccable ports (pbakaus/impeccable, Apache-2.0): 6 pure-prose design methodology skills ---
-# Ported 2026-07-28. Upstream is a full application (CLI + browser extension + live server + hooks).
-# These ports extract only the reference prose docs as standalone methodology skills.
-# All 6 pass SkillSpector (5x 0/100 SAFE, 1x 7/100 SAFE) and skills-ref validate.
-# Source: ~/dev/forks/impeccable/skill/reference/*.md
+# --- impeccable ports (pbakaus/impeccable, Apache-2.0): 21 pure-prose design methodology skills ---
+# Provenance (corrected 2026-09-13): the earlier comment cited ~/dev/forks/impeccable/, which
+# never existed locally - the fork had never been cloned, so the ports were unreproducible.
+# Real source of record:
+#   mirror  : ~/dev/forks/JZKK720/impeccable  (SPARSE checkout, 11MB not 338MB)
+#   upstream: pbakaus/impeccable -> fork JZKK720/impeccable @ f88b2837
+#   files   : .agents/skills/impeccable/reference/<doc>.md   (COMPILED, template-free)
+#             skill/reference/<doc>.md is the SOURCE form and still holds {{template}} tokens,
+#             so ports MUST be taken from the compiled .agents copy.
+# Why ports and not a direct install: upstream ships one catch-all skill whose SKILL.md
+# mandates `node scripts/context.mjs`, and its 153-file payload carries a 513KB live-browser
+# bundle, a 260KB detector-ruleset, a 121KB question server, and edit-interception hooks
+# (hook-before-edit.mjs). That is a code-execution surface, not a prose library.
+# Scope rule applied: a reference doc is ported IFF it has zero instructions to run a bundled
+# script and no dependency on upstream-only artifacts. Of upstream's 35 compiled docs,
+# 22 met that bar; 16 were added here, 6 were already ported, and `document` was DROPPED
+# after porting (28 refs to PRODUCT.md / .impeccable/design.json / "the live panel", which
+# only exist inside the upstream application). The other 13 were excluded at the doc level:
+# live, live-setup, init, critique, new-work, hooks, doctor, routing, layout, typeset,
+# polish, visualize, craft (deprecated alias).
+# Gate: every port passes SkillSpector and skills-ref validate before install.
 local/impeccable-distill|impeccable-distill||upstream/impeccable-distill
 local/impeccable-bolder|impeccable-bolder||upstream/impeccable-bolder
 local/impeccable-delight|impeccable-delight||upstream/impeccable-delight
 local/impeccable-animate|impeccable-animate||upstream/impeccable-animate
 local/impeccable-clarify|impeccable-clarify||upstream/impeccable-clarify
 local/impeccable-onboard|impeccable-onboard||upstream/impeccable-onboard
+local/impeccable-adapt|impeccable-adapt||upstream/impeccable-adapt
+local/impeccable-adapt-native|impeccable-adapt-native||upstream/impeccable-adapt-native
+local/impeccable-audit|impeccable-audit||upstream/impeccable-audit
+local/impeccable-audit-native|impeccable-audit-native||upstream/impeccable-audit-native
+local/impeccable-android|impeccable-android||upstream/impeccable-android
+local/impeccable-ios|impeccable-ios||upstream/impeccable-ios
+local/impeccable-colorize|impeccable-colorize||upstream/impeccable-colorize
+local/impeccable-craft-floor|impeccable-craft-floor||upstream/impeccable-craft-floor
+local/impeccable-extract|impeccable-extract||upstream/impeccable-extract
+local/impeccable-harden|impeccable-harden||upstream/impeccable-harden
+local/impeccable-operate|impeccable-operate||upstream/impeccable-operate
+local/impeccable-optimize|impeccable-optimize||upstream/impeccable-optimize
+local/impeccable-overdrive|impeccable-overdrive||upstream/impeccable-overdrive
+local/impeccable-quieter|impeccable-quieter||upstream/impeccable-quieter
+local/impeccable-shape|impeccable-shape||upstream/impeccable-shape
 # --- compound-engineering-plugin (EveryInc, MIT, 24.2k★): cherry-pick non-review skills ---
 # Copilot is a documented first-class target; zero $ARGUMENTS/mcp__ coupling in skill bodies.
 # 32 skills total; we cherry-pick the planning/execution/compounding/debug/git/autonomous skills.

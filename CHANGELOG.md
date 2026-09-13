@@ -2,6 +2,97 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.0] — 2026-09-14
+
+Traced the `impeccable` upstream end-to-end, repaired its provenance, and completed the port
+set. The v1.8.0 ports were correct content with an **unreproducible source**: the manifest cited
+`~/dev/forks/impeccable/skill/reference/*.md`, which has never existed on this machine, while the
+fork `JZKK720/impeccable` was live on GitHub and had never been cloned. `sync-fork-upstreams.ps1`
+silently `SKIP`ped the repo as "no upstream mapping". Same failure shape as the orphaned `local/*`
+sources fixed in v1.8.2 — an advertised source that does not exist, behind a gate that reports
+success while doing nothing.
+
+### Added — 15 ports (impeccable 6 → 21)
+
+`impeccable-adapt`, `impeccable-adapt-native`, `impeccable-audit`, `impeccable-audit-native`,
+`impeccable-android`, `impeccable-ios`, `impeccable-colorize`, `impeccable-craft-floor`,
+`impeccable-extract`, `impeccable-harden`, `impeccable-operate`, `impeccable-optimize`,
+`impeccable-overdrive`, `impeccable-quieter`, `impeccable-shape`.
+
+Upstream exposes **35** compiled reference docs; v1.8.0 ported the 6 whose names matched existing
+skills. A coupling audit classified the rest: **21 of 35 are pure prose** — zero instructions to
+run a bundled script, no dependency on upstream-only artifacts. 14 were **excluded at the
+document level**, not by keyword: `live`, `live-setup`, `init`, `new-work`, `critique`,
+`visualize` (live browser iteration), `hooks`, `doctor`, `routing` (script-driven), `layout`,
+`typeset`, `polish` (script-coupled), `craft` (deprecated alias), and `document` (28 refs to
+`PRODUCT.md` / `.impeccable/design.json` / "the live panel").
+
+### Why ports and not a direct install
+
+Verified rather than assumed. Upstream ships one catch-all skill whose `SKILL.md` mandates
+`node scripts/context.mjs`. Its `.agents/skills/impeccable` payload is **153 files**, including a
+513 KB live-browser bundle, a 260 KB detector ruleset, a 121 KB question server, a 97 KB hook
+library, and `hook-before-edit.mjs`, which intercepts every file edit. That is a code-execution
+surface, not a prose library. The ports stay.
+
+### Added — provenance
+
+- `~/dev/forks/JZKK720/impeccable` is now a **sparse, blob-filtered checkout (~11 MB)** of the
+  fork, fast-forwarded to `pbakaus/impeccable` `upstream/main` at `cb56ed6c1`. A full clone would
+  have been ~338 MB. The sparse path keeps `skill/reference`,
+  `.agents/skills/impeccable/reference`, and both `SKILL.md` files, and still supports
+  `sync-fork-upstreams.ps1`'s fetch/fast-forward contract.
+- `sync-fork-upstreams.ps1`: added `"impeccable" = "pbakaus/impeccable"` to `$upstreamMap`.
+- `setup/skills-list.csv`: the impeccable block now records the real source of record
+  (mirror path, fork, commit, the compiled-vs-source file distinction, and the port/exclude
+  rule), replacing the dangling `~/dev/forks/impeccable/` reference.
+- A shallow-clone artifact was ruled out: `git merge --ff-only upstream/main` first failed with
+  "refusing to merge unrelated histories", but after `git fetch --deepen 100` the merge-base
+  resolved to the fork HEAD and fast-forward succeeded. Two `--depth 1` histories simply share no
+  ancestor.
+
+### Fixed
+
+- **A UTF-8 BOM in all 15 newly generated ports.** The first pass wrote files via PowerShell's
+  `Set-Content -Encoding UTF8`, which emits a BOM on PowerShell 5.1. That byte order mark is an
+  invisible character at `SKILL.md:1`, so every port failed **both** SkillSpector
+  (`HIGH: Hidden Instructions`, 60% confidence) **and** `skills-ref validate`
+  (`must start with YAML frontmatter`). Writing BOM-free UTF-8 via `UTF8Encoding($false)` cleared
+  both simultaneously; the gate's diagnostic was accurate, not a false positive.
+- **`document` dropped after porting.** It passed the coupling screen but carried 28 references to
+  upstream-only artifacts and "the live panel". Removed rather than shipped; count corrected
+  16 → 15.
+- **Ports regenerated from current upstream.** The mirror was four skill-versions behind
+  (`f88b2837` = v4.1.1 → `cb56ed6c1`). Four ported docs had already changed upstream — `adapt`
+  (+6), `audit` (+2/-1), `audit.native` (+1/-1), `harden` (+9), all new touch/gesture prose
+  (`pointercancel`, `lostpointercapture`, interrupted gestures). All 15 were regenerated from
+  `upstream/main` so they ship current instead of recreating drift. The 6 v1.8.0 ports were
+  confirmed byte-identical to current upstream (0 changes).
+- **Stale v1.8.0 counters.** `188 → 223 active manifest rows (20 are local/* ports)` is now
+  `188 → 223` at v1.8.0 and `223 → 238` at v1.9.0 (`35 are local/* ports`).
+- **Mojibake in the ported bodies (70 characters).** After the BOM fix the gate was green, but a
+  byte-level audit found `U+9225` (鈥) where em-dashes belonged and `U+922B` (鈫) where arrows
+  (`→`) belonged, across 15 of the 21 ports. Cause: **PowerShell 5.1 decodes a BOM-less file as
+  ANSI**, so both `Get-Content -Raw` on the upstream source *and* the non-ASCII literals in the
+  generation script were mangled (`Desktop 鈫?Mobile` instead of `Desktop → Mobile`). Fixed by
+  reading sources through an explicit UTF-8 decoder (`[Text.Encoding]::UTF8.GetString`) and
+  keeping the authored descriptions pure ASCII. Arrows and em-dashes now survive as real
+  `U+2192` / `U+2014`; verified 70 → **0** corrupted characters across all 21 ports. Note the
+  gate did **not** catch this — SkillSpector and `skills-ref` both passed on the mojibake, so it
+  required a byte-level check.
+
+### Verified
+
+- Gate: 15/15 SAFE, **0 blocked**; issues are three benign heuristic matches — two
+  "Autonomous Decision Making" hits (`audit`, `audit-native`) pointing at an *anti*-pattern list,
+  and one "Memory Manipulation" hit (`colorize`) on a line that instructs asking the human.
+- `skills-ref validate`: **15/15 valid**.
+- Sources resolve: **21/21** `impeccable-*`; installed copies hash-match sources **15/15** in both
+  roots.
+- Counters: manifest **238** (237 active + 1 disabled), `local/*` **35**, fork mirrors **49**,
+  installed **286** `~/.agents/skills/` + **506** `~/.claude/skills/`. 0 empty fork mirrors,
+  0 skills missing a `SKILL.md`.
+
 ## [1.8.2] — 2026-09-14
 
 Release verification. No feature changes.

@@ -95,8 +95,13 @@ $upstreamMap = @{
     "humanizer"                    = "blader/humanizer"
     "no-ai-slop"                   = "petergyang/no-ai-slop"
     "firstmate"                    = "kunchenguid/firstmate"
-    "humanlayer-skills"            = "humanlayer/skills"
-}
+    "humanlayer-skills"            = "humanlayer/skills"    # Added 2026-09-13: the impeccable mirror was never cloned, so its 21 local/* port
+    # rows had unreproducible provenance and were silently SKIPped here as unmapped.
+    # NOTE: this mirror is a SPARSE checkout (~11MB, reference docs only) because upstream
+    # is ~338MB and is a full application (CLI + browser extension + live server + hooks),
+    # not a skill package. The sparse path is preserved by `git sparse-checkout`, so the
+    # fetch/fast-forward below keeps working without re-materialising the whole tree.
+    "impeccable"                  = "pbakaus/impeccable"}
 
 if (-not (Test-Path $ForksRoot)) {
     Write-Host "Forks root not found: $ForksRoot" -ForegroundColor Red
