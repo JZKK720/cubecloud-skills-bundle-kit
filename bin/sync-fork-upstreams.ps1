@@ -32,6 +32,14 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
 # Map: local fork dir name -> real upstream owner/repo
+# NOTE ON UNUSED MIRRORS: "Gskills" (google/skills) is kept in this map so the mirror
+# stays current, but it is deliberately NOT an install source. Evaluated 2026-09-13:
+# 137 skills, of which 118 are GCP "cloud" (GKE, BigQuery, AlloyDB, IAM, Cloud Run),
+# 14 ads, 2 analytics, 1 identity, and only 2 generic "developers" meta-skills that just
+# point at Google's own catalog. This bundle is a Windows/Copilot/Azure kit with no other
+# GCP content, so installing a GCP subset would be arbitrary and would contradict the same
+# framework-specific/domain-niche exclusion rule applied to rails-patterns and the ECC
+# legal skills. Mirror-only by decision, not by omission.
 $upstreamMap = @{
     "Gskills"                     = "google/skills"
     "caveman"                     = "JuliusBrussee/caveman"
@@ -73,6 +81,7 @@ $upstreamMap = @{
     "claude-skills-llm-council"   = "aiwithremy/claude-skills-llm-council"
     "awesome-claude-skills"       = "ComposioHQ/awesome-claude-skills"
     "ui-skills"                   = "ibelick/ui-skills"
+    # NOTE: "loop-engineering" is already mapped further up this table.
 }
 
 if (-not (Test-Path $ForksRoot)) {

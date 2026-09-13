@@ -56,10 +56,14 @@ local/idea-to-design|idea-to-design||upstream/idea-to-design
 # Fork mirror: ~/dev/forks/JZKK720/awesome-design-md/. Not a direct upstream install.
 local/design-md-library|design-md-library||upstream/design-md-library
 # gstack-review is a hand-adapted port (MIT, from garrytan/gstack via JZKK720/gstack fork).
-# Not a direct install: the upstream SKILL.md has a Claude-Code shell preamble that breaks
-# under VS Code Copilot. The adapted version lives at ~/.agents/skills/gstack-review/
-# with reference/checklist.md + reference/*.md copied verbatim from the fork's review/ dir.
+# Not a direct install: the upstream review/SKILL.md (61 KB, templated via .tmpl + sections/)
+# carries a Claude-Code shell preamble that breaks under VS Code Copilot. The adapted version
+# lives at ~/.agents/skills/gstack-review/ with a 112-line SKILL.md plus reference/ files
+# copied verbatim from the fork's review/ dir (checklist, design-checklist, TODOS-format,
+# greptile-triage, and the 8 specialists/ lenses).
 # Re-create manually if missing; do not re-install from the fork (it would overwrite the port).
+# Refreshed 2026-09-13 from the then-current fork HEAD; SKILL.md gained a section 7 that maps
+# each review layer to its reference file so the copied docs are actually discoverable.
 # --- New skills from 3-repo evaluation (2026-07-23) ---
 # loop-engineering (cobusgreyling/loop-engineering): clean methodology skills for
 # agent loop design. All pass SkillSpector (LOW/SAFE). No MCP deps, plain SKILL.md.
@@ -69,6 +73,13 @@ cobusgreyling/loop-engineering|minimal-fix|skills/minimal-fix|
 cobusgreyling/loop-engineering|loop-constraints|skills/loop-constraints|
 cobusgreyling/loop-engineering|loop-verifier|skills/loop-verifier|
 cobusgreyling/loop-engineering|loop-budget|skills/loop-budget|
+# Added 2026-09-13: upstream ships 7 skills; these 2 were missing from the manifest.
+# budget-negotiator - L3 autonomous loops: on near-exhausted token budget the agent
+#   drafts a reasoned budget-increase request instead of silently failing.
+# install-loop     - installs Loop Engineering via the unified @cobusgreyling/loop CLI
+#   front door; week-one is report-only and it refuses auto-merge unless a human asks.
+cobusgreyling/loop-engineering|budget-negotiator|skills/budget-negotiator|
+cobusgreyling/loop-engineering|install-loop|skills/install-loop|
 # changelog-generator (ComposioHQ/awesome-claude-skills): clean skill, no Composio/MCP
 # coupling. Passes SkillSpector (LOW/SAFE). Skill is at repo root <name>/SKILL.md
 # (not under skills/), so relPath is just the folder name.
@@ -92,6 +103,13 @@ addyosmani/agent-skills|browser-testing-with-devtools|skills/browser-testing-wit
 addyosmani/agent-skills|ci-cd-and-automation|skills/ci-cd-and-automation|
 addyosmani/agent-skills|code-review-and-quality|skills/code-review-and-quality|
 addyosmani/agent-skills|code-simplification|skills/code-simplification|
+# constraint-driven-development: added 2026-09-13. New upstream skill that writes a
+# project's quality bar into CONSTRAINTS.md and then watches the diff for a weakened bar
+# (@ts-ignore / eslint-disable, skipped or deleted tests, assertions stripped, stubs,
+# thresholds edited down). It is the enforcement counterpart to the prose guidance in
+# code-review-and-quality / test-driven-development / security-and-hardening, which are
+# already in this bundle. Ships references/floor-guard.md alongside SKILL.md.
+addyosmani/agent-skills|constraint-driven-development|skills/constraint-driven-development|
 addyosmani/agent-skills|context-engineering|skills/context-engineering|
 addyosmani/agent-skills|debugging-and-error-recovery|skills/debugging-and-error-recovery|
 addyosmani/agent-skills|deprecation-and-migration|skills/deprecation-and-migration|
@@ -166,12 +184,56 @@ JZKK720/ECC|connections-optimizer|skills/connections-optimizer|
 # Category: Engineering Practices
 JZKK720/ECC|mcp-server-patterns|skills/mcp-server-patterns|
 JZKK720/ECC|backend-patterns|skills/backend-patterns|
+# --- ECC upstream new-skills triage (8 skills appeared 2026-08-16..09-12) ---
+# Evaluated by running skillspector scan --no-llm on each. Two pass and are in
+# scope (framework-agnostic agent-safety), two pass but are OUT of scope by this
+# bundle's own curation rule ("framework-agnostic only; framework-specific,
+# ECC-internal, and domain-niche excluded"), and two are blocked by the gate.
+#
+# IN SCOPE - installed:
+#   counterparty-channel-discipline - mention gating, silent observation and a
+#     communication autonomy policy for agents in shared channels with external
+#     counterparties. Prevents leaking internal context to outsiders.
+#   operator-approval-loop - hashed drafts, epoch-keyed approvals, durable
+#     delivery receipts and a pre-draft baseline gate for agent-drafted outbound
+#     messages. Human operator approves/rejects/steers each send.
+JZKK720/ECC|counterparty-channel-discipline|skills/counterparty-channel-discipline|
+JZKK720/ECC|operator-approval-loop|skills/operator-approval-loop|
+# PASSED THE GATE BUT OUT OF SCOPE - deliberately not installed:
+#   rails-patterns             - Ruby on Rails 7.1+/8.x framework patterns. There is
+#                                no other Rails entry in this manifest; installing one
+#                                framework skill would be arbitrary.
+#   tasteforge-video           - orchestrator over the taste video stack. Its siblings
+#                                taste-application + taste-distillation are blocked (below),
+#                                so it would ship as an entry point to nothing.
+#   master-agreement-generator - legal drafting (counterparty master agreements from a
+#                                template + JSON spec). Domain-niche legal.
+#   esign-field-placement      - e-signature envelope field placement via browser
+#                                automation. Domain-niche legal.
+# BLOCKED BY SKILLSPECTOR - parked as comments so the gate result stays visible:
+#   taste-application   CRITICAL SC4 vulnerable deps (numpy, Pillow, setuptools x10 advisories)
+#                       + HIGH AR2 anti-refusal statement + HIGH E2 env var harvesting
+#                       + HIGH OH1 unvalidated output injection. Ships 61 script files.
+#   taste-distillation  CRITICAL + MEDIUM AST4 subprocess calls + MEDIUM AST3 dynamic import.
+#                       Ships 12 script files.
+# JZKK720/ECC|rails-patterns|skills/rails-patterns|
+# JZKK720/ECC|tasteforge-video|skills/tasteforge-video|
+# JZKK720/ECC|master-agreement-generator|skills/master-agreement-generator|
+# JZKK720/ECC|esign-field-placement|skills/esign-field-placement|
+# JZKK720/ECC|taste-application|skills/taste-application|
+# JZKK720/ECC|taste-distillation|skills/taste-distillation|
 # --- alibaba/open-code-review (Apache-2.0): 2 portable SKILL.md skills ---
 # open-code-review: deterministic + agent hybrid code review via `ocr` CLI.
 # open-code-review-delegate: delegation mode — host agent drives review, OCR
 # handles file selection + rule resolution only (no OCR-side LLM needed).
 # Both pass SkillSpector (pure markdown prompts, no bundled scripts).
-# Fork mirror: ~/dev/forks/JZKK720/open-code-review/
+# These are LOCAL ported copies (source: this repo's upstream/open-code-review/),
+# deliberately NOT installed from alibaba/open-code-review. Verified 2026-09-13:
+# upstream ships its own skills/open-code-review/SKILL.md at a different sha than the
+# port, so a direct install would silently replace the Copilot-tuned wording. The
+# ocr CLI itself is installed from upstream separately (see CLIs table).
+# Note: ~/dev/forks/JZKK720/open-code-review/ is a plain 2-file copy, not a git
+# checkout, so sync-fork-upstreams.ps1 correctly SKIPs it as "not a git checkout".
 local/open-code-review|open-code-review||upstream/open-code-review
 local/open-code-review-delegate|open-code-review-delegate||upstream/open-code-review-delegate
 # --- impeccable ports (pbakaus/impeccable, Apache-2.0): 6 pure-prose design methodology skills ---
@@ -194,23 +256,39 @@ local/impeccable-onboard|impeccable-onboard||upstream/impeccable-onboard
 # SKIP ce-polish, ce-dogfood (manual-only, browser-based, not model-invoked).
 # Fork mirror: ~/dev/forks/JZKK720/compound-engineering-plugin/
 EveryInc/compound-engineering-plugin|ce-ideate|skills/ce-ideate|
-EveryInc/compound-engineering-plugin|ce-brainstorm|skills/ce-brainstorm|
-EveryInc/compound-engineering-plugin|ce-plan|skills/ce-plan|
-EveryInc/compound-engineering-plugin|ce-work|skills/ce-work|
-EveryInc/compound-engineering-plugin|ce-compound|skills/ce-compound|
+# --- BLOCKED BY SKILLSPECTOR (pruned 2026-09-13) ---
+# The 9 entries below are advertised by upstream EveryInc/compound-engineering-plugin but
+# every one of them fails the SkillSpector hard gate (exit 1, do_not_install). Leaving them
+# in the manifest made install-missing-skills.ps1 retry and re-block them on every run,
+# reporting "BLOCKED" 9 times with no path to a different outcome. They are parked here as
+# comments instead so the gate result stays visible without being re-attempted.
+# See the blocked-skills table in README.md for the per-skill reason code.
+#   ce-brainstorm    MEDIUM RA2 - session persistence
+#   ce-plan          MEDIUM RA2 - session persistence
+#   ce-work          MEDIUM RA2 - session persistence
+#   ce-compound      HIGH E4 context leakage + HIGH RA1 self-modification
+#   ce-sweep         HIGH P2 - hidden instructions
+#   ce-pov           HIGH TM2 - chaining abuse
+#   ce-optimize      HIGH TM1 - tool parameter abuse
+#   ce-doc-review    HIGH TM2 - chaining abuse
+#   ce-babysit-pr    HIGH YR1 - YARA destructive autonomous actions
+# EveryInc/compound-engineering-plugin|ce-brainstorm|skills/ce-brainstorm|
+# EveryInc/compound-engineering-plugin|ce-plan|skills/ce-plan|
+# EveryInc/compound-engineering-plugin|ce-work|skills/ce-work|
+# EveryInc/compound-engineering-plugin|ce-compound|skills/ce-compound|
+# EveryInc/compound-engineering-plugin|ce-sweep|skills/ce-sweep|
+# EveryInc/compound-engineering-plugin|ce-pov|skills/ce-pov|
+# EveryInc/compound-engineering-plugin|ce-optimize|skills/ce-optimize|
+# EveryInc/compound-engineering-plugin|ce-doc-review|skills/ce-doc-review|
+# EveryInc/compound-engineering-plugin|ce-babysit-pr|skills/ce-babysit-pr|
 EveryInc/compound-engineering-plugin|ce-strategy|skills/ce-strategy|
 EveryInc/compound-engineering-plugin|ce-product-pulse|skills/ce-product-pulse|
-EveryInc/compound-engineering-plugin|ce-sweep|skills/ce-sweep|
 EveryInc/compound-engineering-plugin|ce-compound-refresh|skills/ce-compound-refresh|
-EveryInc/compound-engineering-plugin|ce-pov|skills/ce-pov|
 EveryInc/compound-engineering-plugin|ce-explain|skills/ce-explain|
 EveryInc/compound-engineering-plugin|ce-debug|skills/ce-debug|
 EveryInc/compound-engineering-plugin|ce-simplify-code|skills/ce-simplify-code|
-EveryInc/compound-engineering-plugin|ce-optimize|skills/ce-optimize|
-EveryInc/compound-engineering-plugin|ce-doc-review|skills/ce-doc-review|
 EveryInc/compound-engineering-plugin|ce-commit|skills/ce-commit|
 EveryInc/compound-engineering-plugin|ce-commit-push-pr|skills/ce-commit-push-pr|
-EveryInc/compound-engineering-plugin|ce-babysit-pr|skills/ce-babysit-pr|
 EveryInc/compound-engineering-plugin|ce-worktree|skills/ce-worktree|
 EveryInc/compound-engineering-plugin|ce-handoff|skills/ce-handoff|
 EveryInc/compound-engineering-plugin|ce-promote|skills/ce-promote|
@@ -270,16 +348,22 @@ local/anti-slop|anti-slop||upstream/anti-slop
 # upstream. Source lives at upstream/diagram-design/SKILL.md.
 # Complements archify + huashu-design.
 local/diagram-design|diagram-design||upstream/diagram-design
-# --- crucible (chaseai-yt, MIT, 1.2k★): cross-model adversarial plan hardening ---
-# Three-phase plan hardening: recon → interrogate → Codex adversarial review.
-# Two AI models harden your plan before a line of code exists, then swap jobs
-# to build it. 3 active skills (crucible, codex-review, codex-build) + 2 legacy.
-# Passes SkillSpector (MEDIUM/CAUTION — no executable scripts, no YARA hits).
-# Complements doubt-driven-development, council, and systematic-debugging.
+# --- claudex (formerly crucible; chaseai-yt, MIT, 1.2k★): cross-model adversarial plan hardening ---
+# UPSTREAM RENAME (2026-09-06, commit a027430 "rebrand: crucible -> claudex-loop"):
+#   skills/crucible  ->  skills/claudex-loop   (legacy /crucible trigger kept in its description)
+#   NEW:                 skills/claudex-route  (model/handoff routing advisor)
+# The old `JZKK720/crucible|crucible|skills/crucible` entry now 404s and has been replaced.
+# Note: the repo is still hosted at chaseai-yt/crucible — only the in-repo dirs were renamed.
+# Passes SkillSpector. Complements doubt-driven-development, council, systematic-debugging.
 # Fork mirror: ~/dev/forks/JZKK720/crucible/
-JZKK720/crucible|crucible|skills/crucible|
+JZKK720/crucible|claudex-loop|skills/claudex-loop|
+JZKK720/crucible|claudex-route|skills/claudex-route|
 JZKK720/crucible|codex-review|skills/codex-review|
 JZKK720/crucible|codex-build|skills/codex-build|
+# RETIRED: `crucible` no longer exists upstream. The already-installed ~/.agents/skills/crucible/
+# is the pre-rename snapshot; claudex-loop supersedes it (it answers the legacy /crucible trigger).
+# Kept here as a comment so the history is traceable rather than silently dropped.
+# JZKK720/crucible|crucible|skills/crucible|
 # --- llm-council (aiwithremy, MIT, 1.6k★): multi-advisor decision review ---
 # Runs decisions through 5 AI advisors with peer review. Different approach
 # from ECC's council (4-voice): 5 advisors + explicit peer-review phase.
