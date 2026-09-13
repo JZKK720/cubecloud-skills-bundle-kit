@@ -2,6 +2,62 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.1] — 2026-09-14
+
+Corrected a v1.9.0 size claim and reclaimed 1,482 MB of mirror overhead.
+
+### Fixed — the v1.9.0 "~11 MB" figure was wrong
+
+The impeccable mirror was described as a `~11 MB` sparse checkout. Its real total was
+**370.5 MB** — 1.0 MB worktree plus **369.5 MB of `.git`**. The sparse checkout was real, but an
+earlier `--deepen 100` had pulled a 301 MB history pack, and the figure counted only the
+worktree. Corrected in `README.md`, `CHANGELOG.md`, `setup/skills-list.csv` and
+`bin/sync-fork-upstreams.ps1`.
+
+### Root cause — why the mirrors were 2.4 GB
+
+`setup-global-skills.ps1` clones each mirror with `--depth 1`, but `sync-fork-upstreams.ps1`
+fetches with a plain `git fetch upstream`, which **un-shallows and accumulates full history**.
+Measured directly: one sync run grew the freshly-shallow impeccable mirror from **1.6 MB to
+365 MB**. That is why 41 mirrors had accumulated **1,517 MB of `.git` against only 947 MB of
+working trees**.
+
+### Changed — 1,482 MB reclaimed
+
+Removed `.git` from the **21 mirrors whose `.git` was ≥ 5 MB**. Nothing reads mirror git
+history — verified by grepping every installed skill for `git log|show|blame|diff` against a
+mirror path (**zero hits**) — and `install-skill.ps1` clones from GitHub, never from
+`~/dev/forks/`.
+
+- Worktrees preserved exactly: file counts verified identical across all 21 (**0 losses**).
+- Both skills that actually read a mirror still work: `design-md-library` → **74 `DESIGN.md`**
+  files; `archify` → `bin/archify.mjs` present.
+- `cubecloud-skilldbundle-setup` (the repo itself, which lives in this directory) was guarded
+  in code and left untouched at `453cd42`.
+
+### The trim is durable
+
+A mirror without `.git` is `SKIP`ped by sync as *"not a git checkout"*, so it can never be
+re-fattened. `sync-fork-upstreams.ps1` now reports `Synced: 0, skipped: 49, Failed: 0`:
+**20 mirrors stay syncable** (all small ones) and **29 are static** (the 21 trimmed plus the 8
+one-file port stubs). Forks root: **2,470 MB → 988 MB**. Mirror count stays **49** — nothing
+was deleted.
+
+### Known limitation introduced
+
+`JZKK720/impeccable` is now static, so it will not fast-forward to upstream. Its content
+matches upstream at the revision the 21 ports were cut from, so the ports are correct; a future
+re-port needs a fresh `git clone --depth 1 --filter=blob:none --sparse` of
+`pbakaus/impeccable` directly. Also noted: the fork's `main` is at `f88b2837` (skill v4.1.1)
+while upstream `main` is at `cb56ed6c1`.
+
+### Not fixed — flagged for a decision
+
+`sync-fork-upstreams.ps1` still uses a depth-unlimited `git fetch`, so the 20 remaining
+syncable mirrors will keep growing `.git` over time. Fixing it would mean changing the fetch to
+`--depth 1` (a behaviour change on a working script), and the fork-vs-upstream FF failure on
+shallow mirrors needs a merge-base fallback. Both are deferred rather than rushed.
+
 ## [1.9.0] — 2026-09-14
 
 Traced the `impeccable` upstream end-to-end, repaired its provenance, and completed the port
@@ -36,6 +92,9 @@ library, and `hook-before-edit.mjs`, which intercepts every file edit. That is a
 surface, not a prose library. The ports stay.
 
 ### Added — provenance
+
+> **Superseded by v1.9.1.** The size figures below were wrong: the mirror really totalled
+> 370.5 MB (not `~11 MB`) because `.git` still held full history. See the v1.9.1 entry.
 
 - `~/dev/forks/JZKK720/impeccable` is now a **sparse, blob-filtered checkout (~11 MB)** of the
   fork, fast-forwarded to `pbakaus/impeccable` `upstream/main` at `cb56ed6c1`. A full clone would

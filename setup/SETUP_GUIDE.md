@@ -125,7 +125,10 @@ Notes:
 - Azure/Foundry skills are standard extension-provided Copilot skills.
 - Custom implementations in this setup are `agent-reach` and `gstack-review`.
 
-**49 fork mirrors** (in ~/dev/forks/JZKK720/ — read-only backups, incl. VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, loop-engineering, watch-skill, wigolo, pbakaus/impeccable — the last as a **sparse** checkout, since upstream is a ~338 MB application rather than a skill package)
+**49 fork mirrors** (in ~/dev/forks/JZKK720/ — read-only backups, incl. VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, loop-engineering, watch-skill, wigolo, pbakaus/impeccable — the last as a **sparse, depth-1** checkout with its `.git` trimmed
+(v1.9.1), since upstream is a ~358 MB application rather than a skill package. That mirror is
+now **static**: sync skips it as "not a git checkout", so it will not auto-update. 21 of the 49
+mirrors are static; the other 20 stay syncable.)
 
 ### SkillOpt-Sleep (nightly self-evolution)
 

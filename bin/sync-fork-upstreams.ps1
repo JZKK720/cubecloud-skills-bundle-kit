@@ -97,10 +97,14 @@ $upstreamMap = @{
     "firstmate"                    = "kunchenguid/firstmate"
     "humanlayer-skills"            = "humanlayer/skills"    # Added 2026-09-13: the impeccable mirror was never cloned, so its 21 local/* port
     # rows had unreproducible provenance and were silently SKIPped here as unmapped.
-    # NOTE: this mirror is a SPARSE checkout (~11MB, reference docs only) because upstream
-    # is ~338MB and is a full application (CLI + browser extension + live server + hooks),
-    # not a skill package. The sparse path is preserved by `git sparse-checkout`, so the
-    # fetch/fast-forward below keeps working without re-materialising the whole tree.
+    # NOTE: this mirror was cloned SPARSE (reference docs only) because upstream is a full
+    # application (CLI + browser extension + live server + hooks), not a skill package.
+    # Its .git was REMOVED 2026-09-14 to reclaim 369MB of history (1.6MB -> 0.9MB worktree).
+    # Consequence: this mirror is now STATIC - sync SKIPs it as "not a git checkout", so it
+    # will NOT fast-forward. The 21 ports were cut from the revision below, so they are
+    # correct; a future re-port needs a fresh
+    #   git clone --depth 1 --filter=blob:none --sparse https://github.com/pbakaus/impeccable
+    # rather than relying on this entry.
     "impeccable"                  = "pbakaus/impeccable"}
 
 if (-not (Test-Path $ForksRoot)) {

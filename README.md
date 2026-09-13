@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.0-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.1-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -454,6 +454,38 @@ cd ~/dev/bin
 
 ## Changelog
 
+### v1.9.1 (2026-09-14)
+
+**Corrected a v1.9.0 size claim, and reclaimed 1,482 MB of mirror overhead.**
+
+1. **The v1.9.0 "~11 MB" figure was wrong.** The impeccable mirror was described as a
+   `~11 MB` sparse checkout; its real total was **370.5 MB** — 1.0 MB worktree plus
+   **369.5 MB of `.git`**. The sparse checkout was real, but an earlier `--deepen 100` had
+   pulled a 301 MB history pack, and the docs counted only the worktree. Corrected in
+   `README.md`, `CHANGELOG.md`, `setup/skills-list.csv`, and `bin/sync-fork-upstreams.ps1`.
+2. **Root cause of mirror bloat, found while measuring.** `setup-global-skills.ps1` clones
+   each mirror with `--depth 1`, but `sync-fork-upstreams.ps1` fetches with a plain
+   `git fetch upstream`, which **un-shallows and accumulates full history**. Measured
+   directly: a single sync run grew the shallow impeccable mirror from **1.6 MB to 365 MB**.
+   That is why 41 mirrors accumulated 1,517 MB of `.git` and only 947 MB of working trees.
+3. **1,482 MB reclaimed** by removing `.git` from the **21 mirrors whose `.git` was ≥ 5 MB**.
+   Nothing reads mirror git history — verified by grepping every installed skill for
+   `git log|show|blame|diff` against a mirror path (zero hits) — and `install-skill.ps1`
+   clones from GitHub, never from `~/dev/forks/`. Worktrees were preserved exactly:
+   file counts verified identical across all 21 (0 losses), and both skills that actually
+   read a mirror still work (`design-md-library` → 74 `DESIGN.md` files; `archify` →
+   `bin/archify.mjs` present).
+4. **The trim is durable, and the mirror count is unchanged.** A mirror without `.git` is
+   `SKIP`ped by sync as *"not a git checkout"* — so it can never be re-fattened.
+   `sync-fork-upstreams.ps1` now reports `Synced: 0, skipped: 49, Failed: 0`: **20 mirrors stay
+   syncable** (all small ones) and **29 are static** (the 21 trimmed plus the 8 one-file port
+   stubs). Forks root: **2,470 MB → 988 MB**.
+5. **Known limitation introduced.** `JZKK720/impeccable` is now static, so it will not
+   fast-forward to upstream. Its content already matches upstream at the revision the 21 ports
+   were cut from, so ports are correct; a future re-port needs a fresh
+   `git clone --depth 1 --filter=blob:none --sparse` of `pbakaus/impeccable` directly. Also
+   noted: the fork's `main` sits at `f88b2837` (skill v4.1.1) while upstream is at `cb56ed6c1`.
+
 ### v1.9.0 (2026-09-14)
 
 **Traced the `impeccable` upstream, repaired its provenance, and completed the port set (6 → 21).**
@@ -466,12 +498,16 @@ cloned, so nothing on disk could confirm what the ports were derived from, and
 shape as the two orphaned `local/*` sources fixed in v1.8.2: an advertised source that does not
 exist, behind a gate that reports success while doing nothing.
 
-1. **Mirror created and tracked.** `~/dev/forks/JZKK720/impeccable` is now a **sparse,
-   blob-filtered checkout (~11 MB)** of the fork, fast-forwarded to `pbakaus/impeccable`
-   `upstream/main` at `cb56ed6c1`, and mapped in `sync-fork-upstreams.ps1` as
-   `"impeccable" = "pbakaus/impeccable"`. Full clone would have been ~338 MB; the sparse path
-   keeps only `skill/reference`, `.agents/skills/impeccable/reference`, and both `SKILL.md`
-   files, while still supporting the script's fetch/fast-forward contract.
+1. **Mirror created and tracked.** `~/dev/forks/JZKK720/impeccable` is a **sparse,
+   blob-filtered, depth-1 checkout** of the fork at `pbakaus/impeccable` `upstream/main`
+   (`cb56ed6c1`), mapped in `sync-fork-upstreams.ps1` as `"impeccable" = "pbakaus/impeccable"`.
+   Full clone would be ~358 MB; the sparse path keeps only `skill/reference`,
+   `.agents/skills/impeccable/reference`, and both `SKILL.md` files.
+
+   **Correction (v1.9.1).** v1.9.0 described this mirror as `~11 MB`. That was wrong: the
+   checkout was sparse, but its `.git` still held **full history** — an earlier `--deepen` had
+   pulled a 301 MB pack — for a real total of **370.5 MB** (1.0 MB worktree + 369.5 MB `.git`).
+   The v1.9.0 figure counted only the worktree. See item 5.
 2. **Port set completed 6 → 21.** Upstream exposes **35** compiled reference docs; v1.8.0
    ported the 6 whose names matched existing skills. A coupling audit found **21 of the 35 are
    pure prose** — zero instructions to run a bundled script and no dependency on upstream-only

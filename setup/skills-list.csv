@@ -246,7 +246,8 @@ local/open-code-review-delegate|open-code-review-delegate||upstream/open-code-re
 # Provenance (corrected 2026-09-13): the earlier comment cited ~/dev/forks/impeccable/, which
 # never existed locally - the fork had never been cloned, so the ports were unreproducible.
 # Real source of record:
-#   mirror  : ~/dev/forks/JZKK720/impeccable  (SPARSE checkout, 11MB not 338MB)
+#   mirror  : ~/dev/forks/JZKK720/impeccable  (sparse + depth-1; worktree ~0.9MB,
+#             .git trimmed 2026-09-14 - the prior 369MB history pack was reclaimed)
 #   upstream: pbakaus/impeccable -> fork JZKK720/impeccable @ f88b2837
 #   files   : .agents/skills/impeccable/reference/<doc>.md   (COMPILED, template-free)
 #             skill/reference/<doc>.md is the SOURCE form and still holds {{template}} tokens,
