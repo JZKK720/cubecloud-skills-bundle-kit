@@ -358,6 +358,30 @@ cd ~/dev/bin
 
 ## Changelog
 
+### v1.7.0 (2026-09-13)
+
+**Skills can now be refreshed in place.** Syncing a fork mirror does not update skills that were already installed — those are point-in-time copies. Until now there was no way to bring them forward without reinstalling by hand.
+
+```powershell
+# preview (writes nothing)
+powershell -NoProfile -ExecutionPolicy Bypass -File .\bin\install-missing-skills.ps1 -Refresh -WhatIf
+
+# apply
+powershell -NoProfile -ExecutionPolicy Bypass -File .\bin\install-missing-skills.ps1 -Refresh
+```
+
+First run brought **79 skills** up to date with their current sources, including all 14 that had fallen behind (`performance-optimization` +151 lines, `repo-scan` +100, `api-and-interface-design` +73, …) and 34 skills whose upstream `description:` now declares activation triggers — descriptions drive Copilot's skill discovery, so those were user-visible.
+
+**Three protections.** A refresh is a *content* update, not a reinstall: it never re-runs the SkillSpector gate (the source was gated at install and every fork mirror is git-tracked, so changes are reversible).
+
+1. **`local/*` rows are never refreshed.** These are hand-authored ports living inside this repo under `upstream/`. Refreshing them is circular — the bundle's own `upstream/` copy can be leaner than what was installed.
+2. **`codex-review` / `codex-build` are pinned.** Upstream reduced them to ~17-line shims delegating to sibling `claudex-loop`; a refresh would replace a working standalone workflow with a pointer. The user decides.
+3. **`argument-hint:` is preserved.** The bundle injects this at install time and upstream does not ship it; a naive overwrite drops it. Refreshes re-attach it after the description block.
+
+Verified: `51 → 51` skills retain `argument-hint:`, `0` hints lost, both pinned skills byte-identical, and repeated runs report `Refreshed: 0` (idempotent).
+
+> **Incident, recorded honestly.** The first refresh shipped with a too-narrow protection rule: it pinned only the two named skills and skipped `local/*` rows in prose but not in code. That overwrote two ports — `book-to-skill` (702 → 414 lines) and `diagram-design` (565 → 273). `diagram-design` was recovered from a later 578-line v2.5 copy found in another repo. **`book-to-skill`'s original 702-line content is unrecoverable** — no backup, no git history, no dangling blobs. The rule was then implemented in code and re-verified. If you maintained a local `book-to-skill` enhancement, it is gone and will need rewriting.
+
 ### v1.6.3 (2026-09-13)
 
 **Upstream follow-through: renames, additions, and two more stale fork mirrors repaired.**
