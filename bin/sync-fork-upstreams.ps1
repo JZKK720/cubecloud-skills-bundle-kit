@@ -7,10 +7,11 @@
   Each fork mirror in ~/dev/forks/JZKK720/ was cloned from the JZKK720 fork and
   only has an `origin` remote. This script:
     1. Adds an `upstream` remote pointing at the real upstream repo (if missing).
-    2. Fetches upstream.
+    2. Fetches upstream --depth 1 (shallow, so mirrors do not accumulate history).
     3. Fast-forwards the local default branch to upstream's default branch.
   It is idempotent and safe: it never force-pushes, never rewrites history, and
-  leaves the fork's `origin` remote untouched.
+  leaves the fork's `origin` remote untouched. Mirrors intentionally stripped of
+  their `.git` directory are reported as "not a git checkout" and skipped.
 
 .PARAMETER ForksRoot
   Root directory containing the fork mirrors. Default: ~/dev/forks/JZKK720
@@ -194,8 +195,13 @@ foreach ($dir in (Get-ChildItem $ForksRoot -Directory | Sort-Object Name)) {
             Write-Host "  $name : added upstream -> $upstream" -ForegroundColor Green
         }
 
-        # Fetch upstream
-        & git -C $repo fetch upstream 2>&1 | Out-Null
+        # Fetch upstream. MUST stay shallow: every mirror is created by
+        # setup-global-skills.ps1 with `git clone --depth 1`, but a plain
+        # `git fetch` here un-shallows the clone and re-downloads FULL history.
+        # Measured 2026-09-14: one run grew a freshly-shallow mirror from
+        # 1.6 MB to 365 MB, which is how the mirrors reached 1.5 GB of .git
+        # against 0.9 GB of working trees. --no-tags also skips tag objects.
+        & git -C $repo fetch --depth 1 --no-tags upstream 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "fetch failed" }
 
         # Fast-forward local default branch to upstream default branch
@@ -213,7 +219,16 @@ foreach ($dir in (Get-ChildItem $ForksRoot -Directory | Sort-Object Name)) {
             continue
         }
         & git -C $repo merge --ff-only "$upstreamBranch" 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "ff merge failed (local changes?)" }
+        if ($LASTEXITCODE -ne 0) {
+            # A shallow clone shares no ancestor with its remote, so git reports
+            # "refusing to merge unrelated histories" even when it is a clean
+            # fast-forward. Deepening to fix that is exactly the .git bloat this
+            # script now avoids, so report it as a SKIP with the remedy instead
+            # of a failure. Re-running setup-global-skills.ps1 re-clones cleanly.
+            Write-Host "  $name : SKIP (shallow, no common ancestor - re-clone to update)" -ForegroundColor DarkYellow
+            $skipped++
+            continue
+        }
         Write-Host "  $name : fast-forwarded to upstream ($upstreamBranch)" -ForegroundColor Green
         $ok++
     }

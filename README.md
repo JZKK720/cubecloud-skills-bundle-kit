@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.1-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.2-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -453,6 +453,29 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.2 (2026-09-14)
+
+**Root-caused and fixed the mirror bloat that v1.9.1 identified but left alone.**
+
+1. **`sync-fork-upstreams.ps1` no longer un-shallows mirrors.** `setup-global-skills.ps1`
+   creates every mirror with `git clone --depth 1` **on purpose**, but sync fetched with a plain
+   `git fetch upstream` — no `--depth` — which un-shallows the clone and re-downloads full
+   history. That one line is how 41 mirrors reached 1,517 MB of `.git` against 947 MB of
+   working trees. The fetch is now `git fetch --depth 1 --no-tags upstream`.
+2. **Measured before/after on a live mirror.** With the old plain fetch, a single run grew a
+   freshly-shallow mirror from **1.6 MB → 365 MB**. With the fix, a full sync run grew it
+   **+0.01 MB**; the forks root held at **987 MB**, and all **20 syncable mirrors** still report
+   `is-shallow-repository = true`. The only full-history repo is the bundle itself.
+3. **A shallow fast-forward failure is now a SKIP, not a FAILED.** A shallow clone shares no
+   ancestor with its remote, so `merge --ff-only` says *"refusing to merge unrelated
+   histories"* even for a clean fast-forward. Deepening to fix that is the exact bloat being
+   removed, so it now reports `SKIP (shallow, no common ancestor - re-clone to update)` and
+   counts as *skipped*. Re-running `setup-global-skills.ps1` re-clones cleanly. This is a real
+   trade-off — those mirrors report SKIP rather than advancing when genuinely behind — chosen
+   deliberately over silent disk growth.
+
+The largest remaining `.git` is `markitdown` at **4.99 MB**.
 
 ### v1.9.1 (2026-09-14)
 

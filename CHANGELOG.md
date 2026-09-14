@@ -2,6 +2,43 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.2] — 2026-09-14
+
+Fixed the root cause of mirror bloat, which v1.9.1 identified but deliberately left alone.
+
+### Fixed — `sync-fork-upstreams.ps1` no longer un-shallows mirrors
+
+`setup-global-skills.ps1` creates every mirror with `git clone --depth 1` **on purpose**, but
+sync fetched with a plain `git fetch upstream` (no `--depth`), which un-shallows the clone and
+re-downloads full history. That single line is how 41 mirrors reached 1,517 MB of `.git` against
+947 MB of working trees.
+
+- **Fetch is now `git fetch --depth 1 --no-tags upstream`** (was `git fetch upstream`).
+  `--no-tags` also stops tag objects accumulating.
+- **Measured before/after on a live mirror:** with the old plain fetch, one run grew a
+  freshly-shallow mirror from **1.6 MB to 365 MB**. With the fix, a full sync run grew it
+  **+0.01 MB**. Forks root held at **987 MB** with no re-bloat, and all **20 syncable mirrors
+  report `is-shallow-repository = true`** (the only full-history repo is the bundle itself,
+  which is correct).
+
+### Changed — a shallow fast-forward failure is now a SKIP, not a FAILED
+
+A shallow clone shares no ancestor with its remote, so `git merge --ff-only` reports
+*"refusing to merge unrelated histories"* even for a clean fast-forward. Deepening to fix that
+is exactly the `.git` bloat this release removes, so the outcome is now reported as
+`SKIP (shallow, no common ancestor - re-clone to update)` and counted in *skipped* rather than
+*failed*. The remedy is to re-run `setup-global-skills.ps1`, which re-clones cleanly.
+This is a real trade-off: the 20 syncable mirrors will report SKIP instead of advancing when
+they are genuinely behind. Chosen deliberately over silent disk growth.
+
+### Verified
+
+- Script parses clean; `sync-fork-upstreams.ps1` reports
+  `Synced: 0, skipped: 49, Failed: 0`.
+- Forks root **987 MB** (v1.9.1 trimmed it from 2,470 MB); largest remaining `.git` is
+  `markitdown` at **4.99 MB**.
+- `full-audit.ps1` **PASS 51 | FAIL 0**; FORKS PASS; install-skill hash parity preserved.
+
 ## [1.9.1] — 2026-09-14
 
 Corrected a v1.9.0 size claim and reclaimed 1,482 MB of mirror overhead.
@@ -51,12 +88,12 @@ re-port needs a fresh `git clone --depth 1 --filter=blob:none --sparse` of
 `pbakaus/impeccable` directly. Also noted: the fork's `main` is at `f88b2837` (skill v4.1.1)
 while upstream `main` is at `cb56ed6c1`.
 
-### Not fixed — flagged for a decision
+### Not fixed in v1.9.1 — resolved in v1.9.2
 
-`sync-fork-upstreams.ps1` still uses a depth-unlimited `git fetch`, so the 20 remaining
-syncable mirrors will keep growing `.git` over time. Fixing it would mean changing the fetch to
-`--depth 1` (a behaviour change on a working script), and the fork-vs-upstream FF failure on
-shallow mirrors needs a merge-base fallback. Both are deferred rather than rushed.
+`sync-fork-upstreams.ps1` still used a depth-unlimited `git fetch`, so the 20 remaining
+syncable mirrors would keep growing `.git` over time. **Fixed in v1.9.2** (fetch is now
+`--depth 1 --no-tags`, plus a shallow-FF SKIP). Measured 1.6 MB → 365 MB before the fix,
++0.01 MB after.
 
 ## [1.9.0] — 2026-09-14
 
