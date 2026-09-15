@@ -1,0 +1,70 @@
+# Token-budget metadata for SkillSpector when pointed at a LOCAL Ollama endpoint
+# via the `openai` provider + OPENAI_BASE_URL.
+#
+# WHY THIS FILE EXISTS
+#   SkillSpector has no `ollama` provider. Ollama is reached through the `openai`
+#   provider with OPENAI_BASE_URL=http://127.0.0.1:11434/v1. Unknown model names
+#   then fall back to a guessed 128000-token context and log a WARNING for every
+#   analyzer slot (8+ warnings per scan). Registering them here silences that and
+#   makes the token budget accurate.
+#
+# NOTE: SKILLSPECTOR_MODEL_REGISTRY REPLACES the bundled registry - it does NOT
+#   merge. Anything not listed here loses its bundled metadata. Only local/ollama
+#   models belong in this file; it is used only by the Ollama launcher shim.
+#   Verified in skillspector/providers/registry.py:_resolve_path() - the override is
+#   applied for ANY provider, not just `openai`, so do not combine this file with a
+#   non-Ollama provider (its bundled per-provider metadata would be lost too).
+#   ALTERNATIVE: if you only want unknown models to be loud rather than silent, set
+#   SKILLSPECTOR_STRICT_MODEL_VALIDATION instead of maintaining this file.
+#
+# Format:
+#   models:
+#     "<model-label>":
+#       context_length: <int>        # total context window (required)
+#       max_output_tokens: <int>     # optional output cap
+#
+# context_length values are the real ones reported by the Ollama server
+# (`ollama show <model>`), not guesses. Measured 2026-09-15.
+# These are NOT the model's maximum: Ollama reports the CONTEXT LENGTH of the
+# installed manifest, which is what the server will actually serve.
+
+models:
+  # --- local (VRAM-resident) ---
+  "ornith-1.5:9b":
+    context_length: 262144
+    max_output_tokens: 32768
+  "ornith-1.5:35b":
+    context_length: 262144
+    max_output_tokens: 32768
+  "qwen3.6:35b-a3b-mtp-q4_K_M":
+    context_length: 262144
+    max_output_tokens: 32768
+  "nemotron-3.5-lightning:30b-a3b":
+    context_length: 1048576
+    max_output_tokens: 32768
+  "gemma4:12b-it-qat":
+    context_length: 262144
+    max_output_tokens: 8192
+  "nomic-embed-text:latest":
+    context_length: 2048
+    max_output_tokens: 8192
+
+  # NOT INSTALLED on this machine - left commented rather than listed, because an
+  # entry here would advertise a context_length nobody has measured. Uncomment only
+  # after confirming with `ollama show <model>`.
+  # "qwen3.8:27b-mtp-q4_K_M":
+  #   context_length: 131072
+  #   max_output_tokens: 32768
+
+  # --- Ollama cloud routes (remote-hosted; SIZE shows as "-" in `ollama list`) ---
+  # Registered for completeness. Prefer a LOCAL model for SkillSpector: a security
+  # scan ships skill source to the endpoint, and these run off-machine.
+  "glm-5.3-flash:cloud":
+    context_length: 1048576
+    max_output_tokens: 32768
+  "deepseek-v4.1-flash:cloud":
+    context_length: 1048576
+    max_output_tokens: 32768
+  "deepseek-v4-pro:0813-cloud":
+    context_length: 1048576
+    max_output_tokens: 32768

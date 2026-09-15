@@ -2,6 +2,120 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.3] — 2026-09-15
+
+Two skills added — one upstream install, one gate-remediated local port — plus a local-Ollama
+launcher for the optional LLM-assisted scan pass.
+
+### Added — `hyperframes` (heygen-com/hyperframes, Apache-2.0)
+
+HTML-native video rendering, installed as the **router only**. `hyperframes` is the entry point
+to a capability map of 20 published skills; installing just the router keeps the skill index
+lean, because the router pulls each creation workflow on demand via
+`npx hyperframes skills update <workflow>` once a video request arrives.
+
+- Gate: **PASS** (exit 0) — risk **18/100 LOW / SAFE**, **0 executable components**.
+  52 advisory MEDIUMs, both classes on `SKILL.md` only: MP2 (context-window stuffing) ×31,
+  inherent to a router that enumerates its routes, and RP1 (MCP rug pull) ×21 for unpinned
+  `npx` invocations. Pinning those versions would clear all 21 RP1s if this is ever revisited.
+- `skills-ref validate`: **VALID**.
+- **Runtime deps:** Node ≥ 22 (have v24.13.0) and FFmpeg (have 8.1.2), both verified present.
+- Installed from the **upstream owner**, not a fork mirror — the same convention already used by
+  `addyosmani/agent-skills` and `EveryInc/compound-engineering-plugin`, so no new mirror exists
+  to keep in sync.
+
+### Added — `timesfm-forecasting` as a remediated `local/*` port
+
+Zero-shot time-series forecasting with Google's TimesFM foundation model.
+
+Upstream **hard-blocks** the static gate: `skillspector scan --no-llm` exits **1**
+(`do_not_install`) on `HIGH TM1 "Tool Parameter Abuse"` at `scripts/forecast_csv.py:225` and
+`:247`. Both findings trace to **one construct** — a `--skip-check` flag letting a caller bypass
+the mandatory RAM/GPU/disk preflight.
+
+- **Isolation proof:** copy the skill, delete only `scripts/forecast_csv.py` → gate flips to
+  exit **0**. The static rule keys on the **literal string**, not the semantics: a first
+  remediation that kept the flag but made the preflight unconditional still blocked.
+- **Fix:** remove the flag, remove its dead branch, make preflight unconditional. No
+  functionality lost beyond the ability to skip a safety check. `ast.parse` clean.
+- **Result:** gate **exit 0**; `skills-ref validate` **VALID**. Residual MEDIUMs
+  (AST3/AST4/EA4/LP3) are unchanged upstream and non-blocking.
+- **Second opinion, recorded because it contradicts the gate:** the LLM-assisted pass on the
+  *unmodified* upstream returned risk 46 / MEDIUM / CAUTION at exit 0. Its retained findings were
+  the same TM1 pair **plus** a useful `TP4`: upstream bundles anomaly-detection, LoRA
+  fine-tuning, and GIF/HTML animation the description never mentions — and fine-tuning
+  contradicts the "zero-shot, no training" framing. Worth acting on regardless of the verdict.
+- **Licence caveat:** code is Apache-2.0, but TimesFM **3.0 pretrained weights** are under
+  `timesfm-non-commercial-license-v1.0` (non-commercial only); weights ≤ 2.5 remain Apache-2.0.
+  Fine for dev use — do **not** ship 3.0 weights in a commercial/OEM product.
+
+### Added — `bin/skillspector-local.ps1` (optional LLM-assisted scan)
+
+Runs SkillSpector against a **local Ollama** model, so the optional LLM pass can clear or confirm
+static findings with no cloud API key and without shipping skill source to a third party.
+SkillSpector has **no `ollama` provider**; Ollama is reached through the bundled `openai` provider
+via `OPENAI_BASE_URL`, with `OPENAI_API_KEY` set to a non-empty placeholder whose value Ollama
+ignores. Process-scoped only — nothing is written to the registry, the User profile, or any config
+file. `-Check` verifies the wiring and reports whether Ollama is up and the model is available
+(it warns when the selected model is a `:cloud` route, because inference then runs off-machine).
+
+- **No `param()` block, deliberately.** SkillSpector's short flags (`-f`, `-o`, `-r`) collide with
+  PowerShell's parameter binder three separate ways (positional capture of the `scan` verb;
+  prefix-match stealing `-o`; `[CmdletBinding()]` making bare `-o` ambiguous against
+  `-OutVariable`/`-OutBuffer`). The script parses only its own long-named flags and forwards every
+  other token verbatim. **Adding any new `param()` can silently re-break `-o`/`-f`/`-r`.**
+- Pairs with `setup/skillspector-ollama-models.yaml`, an optional token-budget registry that
+  silences the per-slot "not found in model_registry.yaml … fallback context length (128000)"
+  warnings. `SKILLSPECTOR_MODEL_REGISTRY` **replaces** the bundled registry rather than merging,
+  so the file holds only local/Ollama models and is used only by this shim.
+
+### Fixed — inaccurate metadata and gate claims
+
+- **`skillspector-ollama-models.yaml` shipped wrong context lengths** — the file's own comment
+  claimed the values were "the real ones reported by the Ollama server, not guesses", but five of
+  ten were wrong (all four `:cloud`/`nomic` entries, and three local ones). Corrected against
+  `ollama show`; the not-installed `qwen3.8` entry is now commented out rather than advertising an
+  unmeasured value.
+- **The `hyperframes` manifest note mis-stated its own gate result.** It claimed "3× MEDIUM MP2 on
+  SKILL.md:106/107/110" and "no executable scripts". Re-running the gate gives **52** MEDIUMs
+  (MP2 ×31 + RP1 ×21), **3** of the MP2s fall in the 104-110 window, and the correct claim is
+  **0 executable components** (`executable: false`, which is stronger than "no scripts").
+- **`local/*` row shape documented in the manifest.** All 36 `local/*` rows are
+  4 fields — `repo|name|relPath|disabled` — so the trailing `upstream/<path>` is documentation,
+  not the source override it appears to be: both `install-missing-skills.ps1` and
+  `setup-global-skills.ps1` parse field 4 as `$disabled` (empty ⇒ not `"true"` ⇒ false) and derive
+  the real source from the `local/*` prefix as `upstream/<name>`. Two consequences are now
+  recorded: editing that path changes nothing, and a `local/*` row **cannot** be parked via the
+  disabled column because empty does not equal `"true"`. The parser's `$parts.Length -ge 5`
+  source-override branch is therefore **dead code** — no manifest row has a 5th field. The new row
+  was kept byte-identical in shape to its 35 peers rather than inventing a 5th column.
+
+### Verified
+
+- Static gate re-run on both new skills: **exit 0** each. `skills-ref validate`: **VALID** each.
+- Manifest: **240** data rows, **0** duplicate names, **0** rows deviating from the 4-field shape,
+  **36** `local/*` rows with **0** missing sources (source resolution checked row-by-row, which a
+  count-only audit would not catch).
+- Byte-level encoding audit on every new file: **0** BOMs, **0** GBK-mojibake codepoints, CRLF
+  matching the existing `setup/` + `bin/` convention.
+- `bin/full-audit.ps1` → **PASS 52 | FAIL 0**. `install-skill.ps1` hash parity preserved across
+  `setup/`, `bin/`, and `~/dev/bin/` (**3/3 identical**).
+- Counters re-measured after the last edit (they went stale three separate times in past releases):
+  manifest **240** (239 active + 1 disabled), `local/*` **36**, installed **288**
+  `~/.agents/skills/` + **508** `~/.claude/skills/` + **27** `~/.copilot/skills/`.
+
+### Known follow-up
+
+`upstream/timesfm-forecasting/` is **2.03 MB** because it carries committed demo output:
+`forecast_animation.gif` (794 KB), `covariates_data.png` (459 KB), `anomaly_detection.png`
+(217 KB), `interactive_forecast.html` (159 KB), `forecast_visualization.png` (151 KB) — **96%** of
+the payload. Upstream's own `.gitignore` ignores `*.html`, so these are regenerable artifacts.
+**Kept deliberately:** `SKILL.md`'s acceptance criteria and verification snippets assert against
+`output/anomaly_detection.json`, `output/sales_with_covariates.csv`, and
+`output/forecast_output.json`, and the example scripts read the sibling PNG/GIF/JSON, so they are
+load-bearing content here rather than stray build output — and this is the first binary payload in
+any `upstream/` port, so trimming it would be a new convention decided unilaterally.
+
 ## [1.9.2] — 2026-09-14
 
 Fixed the root cause of mirror bloat, which v1.9.1 identified but deliberately left alone.

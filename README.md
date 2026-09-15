@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 238 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 240 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-238-2ea44f)](#whats-included)
+[![Skills](https://img.shields.io/badge/skills-240-2ea44f)](#whats-included)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.2-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.3-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills          | **238** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, and the impeccable design-methodology series |
+| 🧠 Skills          | **240** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, and the impeccable design-methodology series |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
 | 📚 Fork mirrors    | **49**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable |
@@ -109,7 +109,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (238 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
+### Skills (240 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -386,7 +386,7 @@ Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 ├── setup/                      # the one-command installer + config
 │   ├── setup-global-skills.ps1 # master installer
 │   ├── install-skill.ps1       # security-gated skill install helper
-│   ├── skills-list.csv         # manifest of 238 entries (237 active + 1 disabled)
+│   ├── skills-list.csv         # manifest of 240 entries (239 active + 1 disabled)
 │   ├── mcp.json.template       # 11 MCP server config
 │   └── SETUP_GUIDE.md          # detailed guide
 ├── bin/                        # 19 audit/fix/install helper scripts
@@ -453,6 +453,35 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.3 (2026-09-15)
+
+**Two skills added — one upstream install, one gate-remediated port — plus a local-Ollama scan launcher.**
+
+1. **`hyperframes`** (heygen-com, Apache-2.0) — HTML-native video rendering, installed as the
+   **router only**. It is the entry point to 20 published skills and pulls each workflow on demand
+   via `npx hyperframes skills update <workflow>`, so the skill index stays lean and installed skill
+   count can grow at runtime **by design, not drift**. Gate **PASS** (exit 0, risk 18/100 LOW,
+  0 executable components); the 52 advisory MEDIUMs (MP2 ×31 router-enumeration + RP1 ×21 unpinned
+   `npx`) sit on SKILL.md only. Needs Node ≥ 22 + FFmpeg, both already present.
+2. **`timesfm-forecasting`** — added as a **remediated `local/*` port** rather than an upstream
+   install, because upstream hard-blocks the gate (exit 1, `HIGH TM1` ×2) and both findings trace to
+   **one construct**: a `--skip-check` flag that bypasses the mandatory RAM/GPU/disk preflight.
+   Removing the flag (and its dead branch) flips the gate to **exit 0** and loses nothing but the
+   ability to skip a safety check. **Isolation-proved:** deleting only that file also yields exit 0.
+3. **`bin/skillspector-local.ps1`** — runs the optional LLM-assisted scan against a **local Ollama**
+   model, so findings can be cleared or confirmed with no cloud key and without shipping skill source
+   to a third party. Deliberately declares **no `param()` block**: SkillSpector's short flags
+   (`-f`/`-o`/`-r`) collide with PowerShell's binder three ways, and any new param can re-break them.
+
+**Also corrected this release:** that registry file shipped **wrong context lengths** while claiming
+in its own comment to be measured (5 of 10 entries), and the `hyperframes` note **mis-stated its own
+gate result** (claimed 3 MEDIUMs at lines 106/107/110; actual is 52 MEDIUMs, 3 inside that window).
+Both are fixed. The `local/*` row shape is now documented in the manifest too — all 36 rows are
+4 fields, so the trailing `upstream/<path>` is documentation and field 4 is parsed as `$disabled`.
+
+**Counters:** manifest 238 → **240** (239 active + 1 disabled); `local/*` 35 → **36**; installed
+**288** `~/.agents/skills/` + **508** `~/.claude/skills/`. **`full-audit.ps1`: PASS 52 | FAIL 0.**
 
 ### v1.9.2 (2026-09-14)
 

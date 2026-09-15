@@ -713,3 +713,78 @@ JZKK720/firstmate|project-management|.agents/skills/project-management|
 #   captain-hold-lifecycle, decision-hold-lifecycle, secondmate-provisioning,
 #   stuck-crewmate-recovery, firstmate-codexapp, firstmate-coding-guidelines,
 #   firstmate-orca, fmx-respond, process-event-sources.
+
+# --- heygen-com/hyperframes (Apache-2.0): HTML-native video rendering, agent-first ---
+# hyperframes is the ROUTER + capability map for 20 published skills. Installing ONLY the
+#   router keeps the skill index lean: the router pulls each creation workflow on demand via
+#   `npx hyperframes skills update <workflow>` once a video request arrives. Verified in the
+#   router SKILL.md section "Install and enter the workflow" - this is upstream behaviour by
+#   design, so the installed skill count can grow at runtime. Not drift.
+#   skills-ref: VALID. SkillSpector: PASS (exit 0) - risk 18/100 LOW / SAFE, and 0
+#   executable components. The 52 advisory MEDIUMs are MP2 (context-window stuffing)
+#   x31 across SKILL.md - inherent to a capability-map router that enumerates its routes,
+#   3 of them inside the 104-110 window - plus RP1 (MCP rug pull) x21 for UNPINNED `npx`
+#   invocations. Both are advisory on a SKILL.md-only payload, not blocking.
+#   ACTIONABLE IF EVER REVISITED: pinning those npx versions would clear all 21 RP1s.
+#   Runtime deps: Node >= 22 (have v24.13.0) and FFmpeg (have 8.1.2). Both verified present.
+#   Installed from the UPSTREAM owner directly - same convention already used by
+#   addyosmani/agent-skills and EveryInc/compound-engineering-plugin. No fork mirror is
+#   required to install a non-local row (installer clones from the repo field, see gotcha 16).
+#   Caveat: 20 sibling skills exist but only the router is a manifest row. If a workflow
+#   skill is installed later by the router, it lands in ~/.agents/skills outside this manifest.
+heygen-com/hyperframes|hyperframes|skills/hyperframes|
+
+# --- google-research/timesfm (Apache-2.0 code) - local remediated port ---
+# timesfm-forecasting: zero-shot time-series forecasting with the TimesFM
+#   foundation model. Ships a mandatory preflight checker, CSV forecaster, and
+#   5 worked examples.
+#
+# WHY THIS IS A local/* PORT AND NOT AN UPSTREAM INSTALL:
+#   The upstream skill HARD-BLOCKS the static gate (exit 1, do_not_install):
+#     HIGH TM1 "Tool Parameter Abuse"  scripts/forecast_csv.py:225 and :247
+#   Both findings point at ONE construct: the `--skip-check` CLI flag, which lets
+#   a caller bypass the mandatory system preflight (RAM/GPU/disk check before
+#   loading the model). Verified by isolation: copying the skill and deleting
+#   ONLY scripts/forecast_csv.py flips the gate to PASS (exit 0).
+#   The static rule keys on the LITERAL STRING, not the semantics - a first
+#   remediation that kept `--skip-check` but made the preflight unconditional
+#   ("if False:") STILL blocked at line 242. The string had to go entirely.
+#   The port therefore removes the flag, removes its dead branch, and makes the
+#   preflight unconditional. NO functionality is lost: the only behaviour
+#   removed is the ability to skip a safety check. `python -m ast` parses clean.
+#   Residual MEDIUM findings (AST3/AST4/EA4/LP3) are unchanged upstream and are
+#   all non-blocking.
+#
+# SECOND OPINION (recorded because it contradicts the static gate):
+#   The LLM-assisted pass on the UNMODIFIED upstream skill returned
+#   risk score 46 / MEDIUM / CAUTION and EXIT 0 - i.e. it did NOT agree with the
+#   static block. Its 3 retained issues were the same TM1 x2 PLUS a genuinely
+#   useful TP4 "hidden capability" finding: upstream bundles anomaly-detection,
+#   LoRA fine-tuning, and GIF/HTML animation that the description never
+#   mentions - and fine-tuning directly contradicts the "zero-shot, no training"
+#   framing. Consider trimming those examples or widening the description.
+#
+# THIRD-PARTY CODE NOTICE (why this port has a licence obligation upstream lacks):
+#   The bundled examples/ + scripts/ include code adapted from
+#   google-research/timesfm examples WITHOUT visible per-file upstream
+#   attribution. That is upstream's call; this port inherits it. The port does
+#   NOT claim original authorship of scripts/ or examples/.
+#
+# LICENSE: code Apache-2.0. TimesFM 3.0 PRETRAINED WEIGHTS are under
+#   timesfm-non-commercial-license-v1.0 (non-commercial, non-production only);
+#   weights <= 2.5 remain Apache-2.0. Dev-purpose use is fine; do NOT ship 3.0
+#   weights in a commercial/OEM product - pin <= 2.5 if that ever changes.
+#
+# Source of record: upstream/timesfm-forecasting/  (NOT a fork mirror; nothing to sync)
+# Re-derive: skillspector scan <upstream skill> --no-llm -> expect exit 1;
+#            delete/neutralise scripts/forecast_csv.py's --skip-check -> expect exit 0
+#
+# ON THIS ROW'S SHAPE (all 36 local/* rows share it): fields are repo|name|relPath|disabled.
+#   The 4th field here carries the source PATH, not a boolean. install-missing-skills.ps1
+#   and setup-global-skills.ps1 parse it as $disabled and test -eq "true" (so: false), then
+#   derive the real source from the `local/*` prefix as "upstream/<name>". Consequences:
+#     - the trailing path is DOCUMENTATION; editing it changes nothing.
+#     - a local/* row can never be parked via the disabled column.
+#     - the parser's `if ($parts.Length -ge 5)` source-override branch is dead code - no row
+#       in the manifest has a 5th field. Kept identical to its 35 peers rather than invented.
+local/timesfm-forecasting|timesfm-forecasting||upstream/timesfm-forecasting
