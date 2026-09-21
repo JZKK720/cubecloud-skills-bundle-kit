@@ -2,6 +2,47 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.6] — 2026-09-22
+
+A guard expansion plus a latent parse-breaking duplicate-key fix. No skill content changed —
+**0 of 294 installed skills were touched**, verified by hash.
+
+### Fixed — `-Refresh` could have truncated 16 skills by 17–83%
+
+Cloning the `compound-engineering-plugin` fork mirror (done in this pass, to give 16 previously
+invisible `ce-*`/`lfg` rows a real source) had an unintended consequence: those rows went from
+`skip (no source)` to **refresh candidates**. Measured installed-vs-source line counts:
+
+| skill | installed | refresh source | delta |
+| --- | --- | --- | --- |
+| `ce-ideate` | 434 | 74 | **−83%** |
+| `ce-test-browser` | 242 | 51 | **−79%** |
+| `ce-debug` | 339 | 117 | **−65%** |
+| `ce-handoff` | 142 | 55 | **−61%** |
+| `lfg` | 149 | 58 | **−61%** |
+| `ce-simplify-code` | 78 | 65 | −17% |
+
+The refresh source is the **fork mirror**, pinned at `84bdf8c` (**2026-08-27**) — which is itself
+*behind* upstream (upstream `ce-debug` is 123 lines, the mirror 117). So a refresh would target
+neither the installed state nor current upstream. Every one of these is a genuine content
+divergence, not the name-only pattern that explained `hallmark` / `taste-skill` /
+`create-technical-design-doc`, so the rename rule does not cover them.
+
+- **Fix:** the 16 active `ce-*`/`lfg` rows are added to `$protected`, blocking refresh with a
+  named reason until a human decides whether the larger installed copies are deliberate local
+  enrichment or a stale install. Same principle as `codex-review`/`codex-build`: never trade a
+  richer working skill for a thinner pointer.
+- **Preview after:** `Would refresh: 0  Up-to-date/protected: 246  Blocked: 0`.
+
+### Fixed — duplicate hash key would have broken the whole script parse
+
+`sync-fork-upstreams.ps1`'s `$upstreamMap` already contained
+`"compound-engineering-plugin"`, so re-adding it produced
+`哈希文本中不允许重复的键` — a **duplicate hash key fails the entire script parse**, not
+just the entry. Removed, and replaced with comments recording the two facts that invite the
+mistake: the key is already mapped, and `hyperframes` deliberately has **no** mapping because
+`JZKK720/hyperframes` returns 404 (mapping a dead remote would mean a failed fetch every sync).
+
 ## [1.9.5] — 2026-09-21
 
 `full-audit.ps1` correctness fixes: it no longer leaks MCP server processes, its MCP verdicts

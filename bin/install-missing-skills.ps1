@@ -69,7 +69,51 @@ $forkRoot = "$env:USERPROFILE\dev\forks\JZKK720"
 #     that delegate to the sibling claudex-loop skill, because the real workflow MOVED
 #     into claudex-loop. Overwriting would delete a working standalone workflow in favour
 #     of a pointer, so they are pinned and the user decides.
-$protected = @('codex-review', 'codex-build')
+#   - RENAMED-UPSTREAM skills: the installed copy deliberately carries a DIFFERENT
+#     frontmatter `name:` than upstream (and a matching directory name). The bundle renames
+#     these to avoid a cross-root collision or to match the manifest name. A refresh copies
+#     upstream's `name:` back and BREAKS the install. Verified 2026-09-21: a dry run flagged
+#     exactly these three, and the only differing line was the `name:` field.
+#       hallmark                    -> 3 rewritten reference links (upstream-only doc paths)
+#       taste-skill                 -> upstream name is 'design-taste-frontend', which ALREADY
+#                                      EXISTS as a real .copilot/skills skill => collision
+#       create-technical-design-doc -> upstream name is 'technical-design-doc-creator'
+#     Evidence for the convention: all 294 installed skills satisfy name == folder name,
+#     with zero exceptions. Same hazard class as the documented book-to-skill 702->414
+#     regression, so this is enforced in code, not in a comment.
+#   - compound-engineering-plugin (EveryInc): the 20 `ce-*` skills plus `lfg`. Their mirror
+#     was cloned on 2026-09-21 (fork pinned at 84bdf8c, 2026-08-27) purely for provenance,
+#     which made `-Refresh` suddenly able to SEE them -- and refresh would TRUNCATE them.
+#     Measured installed-vs-source lines: ce-ideate 434->74, ce-debug 339->117,
+#     ce-test-browser 242->51, ce-handoff 142->55 (upstream-current is 123 for ce-debug, so
+#     the stale FORK is behind upstream too -- refreshing targets neither state correctly).
+#     The installed copies are far richer than any current source; until a human decides
+#     whether that is deliberate local enrichment or a stale install, refresh is BLOCKED.
+#     Same rationale as codex-review/codex-build above: never trade a richer working skill
+#     for a thinner pointer.
+$protected = @(
+    'codex-review',
+    'codex-build',
+    'hallmark',
+    'taste-skill',
+    'create-technical-design-doc',
+    'ce-ideate',
+    'ce-strategy',
+    'ce-product-pulse',
+    'ce-compound-refresh',
+    'ce-explain',
+    'ce-debug',
+    'ce-simplify-code',
+    'ce-commit',
+    'ce-commit-push-pr',
+    'ce-worktree',
+    'ce-handoff',
+    'ce-promote',
+    'ce-setup',
+    'ce-retune',
+    'ce-test-browser',
+    'lfg'
+)
 
 function Get-SourceSkillFile {
   param([string]$Repo, [string]$Name, [string]$RelPath, [string]$SourceOverride, [string]$RepoRoot)

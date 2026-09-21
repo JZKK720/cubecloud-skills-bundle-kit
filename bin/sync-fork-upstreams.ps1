@@ -112,6 +112,18 @@ $upstreamMap = @{
     # `local/jev` prose-only port here (SkillSpector HARD-BLOCKed upstream on HIGH E2 at
     # scripts/jev.py:131/:180 - see the manifest note). The mirror is only needed for the
     # 5 direct rows plus provenance; it is NOT the source of the `jev` port.
+    #
+    # NOTE: `compound-engineering-plugin` is ALREADY mapped above (line ~71) - do NOT add a
+    # second entry. PowerShell rejects a duplicate key in a hash literal and the whole script
+    # fails to parse. The fork exists on GitHub (26 MB); the MIRROR was never cloned, which is
+    # why all 20 `ce-*` rows (plus `lfg`) report "skip <name> (no source)". Clone it with:
+    #   git clone --depth 1 https://github.com/JZKK720/compound-engineering-plugin.git
+    #
+    # NOTE: heygen-com/hyperframes deliberately has NO entry here and must not get one until
+    # `JZKK720/hyperframes` exists (it currently 404s). A mapping to a non-existent remote
+    # makes sync attempt a dead fetch every run. The `hyperframes` row still installs fine
+    # direct from upstream - only its REFRESH path is unavailable, like the other rows whose
+    # fork is absent.
 
 if (-not (Test-Path $ForksRoot)) {
     Write-Host "Forks root not found: $ForksRoot" -ForegroundColor Red

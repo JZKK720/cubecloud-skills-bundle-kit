@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.5-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.6-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -454,6 +454,32 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.6 (2026-09-22)
+
+**Guard expansion — `-Refresh` could have truncated 16 `ce-*`/`lfg` skills by 17–83%. No skill
+content changed: 0 of 294 installed skills were touched (hash-verified).**
+
+1. **16 skills exposed to a destructive refresh.** Cloning the `compound-engineering-plugin`
+   fork mirror — done to give 16 rows that reported `skip (no source)` a real source — had a
+   side effect: they became refresh candidates. Measured installed-vs-source lines: `ce-ideate`
+   **434→74**, `ce-test-browser` **242→51**, `ce-debug` **339→117**, `ce-handoff` **142→55**,
+   `lfg` **149→58**.
+
+2. **The refresh source is stale in both directions.** It resolves to the **fork mirror**,
+   pinned at `84bdf8c` (2026-08-27), which is itself behind upstream (upstream `ce-debug` is
+   123 lines vs the mirror's 117). A refresh would therefore match neither the installed state
+   nor current upstream. Unlike `hallmark` / `taste-skill` / `create-technical-design-doc`
+   (name-only divergence, explained by an upstream rename), these are genuine content
+   divergences — so the rename rule does not apply. All 16 are now `$protected`, blocked with a
+   named reason until a human decides whether the larger copies are deliberate enrichment or a
+   stale install. **Preview after: `Would refresh: 0  Up-to-date/protected: 246  Blocked: 0`.**
+
+3. **Latent parse break removed.** `sync-fork-upstreams.ps1` maps
+   `compound-engineering-plugin` already; a duplicate key produces
+   `哈希文本中不允许重复的键`, which fails the **entire script parse**. Removed, with comments
+   recording that the key exists and that `hyperframes` intentionally has no mapping
+   (`JZKK720/hyperframes` 404s).
 
 ### v1.9.5 (2026-09-21)
 
