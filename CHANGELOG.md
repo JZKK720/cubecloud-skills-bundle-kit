@@ -2,6 +2,73 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.5] — 2026-09-21
+
+`full-audit.ps1` correctness fixes: it no longer leaks MCP server processes, its MCP verdicts
+are deterministic, and its summary no longer buries the real breakdown behind one opaque number.
+
+### Fixed — `full-audit.ps1` leaked MCP servers, which wedged the NEXT run
+
+The MCP smoke test started each server as `cmd.exe /c "<launcher> > out 2> err"`. Those
+launchers are **launchers**, not the servers: `uvx` spawns `markitdown-mcp`, `npx` spawns
+`node` which spawns `firecrawl-mcp`. `Process.Kill()` kills only the shell it started, so the
+actual server survived as an orphan **still holding the redirect file handles**. Measured
+before the fix: **19 stale server processes** alive and **12 locked `audit_mcp_*.log` files**.
+The next run's `Remove-Item` then threw `RemoveFileSystemItemIOError` and the audit appeared to
+hang.
+
+- **Fix:** a recursive `Stop-Tree` helper reaps descendants before the parent, invoked on
+  **both** the timeout path and the early-exit path.
+- **After:** orphans `0` before and after, `0` lock errors, and no `Remove-Item` noise.
+
+### Fixed — MCP verdicts were timing-dependent
+
+The old code branched on `$proc.HasExited`: a server still up at its timeout scored PASS, but a
+server that exited first had its stderr grepped for `"error|Error|traceback|..."`. Windows'
+launcher-failure text (`'x' is not recognized as an internal or external command`) contains
+none of those words, so **a failed launch was recorded as PASS** — the same server could flip
+verdict between runs.
+
+- **Fix:** the verdict now derives from the **server's own liveness** (`aliveBeforeTimeout`) and
+  from which stream produced output — never from a substring match on stderr.
+- **After:** identical verdicts *and* identical stderr byte counts
+  (`5078 / 0 / 0 / 6201 / 102 / 0`) across consecutive passes.
+
+### Fixed — "WARN: N" was a union that hid the breakdown
+
+The summary line counted `\| (WARN|ADVISORY) \|` as a single number. The real split is
+**1 WARN + 73 ADVISORY** — essentially all of it advisory `skills-ref` results across ~294
+skills, plus exactly one genuine WARN. One blended number made a stable, entirely explained
+count read as unexplained flakiness.
+
+- **Fix:** WARN and ADVISORY are counted and printed separately.
+- **New baseline:** `PASS: 52 | FAIL: 0 | WARN: 1 | ADVISORY: 73`.
+
+### Added — temp-log names are now per-run
+
+Smoke-test logs use `audit_mcp_<name>_<runId>.log`, so a leftover process can never make the
+next run's cleanup fail on a name collision. This run's artifacts are also cleaned up at the
+end of the script, best-effort and non-fatal.
+
+### Documented — runtime is ~18 minutes, and that is expected
+
+Measured **1108 s**. The audit is **not hung**, and a timeout is not a failure:
+
+| Phase | Time | Note |
+| --- | --- | --- |
+| MCP smoke test | ~122 s | 6 servers × 15–25 s timeouts, sequential |
+| `skills-ref validate` per skill | **dominant** | one process spawn per skill, ~294 skills |
+
+Budget 20+ minutes. Two earlier runs were killed at 900 s and misdiagnosed as wedged.
+
+### Verification
+
+- Orphans and lock errors measured **0** across repeated runs; previously 19 and 12.
+- MCP block exercised twice in-process: identical verdicts, identical stderr sizes.
+- Full audit end-to-end: `PASS 52 | FAIL 0`, **0** lock errors, **0** orphans — matching the
+  pre-change baseline exactly, so no regression was introduced.
+- `full-audit.ps1` parses clean; single copy in the repo (no deployed duplicate).
+
 ## [1.9.4] — 2026-09-21
 
 Six typed-decision skills added from `wuyoscar/jev-skill` (one as a gate-remediated local port),

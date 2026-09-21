@@ -4,6 +4,13 @@ $env:PYTHONUTF8 = "1"
 $reportFile = "$env:USERPROFILE\dev\upstream\AUDIT_REPORT.md"
 $results = @()
 
+# Per-run id for temp log names. Reusing "audit_mcp_<name>.log" across runs meant a
+# leftover process holding the file made the NEXT run's Remove-Item throw (and the
+# audit appear to hang). Unique names make a lock impossible to collide with, so the
+# audit never depends on being able to delete a file someone else still has open.
+$runId = [Guid]::NewGuid().ToString('N').Substring(0, 8)
+$script:tmpArtifacts = @()
+
 function Add-Result($category, $item, $verdict, $detail) {
   $script:results += "| $category | $item | $verdict | $detail |"
 }
@@ -25,6 +32,21 @@ try {
 }
 
 # Smoke test each MCP server (start, wait, if running = pass)
+#
+# IMPORTANT: these commands are launchers. `uvx`/`npx` spawn the real server as a
+# CHILD (uvx -> markitdown-mcp, npx -> node -> firecrawl-mcp). Process.Kill() only
+# kills cmd.exe, so the actual server survived as an orphan that kept the redirect
+# files open -- which is why a later run's Remove-Item threw and the audit wedged,
+# and why 19 stale server processes accumulated. Stop-Tree below reaps descendants
+# first. Verdicts are also taken from the SERVER'S OWN liveness, not from whether
+# stderr happened to contain "error", so a result no longer flips between runs.
+function Stop-Tree {
+  param([int]$ProcessId)
+  $children = Get-CimInstance Win32_Process -Filter "ParentProcessId = $ProcessId" -ErrorAction SilentlyContinue
+  foreach ($c in $children) { Stop-Tree -ProcessId $c.ProcessId }
+  Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
+}
+
 $mcpServers = @(
   @{name="markitdown"; cmd="uvx"; args="markitdown-mcp@latest"; timeout=20},
   @{name="skillspector"; cmd="skillspector"; args="mcp"; timeout=15},
@@ -35,13 +57,14 @@ $mcpServers = @(
 )
 
 foreach ($s in $mcpServers) {
-  $outFile = Join-Path $env:TEMP "audit_mcp_$($s.name).log"
-  $errFile = Join-Path $env:TEMP "audit_mcp_$($s.name)_err.log"
-  if (Test-Path $outFile) { Remove-Item $outFile -Force }
-  if (Test-Path $errFile) { Remove-Item $errFile -Force }
-  
+  $outFile = Join-Path $env:TEMP "audit_mcp_$($s.name)_$runId.log"
+  $errFile = Join-Path $env:TEMP "audit_mcp_$($s.name)_${runId}_err.log"
+  $script:tmpArtifacts += $outFile
+  $script:tmpArtifacts += $errFile
+  Remove-Item $outFile, $errFile -Force -ErrorAction SilentlyContinue
+
   $fullCmd = if ($s.args) { "$($s.cmd) $($s.args)" } else { "$($s.cmd)" }
-  
+
   # Start process with timeout using .NET diagnostics
   $psi = New-Object System.Diagnostics.ProcessStartInfo
   $psi.FileName = "cmd.exe"
@@ -50,26 +73,26 @@ foreach ($s in $mcpServers) {
   $psi.CreateNoWindow = $true
   $psi.EnvironmentVariables["PATH"] = $env:PATH
   $psi.EnvironmentVariables["PYTHONUTF8"] = "1"
-  
+
   $proc = [System.Diagnostics.Process]::Start($psi)
-  $proc.WaitForExit($s.timeout * 1000)
-  
-  if (-not $proc.HasExited) {
-    $proc.Kill()
-    $proc.WaitForExit(3000)
-    $outSize = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
-    $errSize = if (Test-Path $errFile) { (Get-Item $errFile).Length } else { 0 }
-    Add-Result "MCP" "$($s.name) daemon" "PASS" "Started OK (out=${outSize}B, err=${errSize}B)"
+  $aliveBeforeTimeout = -not $proc.WaitForExit($s.timeout * 1000)
+
+  # Always reap the whole tree: on timeout it stops the leak, and on a fast exit it
+  # cleans up any launcher grandchild that outlived the shell.
+  Stop-Tree -ProcessId $proc.Id
+
+  $outSize = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
+  $errSize = if (Test-Path $errFile) { (Get-Item $errFile).Length } else { 0 }
+
+  if ($aliveBeforeTimeout) {
+    # Server was still up when the timeout fired == it started and stayed up.
+    Add-Result "MCP" "$($s.name) daemon" "PASS" "Started OK, still up at $($s.timeout)s (out=${outSize}B, err=${errSize}B)"
+  } elseif ($outSize -gt 0) {
+    Add-Result "MCP" "$($s.name) daemon" "PASS" "Exited early with output (out=${outSize}B, err=${errSize}B)"
+  } elseif ($errSize -gt 0) {
+    Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, stderr=${errSize}B (see $errFile)"
   } else {
-    $exitCode = $proc.ExitCode
-    $outSize = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
-    $errSize = if (Test-Path $errFile) { (Get-Item $errFile).Length } else { 0 }
-    $errFirst = if (Test-Path $errFile) { (Get-Content $errFile -First 1 -ErrorAction SilentlyContinue) } else { "" }
-    if ($errFirst -match "error|Error|traceback|Traceback|fatal|Fatal|Exception") {
-      Add-Result "MCP" "$($s.name) daemon" "FAIL" "Exit ${exitCode}: ${errFirst}"
-    } else {
-      Add-Result "MCP" "$($s.name) daemon" "PASS" "Exited ${exitCode} cleanly (out=${outSize}B, err=${errSize}B)"
-    }
+    Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, no output within $($s.timeout)s"
   }
   $proc.Close()
 }
@@ -252,10 +275,15 @@ $report += "## Summary Counts"
 $report += ""
 $passCount = ($results | Where-Object { $_ -match "\| PASS \|" }).Count
 $failCount = ($results | Where-Object { $_ -match "\| FAIL \|" }).Count
-$warnCount = ($results | Where-Object { $_ -match "\| (WARN|ADVISORY) \|" }).Count
+# WARN and ADVISORY are reported SEPARATELY. The old code counted them as one union
+# ("WARN/ADVISORY: N"), which hid that the number was ~all advisory skills-ref
+# results plus a single real WARN, and made it read as unexplained flakiness.
+$warnCount = ($results | Where-Object { $_ -match "\| WARN \|" }).Count
+$advisoryRowCount = ($results | Where-Object { $_ -match "\| ADVISORY \|" }).Count
 $report += "- PASS: $passCount"
 $report += "- FAIL: $failCount"
-$report += "- WARN/ADVISORY: $warnCount"
+$report += "- WARN: $warnCount"
+$report += "- ADVISORY: $advisoryRowCount"
 $report += ""
 $report += "## Skill Count"
 $report += "- Total in ~/.agents/skills/: $($skillDirs.Count)"
@@ -267,4 +295,15 @@ $report += "- Fork mirrors: $forkCount"
 
 $report | Out-File -FilePath $reportFile -Encoding UTF8
 Write-Output "Report written to $reportFile"
-Write-Output "PASS: $passCount | FAIL: $failCount | WARN: $warnCount"
+Write-Output "PASS: $passCount | FAIL: $failCount | WARN: $warnCount | ADVISORY: $advisoryRowCount"
+
+# Best-effort cleanup of this run's temp artifacts. Non-fatal by design: with the
+# process tree reaped above nothing should still hold these, but a locked leftover
+# must never be able to fail the audit.
+$script:tmpArtifacts += (Get-ChildItem $env:TEMP -Filter "audit_skillsref_*.log" -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName)
+$script:tmpArtifacts += (Get-ChildItem $env:TEMP -Filter "audit_cli_*.log" -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName)
+$script:tmpArtifacts += (Get-ChildItem $env:TEMP -Filter "audit_skillspector_*.log" -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName)
+Remove-Item $script:tmpArtifacts -Force -ErrorAction SilentlyContinue

@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.4-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.5-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -454,6 +454,38 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.5 (2026-09-21)
+
+**`full-audit.ps1` correctness fixes — it leaked MCP servers, its MCP verdicts were
+timing-dependent, and its summary hid the real breakdown behind one number.**
+
+1. **Process leak that wedged the next run.** The MCP smoke test started each server as
+   `cmd.exe /c "<launcher> > out 2> err"`. Those commands are *launchers*: `uvx` spawns
+   `markitdown-mcp`, `npx` spawns `node` → `firecrawl-mcp`. `Process.Kill()` kills only the
+   shell, so the server survived as an orphan **still holding the redirect file handles**.
+   Measured: **19 stale server processes** and **12 locked `audit_mcp_*.log` files**; the next
+   run's `Remove-Item` threw `RemoveFileSystemItemIOError` and the audit appeared to hang.
+   A recursive `Stop-Tree` now reaps descendants on both the timeout and early-exit paths.
+   **After: 0 orphans, 0 lock errors.**
+
+2. **Verdicts that flipped run to run.** The old code grepped stderr for
+   `"error|Error|traceback|..."` on the early-exit branch — and Windows' launcher-failure text
+   (`'x' is not recognized as an internal or external command`) contains none of those words,
+   so **a failed launch was reported as PASS**. The verdict now comes from the server's own
+   liveness and its output streams. **After: identical verdicts and identical stderr byte
+   counts across consecutive passes.**
+
+3. **A summary that read as flakiness.** `WARN/ADVISORY: N` was a regex union. The real split
+   is **1 WARN + 73 ADVISORY** — nearly all of it advisory `skills-ref` results across ~294
+   skills. They are now reported separately: `PASS: 52 | FAIL: 0 | WARN: 1 | ADVISORY: 73`.
+
+**Also:** smoke-test logs are per-run (`audit_mcp_<name>_<runId>.log`) so a leftover process
+can never break the next run's cleanup on a name collision.
+
+**Runtime note — the audit takes ~18 minutes, by design.** Measured 1108 s. It is not hung and
+a timeout is not a failure: ~122 s is the MCP smoke test, and the dominant cost is
+`skills-ref validate` spawned once per skill across ~294 skills. Budget 20+ minutes.
 
 ### v1.9.4 (2026-09-21)
 
