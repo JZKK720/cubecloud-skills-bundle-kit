@@ -45,9 +45,27 @@ models:
   "gemma4:12b-it-qat":
     context_length: 262144
     max_output_tokens: 8192
+
+  # Added 2026-09-22: installed locally but previously unregistered, so every scan
+  # still logged "unknown model" and fell back to the guessed 128000-token budget.
+  # context_length re-measured with `ollama show` on this date.
+  "nemotron-safe:latest":
+    context_length: 1048576
+    max_output_tokens: 32768
+  "qwen-safe:latest":
+    context_length: 262144
+    max_output_tokens: 32768
+  "qwen3.8-flash-next:125b-a6b-q4_K_M":
+    context_length: 262144
+    max_output_tokens: 32768
+  "glm-ocr:q8_0":
+    context_length: 131072
+    max_output_tokens: 8192
+
+  # Embedding model: the 2048 context window is real, but an output-token cap is
+  # meaningless for embeddings, so it is omitted rather than stated misleadingly.
   "nomic-embed-text:latest":
     context_length: 2048
-    max_output_tokens: 8192
 
   # NOT INSTALLED on this machine - left commented rather than listed, because an
   # entry here would advertise a context_length nobody has measured. Uncomment only

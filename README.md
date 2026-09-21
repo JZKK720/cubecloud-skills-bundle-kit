@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.6-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.7-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -454,6 +454,35 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.7 (2026-09-22)
+
+**Two data-only fixes — `llm-council` could never resolve, and 4 installed Ollama models were
+unregistered. No script changed; 0 of 294 installed skills touched.**
+
+1. **`llm-council` reported `(no source)` while its source sat right there.** The row had an
+   empty relpath, and with an empty relpath **both** resolvers default to `skills/$Name`
+   (`install-missing-skills.ps1:127`, `install-skill.ps1:81`) — but this repo keeps `SKILL.md`
+   at the **root**. Fixed with relpath `.`. The CSV comment already said *"SKILL.md at repo
+   root"*; the relpath was simply left blank.
+
+   Chose a **data fix over a script fix** on purpose: adding a root-`SKILL.md` fallback would
+   have edited `install-skill.ps1`, which is deployed in 3 places that must stay hash-identical
+   (`setup/`, `bin/`, `~/dev/bin/`). One manifest cell beats chasing hash parity across three
+   copies. Confirmed no-op for content **before** editing — installed and mirror are identical
+   (468 lines / 2462 words, same mtime, neither has `argument-hint`). Now reports
+   `skip llm-council (up to date)`.
+
+2. **4 installed Ollama models were unregistered**, so scans still fell back to the guessed
+   128000-token budget: `nemotron-safe:latest` (1048576), `qwen-safe:latest` (262144),
+   `qwen3.8-flash-next:125b-a6b-q4_K_M` (262144), `glm-ocr:q8_0` (131072). Each context length
+   re-measured with `ollama show`. Also dropped the meaningless `max_output_tokens` from the
+   embedding entry. **After: 0 unregistered, valid YAML (13 models).**
+
+3. **7 rows remain mirrorless** (`self-learning`, `loopy`, `karpathy-guidelines`, `i-have-adhd`,
+   `dependency-doctor`, `project-graveyard`, `hyperframes`). All 7 are **already installed**, so
+   this is provenance, not functionality. Left unmapped deliberately: cloning a mirror exposes
+   its row to `-Refresh` (the v1.9.6 lesson), so each needs its own decision.
 
 ### v1.9.6 (2026-09-22)
 

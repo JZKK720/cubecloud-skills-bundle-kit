@@ -2,6 +2,60 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.7] — 2026-09-22
+
+Two data-only fixes. No script changed, no skill content changed, 0 of 294 installed
+skills touched.
+
+### Fixed — `llm-council` reported "no source" while its source sat right there
+
+The row was `JZKK720/claude-skills-llm-council|llm-council||` — an empty relpath. With an
+empty relpath **both** resolvers default to `skills/$Name`
+(`Get-SourceSkillFile` at `install-missing-skills.ps1:127`, `install-skill.ps1:81`), but this
+repo keeps its `SKILL.md` **at the root**. So the row could never resolve, and reported
+`skip llm-council (no source)` despite the mirror and its `SKILL.md` both existing.
+
+- **Fix:** relpath `.` (repo root). The CSV's own comment already said *"SKILL.md at repo
+  root"* — the layout was known, the relpath was just left blank.
+- **Chose a data fix over a script fix deliberately.** Adding a root-`SKILL.md` fallback to
+  the resolver would have edited `install-skill.ps1`, which is deployed in 3 places that must
+  stay hash-identical (`setup/`, `bin/`, `~/dev/bin/`). Changing one manifest cell fixes it
+  with no hash-parity churn.
+- **Verified as a no-op for content *before* editing:** the installed copy and the mirror are
+  identical (468 lines / 2462 words, same `2026-08-18` mtime, name `llm-council`; neither
+  carries `argument-hint`, so it was never installed by this pipeline). The row now reports
+  `skip llm-council (up to date)` instead of `(no source)`, and the preview still reads
+  `Would refresh: 0  Up-to-date/protected: 246  Blocked: 0`.
+
+### Fixed — 4 installed Ollama models were unregistered, so every scan mis-budgeted
+
+`skillspector-ollama-models.yaml` was correctly wired up (`skillspector-local.ps1:82` sets
+`SKILLSPECTOR_MODEL_REGISTRY`) and its existing values were accurate, but 4 models present in
+`ollama list` were missing — so they still fell back to the guessed 128000-token budget and
+logged an unknown-model warning per analyzer slot.
+
+| model | measured `context_length` | params |
+| --- | --- | --- |
+| `nemotron-safe:latest` | 1048576 | 32.9B |
+| `qwen-safe:latest` | 262144 | 176.9B |
+| `qwen3.8-flash-next:125b-a6b-q4_K_M` | 262144 | 176.9B |
+| `glm-ocr:q8_0` | 131072 | 1.1B |
+
+- Added, with each `context_length` re-measured via `ollama show` on 2026-09-22.
+- Also dropped `max_output_tokens: 8192` from `nomic-embed-text:latest`. The 2048 context
+  window is real, but an output-token cap is meaningless for an embedding model and the entry
+  misstated the budget.
+- **After:** unregistered models `0`, and the file parses as valid YAML (13 models).
+
+### Known state — 7 manifest rows remain mirrorless
+
+`self-learning`, `loopy`, `karpathy-guidelines`, `i-have-adhd`, `dependency-doctor`,
+`project-graveyard`, `hyperframes`. **All 7 are already installed** (68–302 lines each), so
+this is a provenance gap, not a functionality gap. Left unmapped on purpose: cloning a mirror
+**exposes its row to `-Refresh`** (the v1.9.6 lesson), so each one needs a per-row decision
+rather than a bulk clone. `hyperframes` additionally needs the fork created first —
+`JZKK720/hyperframes` 404s.
+
 ## [1.9.6] — 2026-09-22
 
 A guard expansion plus a latent parse-breaking duplicate-key fix. No skill content changed —

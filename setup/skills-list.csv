@@ -468,9 +468,16 @@ JZKK720/crucible|codex-build|skills/codex-build|
 # --- llm-council (aiwithremy, MIT, 1.6k★): multi-advisor decision review ---
 # Runs decisions through 5 AI advisors with peer review. Different approach
 # from ECC's council (4-voice): 5 advisors + explicit peer-review phase.
-# SKILL.md at repo root. Passes SkillSpector (LOW/SAFE — pure prose, no scripts).
+# SKILL.md is at the REPO ROOT, not skills/<name>/. With an EMPTY relpath both
+# Get-SourceSkillFile and install-skill.ps1 default to "skills/$Name" and the row
+# cannot resolve -- which is exactly why this reported "skip llm-council (no source)"
+# while the mirror and its SKILL.md were both present. "." means repo root, so
+# -SkillRelPath "." resolves to <mirror>/SKILL.md. Note this skill was NOT installed
+# by this pipeline (no argument-hint, matches the mirror byte-for-byte), so adding
+# the relpath is a no-op for content -- verified before this edit.
+# Passes SkillSpector (LOW/SAFE — pure prose, no scripts).
 # Fork mirror: ~/dev/forks/JZKK720/claude-skills-llm-council/
-JZKK720/claude-skills-llm-council|llm-council||
+JZKK720/claude-skills-llm-council|llm-council|.|
 # --- context-engineering-kit (NeoLabHQ, MIT, 1.3k★): hand-crafted context eng skills ---
 # 65 skills total; we cherry-pick 35 genuinely unique ones (no overlap with existing
 # bundle skills). Passes SkillSpector with 9B LLM: LOW/SAFE (static CRITICAL was YARA
