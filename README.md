@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 240 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 246 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-240-2ea44f)](#whats-included)
+[![Skills](https://img.shields.io/badge/skills-246-2ea44f)](#whats-included)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.3-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.4-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,12 +22,12 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills          | **240** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, and the impeccable design-methodology series |
+| 🧠 Skills          | **246** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
-| 📚 Fork mirrors    | **49**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable |
+| 📚 Fork mirrors    | **50**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill |
 | 🎨 DESIGN.md files | **74**  | Real-world design systems (Apple, Stripe, Linear, Vercel, Notion, Airbnb, Tesla…) indexed by the `design-md-library` skill                                                                                                                                                                                                                                                                      |
-| 🔒 Security-gated  | **yes** | Every skill scanned by SkillSpector before install; 5 skills blocked by design                                                                                                                                                                                                                                                                                                                  |
+| 🔒 Security-gated  | **yes** | Every skill scanned by SkillSpector before install; blocked upstreams are either ported clean or parked as comments with a per-skill reason code (see the blocked-skills table)                                                                                                                                                                                                                                                                                                                  |
 
 ## Architecture
 
@@ -109,7 +109,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (240 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
+### Skills (246 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -227,6 +227,7 @@ Two independent implementations kept as complements. The bundle's `write-concise
 | webapp-testing (oz-skills) | HIGH TM1 — tool parameter abuse (`shell=True` in `scripts/with_server.py:69`) | **Yes** → `webapp-testing` (clean port) |
 | archify (tt-a1i)           | HIGH MP3 — memory manipulation (re-classified from YR4)                       | **Yes** → `archify` (clean port)        |
 | diagram-design (upstream)  | HIGH AR2 — anti-refusal statement                                             | **Yes** → `diagram-design` (port)       |
+| jev (wuyoscar/jev-skill)   | HIGH E2 env-var harvesting in scripts/jev.py, plus the executable-scripts flag | **Yes** -> jev (prose-only port) |
 
 **Added v1.8.0 — blocked or high-risk entries found in the 14-repo evaluation:**
 
@@ -386,12 +387,12 @@ Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 ├── setup/                      # the one-command installer + config
 │   ├── setup-global-skills.ps1 # master installer
 │   ├── install-skill.ps1       # security-gated skill install helper
-│   ├── skills-list.csv         # manifest of 240 entries (239 active + 1 disabled)
+│   ├── skills-list.csv         # manifest of 246 entries (245 active + 1 disabled)
 │   ├── mcp.json.template       # 11 MCP server config
 │   └── SETUP_GUIDE.md          # detailed guide
 ├── bin/                        # 19 audit/fix/install helper scripts
 ├── upstream/                   # governance docs + hand-authored port skills
-└── forks/JZKK720/              # 49 read-only fork mirrors (gitignored, re-cloned)
+└── forks/JZKK720/              # 50 read-only fork mirrors (gitignored, re-cloned)
 ```
 
 ## How to use after setup
@@ -453,6 +454,46 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.4 (2026-09-21)
+
+**Six typed-decision skills added (`jev-skill`), one of them a gate-remediated port; plus 51 orphaned `diagram-design` reference docs returned to version control.**
+
+1. **`jev-skill` family** (wuyoscar/jev-skill, MIT, 324★) — Jev returns **typed decisions**
+   (`choice` / `noul` / `score`) over a caller-supplied `state`, `questions` and `criteria`. It
+   does not browse, execute tools or generate prose; the host agent still plans, acts and
+   verifies. Six skills: `jev` (router), `jev-triage`, `jev-documents`, `jev-eval`, `jev-ui`,
+   `jev-simulation`.
+
+   **Five install directly from upstream and pass the gate cleanly. The general `jev` router is
+   HARD-BLOCKED upstream** — exit 1, risk 80/100, `DO NOT INSTALL`. Exact cause: the
+   `Executable scripts: Yes` flag plus **HIGH `E2` Env Variable Harvesting** at
+   `scripts/jev.py:131` and `:180` — that script reads `OPENROUTER_API_KEY`/`TYPESAFE_API_KEY`
+   from the environment to make authenticated outbound calls. That is its declared function, so
+   the rule keys on real behaviour and is **not** a false positive.
+
+   Two of its other findings **are** false positives, and are recorded as such rather than
+   "fixed": `P3` at `SKILL.md:151` scores the *prohibition* "Do **not** silently send private
+   documents to an external API" (substring match, polarity inverted), and `P6` at 26% confidence
+   reads a prompt-injection *test* recipe as prompt extraction. The credential read was
+   deliberately **not** obfuscated to dodge the scanner.
+
+   **Remediation:** drop `scripts/` only — both HIGH findings and the executable flag come from
+   that one directory. Installed as `local/jev` → `upstream/jev`; re-verified **exit 0 / MEDIUM /
+   CAUTION** through the real installer. Same pattern as the `timesfm` port in v1.9.3.
+   **Trade-off, documented in the port itself:** the `Run (Jev API mode)` CLI commands no longer
+   work from the installed copy — **simulation mode (B)** (no key, no CLI, no network call) is the
+   default, and real-Jev users fetch the CLI from upstream with explicit consent.
+
+2. **51 orphaned `diagram-design` reference docs tracked.** `upstream/diagram-design/` had
+   **1 tracked file** against **52 on disk**; `.gitignore` did not cover it, so this was genuine
+   drift. `SKILL.md` links those docs, so a fresh clone would have silently lost them.
+
+3. **Fork mirror #50:** `JZKK720/jev-skill` created, cloned and wired into `sync-fork-upstreams.ps1`.
+
+**Counters:** manifest 240 → **246** (245 active + 1 disabled); `local/*` 36 → **37**; fork mirrors
+49 → **50**; installed 288 → **294** in `~/.agents/skills/` and 506 → **514** in `~/.claude/skills/`.
+`full-audit.ps1` → **PASS 52 | FAIL 0**.
 
 ### v1.9.3 (2026-09-15)
 

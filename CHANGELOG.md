@@ -2,6 +2,77 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.4] — 2026-09-21
+
+Six typed-decision skills added from `wuyoscar/jev-skill` (one as a gate-remediated local port),
+plus 51 orphaned `diagram-design` reference docs brought back under version control.
+
+### Added — `jev-skill` family (wuyoscar/jev-skill, MIT, 324★)
+
+Jev returns **typed decisions** — `choice` / `noul` (independent yes-no) / `score` — over a
+caller-supplied `state`, `questions` and `criteria`. It does not browse, execute tools or generate
+prose; the host agent still plans, acts and verifies. Six skills install:
+
+| Skill | Role |
+| --- | --- |
+| `jev` | General router — custom decisions, tool/model routing, context retention, checkpoints |
+| `jev-triage` | Bulk classify / label / prioritize records |
+| `jev-documents` | Evidence retrieval, span extraction, claim checking |
+| `jev-eval` | Evaluate outputs, code changes, authorized safety-test results |
+| `jev-ui` | Choose an observed action in a real browser or desktop |
+| `jev-simulation` | Choose legal actions for a game, NPC or simulated world |
+
+**Gate split.** Five install directly from upstream and pass SkillSpector `--no-llm` cleanly.
+The sixth, the general `jev` router, is **HARD-BLOCKED** upstream (exit 1, risk 80/100,
+`DO NOT INSTALL`) and is installed as a `local/jev` prose-only port instead:
+
+- **Block cause:** `Executable scripts: Yes` plus **HIGH `E2` Env Variable Harvesting** at
+  `scripts/jev.py:131` and `:180`. That script reads `OPENROUTER_API_KEY` / `TYPESAFE_API_KEY`
+  from the environment and makes authenticated outbound calls. That is its declared function, so
+  the rule keys on real behaviour — **not** a false positive, and **not** bypassed.
+- **Two findings that *are* false positives**, recorded for honesty:
+  - `P3` Exfiltration Commands at `SKILL.md:151` (90%) — the scanned line is the *prohibition*
+    "Do **not** silently send private documents to an external API". Substring match, polarity inverted.
+  - `P6` Direct Prompt Extraction at `references/agent-recipes.md:40` (26%) — a prompt-injection
+    *test* recipe read as prompt extraction.
+- **Remediation:** drop `scripts/` only. Both HIGH findings and the executable flag come from that
+  one directory; `SKILL.md`, `assets/` and `references/` are prose and static data. Verified
+  **exit 0 / MEDIUM / CAUTION**, then re-verified through the real installer. Mirrors the timesfm
+  precedent (v1.9.0): fix the construct in a `local/*` port, keep the prose.
+- **Deliberately not done:** obfuscating the credential read to dodge the scanner.
+- **Trade-off (documented in the port itself):** the `Run (Jev API mode)` CLI commands no longer
+  work from the installed copy. **Simulation mode (B)** — no key, no CLI, no network call — is the
+  default route; real-Jev users fetch the CLI from upstream with explicit consent. The general
+  router is still the most useful entry point, so this beats dropping the skill.
+
+### Fixed — 51 orphaned `diagram-design` reference docs
+
+`upstream/diagram-design/` had **1 tracked file** (`SKILL.md`) against **52 on disk**; the
+`references/` tree was untracked, and `.gitignore` did not cover it (`git check-ignore` exit 1),
+so it was genuine drift rather than an intentional exclusion. The docs are load-bearing —
+`SKILL.md` links `references/style-guide.md`, `references/onboarding.md` and ~30 `type-*.md`
+docs — so a fresh clone would have silently lost them. All 51 are now tracked.
+
+### Added — `jev-skill` fork mirror (#50)
+
+`JZKK720/jev-skill` created and cloned (235 files), and wired into `sync-fork-upstreams.ps1`
+`$upstreamMap`. Mirror count 49 → **50**.
+
+### Counters
+
+manifest 240 → **246** (245 active + 1 disabled); `local/*` 36 → **37**; fork mirrors 49 → **50**;
+installed 288 → **294** in `~/.agents/skills/` and 506 → **514** in `~/.claude/skills/`.
+`full-audit.ps1` → **PASS 52 | FAIL 0**.
+
+### Verified
+
+- SkillSpector static gate re-run on the port; `skills-ref validate` VALID on all six.
+- `install-skill.ps1` hash parity 3/3 (`setup/` = `bin/` = `~/dev/bin/`).
+- Byte-level checks on every new/changed file: **0 BOM**, round-trip identical, **0** GBK-mojibake.
+- All 37 `local/*` rows resolve their `upstream/<name>/SKILL.md` source.
+- Both roots confirmed: each of the six skills present in `~/.agents/skills/` **and** `~/.claude/skills/`.
+- `sync-fork-upstreams.ps1` parses clean after the map edit.
+
 ## [1.9.3] — 2026-09-15
 
 Two skills added — one upstream install, one gate-remediated local port — plus a local-Ollama

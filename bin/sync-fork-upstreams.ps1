@@ -106,7 +106,12 @@ $upstreamMap = @{
     # correct; a future re-port needs a fresh
     #   git clone --depth 1 --filter=blob:none --sparse https://github.com/pbakaus/impeccable
     # rather than relying on this entry.
-    "impeccable"                  = "pbakaus/impeccable"}
+    "impeccable"                  = "pbakaus/impeccable"
+    "jev-skill"                   = "wuyoscar/jev-skill"}   # Added 2026-09-21: 6 typed-decision
+    # ("Jev") skills. Five install direct from upstream; the general `jev` router is a
+    # `local/jev` prose-only port here (SkillSpector HARD-BLOCKed upstream on HIGH E2 at
+    # scripts/jev.py:131/:180 - see the manifest note). The mirror is only needed for the
+    # 5 direct rows plus provenance; it is NOT the source of the `jev` port.
 
 if (-not (Test-Path $ForksRoot)) {
     Write-Host "Forks root not found: $ForksRoot" -ForegroundColor Red

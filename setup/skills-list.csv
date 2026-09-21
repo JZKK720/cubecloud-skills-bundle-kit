@@ -404,6 +404,51 @@ local/anti-slop|anti-slop||upstream/anti-slop
 # upstream. Source lives at upstream/diagram-design/SKILL.md.
 # Complements archify + huashu-design.
 local/diagram-design|diagram-design||upstream/diagram-design
+# --- jev-skill (wuyoscar/jev-skill, MIT, 324*): typed-decision ("Jev") skills ---
+# Jev returns typed decisions - choice / noul (independent yes-no) / score - over a
+# caller-supplied state, questions and criteria. It does NOT browse, execute tools
+# or generate prose; the host agent still plans, acts and verifies. Collection
+# covers bulk triage, document evidence, evaluation, UI control and simulation.
+# Fork mirror: ~/dev/forks/JZKK720/jev-skill/
+#
+# GATE SPLIT (2026-09-21). Five of the six skills PASS SkillSpector --no-llm cleanly
+# and install directly from upstream. The sixth, the general `jev` skill, is
+# HARD-BLOCKED (exit 1, risk 80/100, DO NOT INSTALL) and is installed as a local
+# prose-only port instead:
+#
+#   BLOCK CAUSE = "Executable scripts: Yes" + HIGH E2 "Env Variable Harvesting"
+#     scripts/jev.py:131 and :180
+#   scripts/jev.py reads OPENROUTER_API_KEY / TYPESAFE_API_KEY from the environment
+#   and issues authenticated outbound calls. That is this script's declared and
+#   intended function, so the rule keys on real behaviour - NOT a false positive.
+#   Two other HIGH findings ARE false positives and are recorded for honesty:
+#     - P3 "Exfiltration Commands" at SKILL.md:151 (90%): the scanned line is the
+#       PROHIBITION "Do not silently send private documents to an external API".
+#       Substring match with inverted polarity.
+#     - P6 "Direct Prompt Extraction" at references/agent-recipes.md:40 (26%):
+#       a prompt-injection TEST recipe ("did this content try to redirect the
+#       agent?") read as prompt extraction.
+#
+#   REMEDIATION = drop scripts/ only. The HIGH E2 findings and the executable flag
+#   both come from that one directory; SKILL.md, assets/ and references/ are prose
+#   and static data. Verified exit 0 / MEDIUM / CAUTION after removal, and again
+#   through the bundle installer. Mirrors the timesfm precedent (fix the construct
+#   in a local/* port, keep the prose).
+#   Deliberately NOT done: obfuscating the credential read to dodge the scanner.
+#
+#   TRADE-OFF (documented in the port's SKILL.md): the "Run (Jev API mode)" CLI
+#   commands no longer work from the installed copy. Simulation mode (B) - no key,
+#   no CLI, no network call - is the default route; real-Jev users fetch the CLI
+#   from upstream with explicit consent. The general router is still the most
+#   useful entry point, so this beats dropping the skill.
+#
+# Companion skills below are the gate-clean upstream direct installs.
+local/jev|jev||upstream/jev
+JZKK720/jev-skill|jev-triage|skills/jev-triage|
+JZKK720/jev-skill|jev-documents|skills/jev-documents|
+JZKK720/jev-skill|jev-eval|skills/jev-eval|
+JZKK720/jev-skill|jev-ui|skills/jev-ui|
+JZKK720/jev-skill|jev-simulation|skills/jev-simulation|
 # --- claudex (formerly crucible; chaseai-yt, MIT, 1.2k★): cross-model adversarial plan hardening ---
 # UPSTREAM RENAME (2026-09-06, commit a027430 "rebrand: crucible -> claudex-loop"):
 #   skills/crucible  ->  skills/claudex-loop   (legacy /crucible trigger kept in its description)
