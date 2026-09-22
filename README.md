@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.10-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.11-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -87,7 +87,7 @@ graph TB
 
 ```powershell
 git clone https://github.com/JZKK720/cubecloud-skills-bundle-kit.git ~/dev/setup
-powershell -NoProfile -ExecutionPolicy Bypass -File ~/dev/setup/setup-global-skills.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File ~/dev/setup/setup/setup-global-skills.ps1
 ```
 
 Then **restart VS Code**, open Copilot Chat, and type `#` to see your MCP tools appear.
@@ -383,18 +383,32 @@ Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 
 ## Repository layout
 
+```text
+cubecloud-skills-bundle-kit/          # git clone target — run installers from this root
+├── setup/                            # the one-command installer + config
+│   ├── setup-global-skills.ps1       # master installer (run this)
+│   ├── install-skill.ps1             # security-gated skill install helper
+│   ├── skills-list.csv               # manifest of 254 entries (253 active + 1 disabled)
+│   ├── mcp.json.template             # 11 MCP server config
+│   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
+│   └── SETUP_GUIDE.md                # detailed guide
+├── bin/                              # 27 audit / fix / install helper scripts
+├── upstream/                         # governance docs (SCAN_LOG, audits) + 48 hand-authored port skills
+├── docs/  plans/                     # design notes and integration plans
+├── Update-Skills.ps1                 # thin CSV-driven wrapper (legacy)
+├── AGENTS.md  CHANGELOG.md  LICENSE
+└── README.md
+
+# At runtime the installer ALSO creates (outside the repo):
+~/dev/bin/install-skill.ps1           # deployed helper copy
+~/dev/upstream/SCAN_LOG.md            # security scan log
+~/dev/forks/JZKK720/                  # 50 read-only fork mirrors (gitignored, re-cloned)
 ```
-~/dev/
-├── setup/                      # the one-command installer + config
-│   ├── setup-global-skills.ps1 # master installer
-│   ├── install-skill.ps1       # security-gated skill install helper
-│   ├── skills-list.csv         # manifest of 254 entries (253 active + 1 disabled)
-│   ├── mcp.json.template       # 11 MCP server config
-│   └── SETUP_GUIDE.md          # detailed guide
-├── bin/                        # 19 audit/fix/install helper scripts
-├── upstream/                   # governance docs + hand-authored port skills
-└── forks/JZKK720/              # 50 read-only fork mirrors (gitignored, re-cloned)
-```
+
+**Path convention:** run installer commands from the **repo root** (`setup\setup-global-skills.ps1`),
+and audit helpers from the same root (`.\bin\<script>.ps1`). The `~/dev/setup/...` form is only
+correct if you cloned the repo *into* `~/dev/setup/`, in which case the script is at
+`~/dev/setup/setup/setup-global-skills.ps1`.
 
 ## How to use after setup
 
@@ -424,7 +438,7 @@ In Copilot Chat, try:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\bin\safe-update-pass.ps1
 
 # Or re-run the installer (skips already-installed items)
-powershell -NoProfile -ExecutionPolicy Bypass -File ~/dev/setup/setup-global-skills.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File ~/dev/setup/setup/setup-global-skills.ps1
 
 # Manual fallback (if you need step-by-step control)
 uv tool upgrade --all
@@ -455,6 +469,26 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.11 (2026-09-22)
+
+**Documentation and release-metadata fixes.** No skill content, no script logic changed.
+
+- **The public quick start was broken, and always had been.** It instructed
+  `~/dev/setup/setup-global-skills.ps1`, but the installer has lived at `setup/setup-global-skills.ps1`
+  since the initial commit (`023c906`) — `git log --diff-filter=D -- setup-global-skills.ps1` confirms
+  it was **never** at repo root. A fresh clone following the docs hit a missing-file error. Fixed in
+  both the Quick start and "To update later".
+- **`SETUP_GUIDE.md` had a typo'd clone URL** — `cubecloud-skillsboundle-setup` (misspelled
+  "bundle"), which is not a repository. Corrected on both the `git remote add` and `git clone` lines.
+- **The repository-layout block described the runtime tree, not the repo.** It showed a `~/dev/`
+  tree with the installer at top level. Rewritten to the real clone tree, with runtime-only paths
+  (`~/dev/bin/`, `~/dev/upstream/SCAN_LOG.md`, `~/dev/forks/`) listed separately and an explicit
+  path convention.
+- **v1.9.8–v1.9.10 were lightweight tags** (no release message), unlike the annotated
+  v1.9.3–v1.9.7. Re-created with one-line messages. Pointed-at commits unchanged — metadata only.
+- Layout counts corrected: 27 `bin/` scripts (was 19), 48 `upstream/` dirs, and the fifth
+  `setup/` file (`skillspector-ollama-models.yaml`).
 
 ### v1.9.10 (2026-09-22)
 

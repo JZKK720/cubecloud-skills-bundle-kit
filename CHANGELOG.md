@@ -2,6 +2,50 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.11] — 2026-09-22
+
+Documentation and release-metadata fixes. No skill content, no script logic changed.
+
+### Fixed — the public quick start was broken and always had been
+
+`README.md` told users to run:
+
+```powershell
+git clone https://github.com/JZKK720/cubecloud-skills-bundle-kit.git ~/dev/setup
+powershell -File ~/dev/setup/setup-global-skills.ps1     # ← does not exist
+```
+
+The installer has lived at `setup/setup-global-skills.ps1` since the initial commit
+(`023c906`); `git log --diff-filter=D -- setup-global-skills.ps1` confirms it was **never** at
+repo root. So a fresh clone followed the docs verbatim and hit a missing-file error. Corrected
+in both the Quick start and the "To update later" section.
+
+### Fixed — `SETUP_GUIDE.md` carried a typo'd clone URL
+
+Both the `git remote add` and `git clone` lines pointed at
+`cubecloud-skillsboundle-setup` (misspelled "bundle"), which is not a repository. Corrected to
+`cubecloud-skills-bundle-kit`, and the follow-up script path fixed to `~/dev/setup/setup/...`.
+
+### Fixed — the repository-layout block described the runtime tree, not the repo
+
+It showed a `~/dev/` tree with `setup-global-skills.ps1` at the top level. That is the *runtime*
+view, not what `git clone` produces. Rewritten to show the actual repo tree, with the
+runtime-only paths (`~/dev/bin/`, `~/dev/upstream/SCAN_LOG.md`, `~/dev/forks/`) listed
+separately, plus an explicit path convention so the two are not confused again.
+
+### Fixed — v1.9.8 through v1.9.10 were lightweight tags
+
+v1.9.3–v1.9.7 are annotated (`git cat-file -t` → `tag`); v1.9.8–v1.9.10 were lightweight
+(`→ commit`), so they carried no release message in the GitHub UI. Re-created with one-line
+messages matching the existing convention. The pointed-at commits are unchanged, so this is
+metadata-only — no history rewrite.
+
+### Changed
+
+- README layout block updated to real counts: 27 `bin/` scripts (was 19), 48 `upstream/`
+  directories, and the fifth `setup/` file (`skillspector-ollama-models.yaml`) that was missing.
+- Version badge → 1.9.11.
+
 ## [1.9.10] — 2026-09-22
 
 Parked 13 Copilot-incompatible skills so Copilot stops discovering them. Not a quality
