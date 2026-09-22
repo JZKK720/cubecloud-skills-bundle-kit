@@ -479,6 +479,59 @@ JZKK720/crucible|codex-build|skills/codex-build|
 # is the pre-rename snapshot; claudex-loop supersedes it (it answers the legacy /crucible trigger).
 # Kept here as a comment so the history is traceable rather than silently dropped.
 # JZKK720/crucible|crucible|skills/crucible|
+#
+# PARKED 2026-09-22 (v1.9.10): the pre-rename `crucible` snapshot is now in
+# ~/.agents/skills._disabled/crucible/ with SKILL.md renamed to SKILL.md.disabled, so
+# Copilot stops discovering it. claudex-loop covers the legacy /crucible trigger.
+# Reason: duplicate capability. Keeping both installed means two skills answer the same
+# intent, which is worse than one. Not deleted — the files stay for traceability, and
+# `claudex-loop`'s description still names the legacy trigger.
+
+# --- PARKED 2026-09-22 (v1.9.10): research-integrity forensics family (13 skills) ---
+# NOT EXCLUDED FOR QUALITY. Excluded because this is a VS Code Copilot / Windows stack and
+# this family targets Claude Code. Three independent blockers, each verified:
+#
+#   1. CLAUDE-CODE COUPLING — all 12 use `allowed-tools: Bash(*), ... mcp__codex__codex`,
+#      `$ARGUMENTS` substitution, and a Bash() shell preamble. This is the exact coupling
+#      the manifest already refuses for `gstack-review` (see the note further up: "carries a
+#      Claude-Code shell preamble that breaks under VS Code Copilot"). Copilot cannot resolve
+#      allowed-tools, does not substitute $ARGUMENTS, and has no Codex MCP.
+#   2. SECURITY GATE — `evidence-ledger` scans 76 / HIGH / DO_NOT_INSTALL. Six more are
+#      MEDIUM/CAUTION. install-skill.ps1 blocks on this by design, so a row would create a
+#      permanent BLOCKED entry rather than a usable skill.
+#   3. MISSING DEPENDENCY — the family invokes `tools/adjudicate_findings.py`, plus
+#      `check_ai_style.py` and `check_presentation.py`. None of the three exists on disk
+#      (searched all of ~/dev), so the pipeline cannot run even with the coupling stripped.
+#
+# Also: 11 of the 12 are absent from ~/dev/upstream/SCAN_LOG.md and none has an
+# upstream/ or fork mirror, so there is no source of record to track.
+#
+# PARKED, NOT DELETED — files live in ~/.agents/skills._disabled/<name>/ (SKILL.md ->
+# SKILL.md.disabled) and ~/.claude/skills/<name>/ likewise. Reversing this is a
+# directory move + file rename; see install-skill.ps1 -Disabled for the exact semantics.
+#
+# Verified before parking: the family has exactly ONE inbound reference from outside
+# itself (claudex-loop -> "crucible", a description string naming the legacy trigger, not
+# a dependency). The 12 cross-reference only each other, so parking breaks nothing.
+#
+#   anti-autoresearch            orchestrator (the entry point that drives the rest)
+#   evidence-ledger              L0/L1/L2 observability + claims.json extraction
+#   citation-forensics           hallucinated refs, metadata drift, wrong-context cites
+#   consistency-audit            intra-paper self-consistency
+#   experiment-forensics         fake/derived ground truth, phantom results
+#   eval-design-forensics        leakage, judge validity, selective reporting
+#   proof-derivation-forensics   proofs that skip an obligation
+#   baseline-comparison-audit    missing/weak baselines, error-bar overlap
+#   presentation-signals         duplicate tables, pipeline strings (auxiliary, capped minor)
+#   ai-style-impressions         AI writing-style tells (zero verdict weight)
+#   adversarial-case-builder     memo-only strongest-objection case
+#   novelty-duplication-advisory memo-only prior-work overlap advisory
+#
+# REVISIT IF: the family is ever ported to Copilot-clean form (strip allowed-tools,
+# replace $ARGUMENTS with prompt-driven input, drop the Codex MCP, bundle or remove the
+# tools/*.py dependency, clear the HIGH gate on evidence-ledger). That port is a real
+# project, not a manifest edit — treat it as one.
+
 # --- llm-council (aiwithremy, MIT, 1.6k★): multi-advisor decision review ---
 # Runs decisions through 5 AI advisors with peer review. Different approach
 # from ECC's council (4-voice): 5 advisors + explicit peer-review phase.

@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.9-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.10-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -23,6 +23,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 🧠 Skills          | **254** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
+| 🅿️ Parked skills   | **14**  | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: 1 upstream-disabled (`caveman`) + 13 Copilot-incompatible (12 research-integrity forensics + retired `crucible`). Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
 | 📚 Fork mirrors    | **50**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill |
@@ -454,6 +455,42 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.10 (2026-09-22)
+
+**Parked 13 Copilot-incompatible skills so Copilot stops discovering them.** Not a quality
+judgement — this is a VS Code Copilot / Windows stack, and the parked set targets Claude Code.
+
+| parked | why |
+| --- | --- |
+| 12 research-integrity forensics | Claude-Code-coupled + security gate + missing dependency |
+| `crucible` | retired duplicate; `claudex-loop` supersedes it |
+
+**Three independent blockers on the forensics family, each verified:**
+
+1. **Coupling** — all 12 use `allowed-tools: Bash(*), ... mcp__codex__codex`, `$ARGUMENTS`
+   substitution, and a `Bash()` preamble. Copilot cannot resolve `allowed-tools`, does not
+   substitute `$ARGUMENTS`, and has no Codex MCP. This is the same coupling the manifest
+   already refuses for `gstack-review`.
+2. **Security gate** — `evidence-ledger` scans **76 / HIGH / DO_NOT_INSTALL**; six more are
+   MEDIUM/CAUTION. `install-skill.ps1` blocks on this by design.
+3. **Missing dependency** — the family invokes `tools/adjudicate_findings.py` plus
+   `check_ai_style.py` and `check_presentation.py`. **None exists on disk** (searched all of
+   `~/dev`), so the pipeline cannot run even with the coupling stripped.
+
+Also: 11 of 12 are absent from `SCAN_LOG.md` and none has an upstream or fork mirror — no source
+of record to track.
+
+**Parked, not deleted.** Files moved to `~/.agents/skills._disabled/<name>/` with `SKILL.md` →
+`SKILL.md.disabled`, and the same rename on the Claude side. Reversing is a directory move; the
+semantics match `install-skill.ps1 -Disabled` exactly (the same mechanism that parks `caveman`).
+
+**Verified before parking:** the family has exactly **one** inbound reference from outside itself
+— `claudex-loop` → `crucible`, a description string naming the legacy `/crucible` trigger, not a
+dependency. The 12 cross-reference only each other. Parking breaks nothing.
+
+**Counters:** installed **294 → 281** active (`~/.agents/skills/`), **14 parked**
+(`skills._disabled/`). Manifest unchanged at 254 — parking is a filesystem state, not a row change.
 
 ### v1.9.9 (2026-09-22)
 

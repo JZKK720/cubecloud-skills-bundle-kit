@@ -2,6 +2,68 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.10] — 2026-09-22
+
+Parked 13 Copilot-incompatible skills so Copilot stops discovering them. Not a quality
+judgement — this is a VS Code Copilot / Windows stack and the parked set targets Claude Code.
+
+| parked | why |
+| --- | --- |
+| 12 research-integrity forensics | Claude-Code-coupled + security gate + missing dependency |
+| `crucible` | retired duplicate; `claudex-loop` supersedes it |
+
+### Three independent blockers on the forensics family, each verified
+
+1. **Coupling** — all 12 use `allowed-tools: Bash(*), ... mcp__codex__codex`, `$ARGUMENTS`
+   substitution, and a `Bash()` preamble. Copilot cannot resolve `allowed-tools`, does not
+   substitute `$ARGUMENTS`, and has no Codex MCP. Same coupling the manifest already refuses
+   for `gstack-review`.
+2. **Security gate** — `evidence-ledger` scans **76 / HIGH / DO_NOT_INSTALL**; six more are
+   MEDIUM/CAUTION. `install-skill.ps1` blocks on this by design.
+3. **Missing dependency** — the family invokes `tools/adjudicate_findings.py` plus
+   `check_ai_style.py` and `check_presentation.py`. **None exists on disk** (searched all of
+   `~/dev`), so the pipeline cannot run even with the coupling stripped.
+
+Additionally, 11 of the 12 are absent from `SCAN_LOG.md` and none has an upstream or fork
+mirror — there is no source of record to track.
+
+The parked set:
+
+    anti-autoresearch            orchestrator (entry point that drives the rest)
+    evidence-ledger              L0/L1/L2 observability + claims.json extraction
+    citation-forensics           hallucinated refs, metadata drift, wrong-context cites
+    consistency-audit            intra-paper self-consistency
+    experiment-forensics         fake/derived ground truth, phantom results
+    eval-design-forensics        leakage, judge validity, selective reporting
+    proof-derivation-forensics   proofs that skip an obligation
+    baseline-comparison-audit    missing/weak baselines, error-bar overlap
+    presentation-signals         duplicate tables, pipeline strings (auxiliary, capped minor)
+    ai-style-impressions         AI writing-style tells (zero verdict weight)
+    adversarial-case-builder     memo-only strongest-objection case
+    novelty-duplication-advisory memo-only prior-work overlap advisory
+    crucible                     retired pre-rename snapshot; claudex-loop covers the trigger
+
+### Changed
+
+- **Parked, not deleted.** Files moved to `~/.agents/skills._disabled/<name>/` with `SKILL.md` →
+  `SKILL.md.disabled`, and the same rename on the Claude side. Reversing is a directory move; the
+  semantics match `install-skill.ps1 -Disabled` exactly — the same mechanism that parks `caveman`.
+- Manifest documents the exclusion with the three reasons and a REVISIT-IF condition.
+- **Counters:** installed **294 → 281** active; **14 parked**. Manifest unchanged at 254 —
+  parking is filesystem state, not a row change.
+
+### Verified before parking
+
+The family has exactly **one** inbound reference from outside itself: `claudex-loop` → `crucible`,
+a description string naming the legacy `/crucible` trigger, not a dependency. The 12
+cross-reference only each other. Parking breaks nothing.
+
+### REVISIT IF
+
+The family is ever ported to Copilot-clean form: strip `allowed-tools`, replace `$ARGUMENTS` with
+prompt-driven input, drop the Codex MCP, bundle or remove the `tools/*.py` dependency, and clear
+the HIGH gate on `evidence-ledger`. That port is a real project, not a manifest edit.
+
 ## [1.9.9] — 2026-09-22
 
 Tracked 5 bundled capabilities that paired a hand-authored SKILL.md with a CLI and/or MCP
