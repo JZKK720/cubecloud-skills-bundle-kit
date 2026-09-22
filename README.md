@@ -1,8 +1,8 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 254 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 254 bundled skills (281 on disk), 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-254-2ea44f)](#whats-included)
+[![Skills](https://img.shields.io/badge/skills-254%20bundled-2ea44f)](#what-you-get)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills          | **254** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
+| 🧠 Skills on disk  | **281** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **254** are bundle-installed from `skills-list.csv` (253 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
 | 🅿️ Parked skills   | **14**  | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: 1 upstream-disabled (`caveman`) + 13 Copilot-incompatible (12 research-integrity forensics + retired `crucible`). Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
@@ -110,7 +110,17 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (254 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
+### Skills (254 bundled — 253 active + 1 disabled)
+
+> **Why the README says 254 but the installer prints 281.** The installer ends with
+> `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that
+> folder — including the **27 skills VS Code installs itself** for the Azure, Entra, and
+> Foundry extensions. Those are already on disk on any normal install and the bundle neither
+> writes nor removes them (README §"Azure & cloud" below). 253 + 27 + 1 comment-documented
+> port (`gstack-review`) = 281. All three numbers are correct; they just measure different sets.
+
+A further **19 gate-blocked entries** are parked as comments **inside** `skills-list.csv`
+(not installed, not counted above) with a per-skill reason code — see the blocked-skills table.
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -487,6 +497,10 @@ cd ~/dev/bin
   path convention.
 - **v1.9.8–v1.9.10 were lightweight tags** (no release message), unlike the annotated
   v1.9.3–v1.9.7. Re-created with one-line messages. Pointed-at commits unchanged — metadata only.
+- **The "254 vs 281" mismatch was never explained.** The README said 254 skills; a completed
+  install prints 281. Both were correct but nothing said why, so it read as a broken counter.
+  Now documented inline: 253 bundle-installed + 27 VS Code Azure/Entra/Foundry extension skills
+  + 1 comment-documented port (`gstack-review`) = 281 on disk.
 - Layout counts corrected: 27 `bin/` scripts (was 19), 48 `upstream/` dirs, and the fifth
   `setup/` file (`skillspector-ollama-models.yaml`).
 

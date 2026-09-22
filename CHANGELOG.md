@@ -40,11 +40,31 @@ v1.9.3–v1.9.7 are annotated (`git cat-file -t` → `tag`); v1.9.8–v1.9.10 we
 messages matching the existing convention. The pointed-at commits are unchanged, so this is
 metadata-only — no history rewrite.
 
+### Fixed — the "254 vs 281" mismatch was never explained
+
+The README claimed **254** skills; a completed install prints **281**. Both numbers are correct
+and always were, but nothing said so, which reads as a broken counter. The gap is now documented
+at the top of "What's included":
+
+| Set | Count | Source |
+|---|---|---|
+| Bundle-installed from `skills-list.csv` | **253** | this repo |
+| VS Code Azure / Entra / Foundry extension skills | **27** | VS Code extensions, already on disk |
+| `gstack-review` (comment-documented port) | **1** | manifest note, not a data row |
+| **Total on disk** | **281** | what the installer counts |
+
+Plus **1** disabled manifest row (`caveman`) and **19** gate-blocked entries parked as comments.
+The "What you get" table now reads "Skills on disk: 281" and states the 254-vs-27 split inline.
+
 ### Changed
 
 - README layout block updated to real counts: 27 `bin/` scripts (was 19), 48 `upstream/`
   directories, and the fifth `setup/` file (`skillspector-ollama-models.yaml`) that was missing.
 - Version badge → 1.9.11.
+- Verified before writing: all 12 tags annotated, manifest 254 rows × 4 fields with 0 duplicate
+  names, 18/18 CLIs resolved on PATH, 11 MCP servers in `mcp.json.template` matching the live
+  config, 50 fork mirrors (51 dirs in `~/dev/forks/JZKK720/` minus this repo), 74 `DESIGN.md`
+  files.
 
 ## [1.9.10] — 2026-09-22
 
