@@ -2,6 +2,55 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.12] — 2026-09-22
+
+**`bin/verify-state.ps1` did not verify state.** It is the documented answer to "is my machine
+set up correctly?", and it was under-checking and could not fail on the thing it exists to check.
+
+### Fixed — it checked 12 of the 18 CLIs
+
+`witr`, `semantica`, `loop`, `watch-skill`, `wigolo`, and `ocr` were missing from the list. A
+broken install of any of those reported a clean pass.
+
+### Fixed — it never exited non-zero on a CLI miss
+
+Missing CLIs printed `MISS` and the script still fell through to `exit 0`. Only the `mcp.json`
+branches had an exit path, so a CI consumer saw green while the toolchain was incomplete. The
+script now tracks failures and ends with `RESULT: OK` / `RESULT: FAILED` plus a matching exit code.
+
+### Fixed — it never cross-checked the MCP servers the bundle installs
+
+It validated `mcp.json` as JSON and listed whatever was present, but never compared that against
+`setup/mcp.json.template`. A bundle server silently missing from the config was therefore
+invisible. It now reads the expected set from the template — one source of truth — instead of
+hardcoding a second copy that will drift.
+
+### Fixed — it never checked that the parked set was actually parked
+
+Parking works by renaming `SKILL.md` → `SKILL.md.disabled`. A bare `SKILL.md` left behind in a
+parked directory is still discoverable by Copilot, and nothing detected that.
+
+### Note — a false positive caught before it shipped
+
+A parked **directory** existing under `~/.claude/skills/` is *not* a leak. The Claude mirror parks
+**in place** by renaming the marker file, rather than moving the directory to a `skills._disabled/`
+sibling the way the agents side does. Directory presence proves nothing; only the marker file does.
+This was briefly read as a 14-skill leak during verification and disproved before any commit.
+
+### Note — the MCP name comparison must stay tolerant
+
+Servers installed from the MCP gallery are keyed `owner/name` and version-pinned; the template keys
+them by short name with `@latest`. `firecrawl` and `firecrawl/firecrawl-mcp-server` are the same
+server, so raw key equality reports every gallery install as missing — which it did on first run.
+Comparison normalizes to the leaf name.
+
+### Verified
+
+Machine state confirmed with the fixed script: **18/18 CLIs**, **23 live MCP servers** including all
+**11 bundle servers**, **281 skills**, **14 parked with 0 still discoverable**, exit 0. Negative
+controls confirm the check can fail: hiding `USERPROFILE` and breaking `APPDATA` each produce a
+non-zero exit.
+
 ## [1.9.11] — 2026-09-22
 
 Documentation and release-metadata fixes. No skill content, no script logic changed.

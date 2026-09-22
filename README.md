@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.11-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.12-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -479,6 +479,35 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.12 (2026-09-22)
+
+**`bin/verify-state.ps1` did not verify state.** The designated entry point for "is my machine
+correctly set up?" was under-checking and could not fail on the thing it exists to check. Four
+defects, all fixed:
+
+- **Checked 12 of 18 CLIs.** `witr`, `semantica`, `loop`, `watch-skill`, `wigolo`, and `ocr`
+  were absent from the list, so a broken install of any of them reported a clean pass.
+- **Never exited non-zero on a CLI miss.** Missing CLIs printed `MISS` and the script still fell
+  through to `exit 0` — only the `mcp.json` branches had an exit path. A CI consumer saw green
+  while the toolchain was incomplete. Now prints `RESULT: OK` / `RESULT: FAILED` with a matching
+  exit code.
+- **Never cross-checked the MCP servers the bundle installs.** It validated `mcp.json` as JSON and
+  listed whatever was present, but never compared against `setup/mcp.json.template`, so a bundle
+  server missing from config was invisible. Now reads the expected set from the template (one
+  source of truth) rather than hardcoding a second copy.
+- **Never checked the parked set was actually parked.** Parking works by renaming `SKILL.md` →
+  `SKILL.md.disabled`; a bare `SKILL.md` left behind is still discoverable, and nothing caught it.
+
+> One trap worth recording: a parked **directory** existing under `~/.claude/skills/` is *not* a
+> leak. The Claude mirror parks **in place** rather than in a `skills._disabled/` sibling, so
+> directory presence proves nothing — the marker file is what matters. This was mistaken for a
+> defect during verification and disproved before it reached a commit.
+
+The MCP comparison is deliberately tolerant: gallery-installed servers are keyed `owner/name` and
+version-pinned, while the template uses short names with `@latest`. `firecrawl` and
+`firecrawl/firecrawl-mcp-server` are the same server, so raw key equality would report every
+gallery install as missing — as it did on first run.
 
 ### v1.9.11 (2026-09-22)
 
