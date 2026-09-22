@@ -854,3 +854,49 @@ heygen-com/hyperframes|hyperframes|skills/hyperframes|
 #     - the parser's `if ($parts.Length -ge 5)` source-override branch is dead code - no row
 #       in the manifest has a 5th field. Kept identical to its 35 peers rather than invented.
 local/timesfm-forecasting|timesfm-forecasting||upstream/timesfm-forecasting
+
+# --- bundled capabilities: hand-authored skills wrapping a CLI and/or MCP server ---
+# ADDED 2026-09-22 (v1.9.9). These are everyday usable capabilities, not upstream
+# skills: each pairs a SKILL.md with a CLI installed in Phase 2 and/or an MCP server
+# shipped in mcp.json.template. Upstream ships no SKILL.md for any of them, so there
+# is no repo to clone and no fork mirror to refresh — they are `local/*` ports whose
+# source of record is `upstream/<name>/` in THIS repo.
+#
+# Why `local/*` is the right row type (verified, not assumed):
+#   - Tracking them stops the next cleanup pass deleting them as unknown dirs.
+#   - `local/*` rows are REFRESH-PROTECTED (install-missing-skills.ps1:174-176:
+#     "skip $name (protected local port)"). Hand-authored content is never
+#     overwritten by the resolver — the failure mode that once truncated
+#     book-to-skill (702->414 lines) and diagram-design (565->273).
+#   - install-skill.ps1:128 copies with -Recurse, so subdirs (references/, steps/)
+#     survive install intact.
+#
+# markitdown-converter / markitdown-testing — MarkItDown development.
+#   NOTE ON PROVENANCE: microsoft/markitdown is the right REPO, but it ships ZERO
+#   SKILL.md files (verified: 0 found in fork; .github/skills does not exist — 404).
+#   These two are hand-authored docs ABOUT markitdown, in the same lineage as the
+#   User/prompts trio dated 2026-06-27 (markitdown-converter-conventions.instructions.md,
+#   markitdown-mcp-setup.prompt.md, markitdown-reviewer.agent.md). Do NOT add a
+#   microsoft/markitdown row — it would resolve to nothing.
+#   CLI: markitdown, markitdown-mcp   MCP: microsoft/markitdown
+local/markitdown-converter|markitdown-converter||upstream/markitdown-converter
+local/markitdown-testing|markitdown-testing||upstream/markitdown-testing
+# agent-reach — 13-platform internet research (X, Reddit, YouTube, GitHub, Bilibili,
+#   XiaoHongShu, Xiaoyuzhou, LinkedIn, V2EX, Xueqiu, RSS) via multi-backend routing.
+#   CLI installs in Phase 2 from git+https://github.com/Panniantong/Agent-Reach.git
+#   (setup-global-skills.ps1:285) and is configured by `agent-reach install --env=auto`
+#   (:355). The repo ships no SKILL.md, so the wrapper is hand-authored here.
+#   CLI: agent-reach   MCP: none (CLI-only by design)
+local/agent-reach|agent-reach||upstream/agent-reach
+# airunway-aks-setup — bare AKS cluster -> running model (cluster verify, controller,
+#   GPU assessment, provider setup, first deploy), 6 step docs in references/steps/.
+#   AUTHOR: Microsoft (metadata.author), same vendor signature as azure-kubernetes /
+#   azure-ai / microsoft-foundry. It is bundled here rather than left to extension
+#   provisioning because it pairs with the airunway CLI/controller, so it belongs in
+#   the tracked set. Apache-2.0 upstream (ai-runway/airunway); no Claude-Code coupling
+#   (verified: no allowed-tools, no $ARGUMENTS, no mcp__codex__).
+local/airunway-aks-setup|airunway-aks-setup||upstream/airunway-aks-setup
+# retrieval-reflex — when/what to retrieve: open the brain page for a salient entity
+#   before answering from memory. Wraps the gbrain MCP server.
+#   MCP: gbrain
+local/retrieval-reflex|retrieval-reflex||upstream/retrieval-reflex

@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 249 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 254 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-249-2ea44f)](#whats-included)
+[![Skills](https://img.shields.io/badge/skills-254-2ea44f)](#whats-included)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.7-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.9-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills          | **249** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
+| 🧠 Skills          | **254** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
 | 📚 Fork mirrors    | **50**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill |
@@ -109,7 +109,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (249 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
+### Skills (254 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -387,7 +387,7 @@ Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 ├── setup/                      # the one-command installer + config
 │   ├── setup-global-skills.ps1 # master installer
 │   ├── install-skill.ps1       # security-gated skill install helper
-│   ├── skills-list.csv         # manifest of 249 entries (248 active + 1 disabled)
+│   ├── skills-list.csv         # manifest of 254 entries (253 active + 1 disabled)
 │   ├── mcp.json.template       # 11 MCP server config
 │   └── SETUP_GUIDE.md          # detailed guide
 ├── bin/                        # 19 audit/fix/install helper scripts
@@ -454,6 +454,40 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.9 (2026-09-22)
+
+**Tracked 5 bundled capabilities that paired a hand-authored SKILL.md with a CLI and/or MCP
+server but had no manifest row.** Manifest-tracking only: 0 of 294 installed skills modified.
+
+| capability | backing | files |
+| --- | --- | --- |
+| `markitdown-converter` | CLI `markitdown` + MCP `microsoft/markitdown` | 1 |
+| `markitdown-testing` | CLI `markitdown-mcp` | 1 |
+| `agent-reach` | CLI `agent-reach` (Phase 2, `Panniantong/Agent-Reach`) | 7 |
+| `airunway-aks-setup` | AKS cluster → running model, 6 step docs | 11 |
+| `retrieval-reflex` | MCP `gbrain` | 1 |
+
+All five were live and servable but untracked — orphaned the same way as v1.9.8's three.
+
+**Why `local/*` and not an upstream row** (verified, not assumed):
+
+- **No upstream SKILL.md exists for any of them.** `microsoft/markitdown` is the right repo but
+  ships **zero** SKILL.md files (checked the fork; `.github/skills` is a 404). The two markitdown
+  skills are hand-authored docs *about* markitdown, same lineage as the `User/prompts` trio dated
+  2026-06-27. An upstream row would resolve to nothing.
+- **`local/*` rows are refresh-protected.** `install-missing-skills.ps1:174-176` skips them with
+  `"skip $name (protected local port)"`, so hand-authored content is never overwritten — the
+  failure mode that once truncated `book-to-skill` (702→414 lines) and `diagram-design` (565→273).
+- **Subdirs survive.** `install-skill.ps1:128` copies with `-Recurse`, so `references/` and
+  `references/steps/` install intact.
+
+`upstream/` mirrors created for all five, byte-identical (SHA-256 verified) with full subdir trees.
+Also **refreshed a stale `gstack-review` mirror** — tracked copy was 88 lines (pre-refresh), the
+installed port is 112 with a section 7 mapping review layers to reference files; re-synced to 13/13.
+
+**Counters:** manifest 249 → **254** (253 active + 1 disabled); `local/*` 40 → **45**. Installed
+unchanged at 294 — all five were already on disk.
 
 ### v1.9.8 (2026-09-22)
 

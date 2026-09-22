@@ -2,6 +2,59 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.9] — 2026-09-22
+
+Tracked 5 bundled capabilities that paired a hand-authored SKILL.md with a CLI and/or MCP
+server but had no manifest row. Manifest-tracking only: 0 of 294 installed skills modified.
+
+### Fixed — 5 everyday capabilities were live but untracked
+
+Each of these ships a working SKILL.md alongside a CLI installed in Phase 2 and/or an MCP
+server already in `mcp.json.template`. None had a manifest row, so they were orphaned:
+`install-missing-skills.ps1` skips untracked entries, and a cleanup pass would have seen five
+unknown directories and deleted them.
+
+| capability | backing | files |
+| --- | --- | --- |
+| `markitdown-converter` | CLI `markitdown` + MCP `microsoft/markitdown` | 1 |
+| `markitdown-testing` | CLI `markitdown-mcp` | 1 |
+| `agent-reach` | CLI `agent-reach` (Phase 2, `Panniantong/Agent-Reach`) | 7 |
+| `airunway-aks-setup` | AKS cluster → running model, 6 step docs | 11 |
+| `retrieval-reflex` | MCP `gbrain` | 1 |
+
+### Why `local/*` and not an upstream row
+
+Verified rather than assumed:
+
+- **No upstream SKILL.md exists** for any of them. `microsoft/markitdown` is the right repo but
+  ships **zero** SKILL.md files (checked the fork; `.github/skills` is a 404). The two markitdown
+  skills are hand-authored docs *about* markitdown, same lineage as the `User/prompts`
+  trio dated 2026-06-27. An upstream row would resolve to nothing.
+- **`local/*` rows are refresh-protected.** `install-missing-skills.ps1:174-176` skips them with
+  `"skip $name (protected local port)"`, so hand-authored content is never overwritten by the
+  resolver — the failure mode that once truncated `book-to-skill` (702→414 lines) and
+  `diagram-design` (565→273).
+- **Subdirs survive.** `install-skill.ps1:128` copies with `-Recurse`, so `references/` and
+  `references/steps/` install intact.
+
+### Changed
+
+- 5 rows added as `local/<name>|<name>||upstream/<name>` with the CLI/MCP backing documented inline.
+- `upstream/` mirrors created for all 5, byte-identical to the installed copies (SHA-256 verified),
+  with full subdirectory trees.
+- **Refreshed a stale `gstack-review` mirror.** The tracked copy was 88 lines (pre-refresh);
+  the installed port is 112 lines with a section 7 mapping review layers to reference files.
+  Mirror re-synced to 13/13 files.
+- **Counters:** manifest 249 → **254** (253 active + 1 disabled); `local/*` 40 → **45**.
+  Installed count unchanged at 294 — all five were already on disk.
+
+### Reverted mid-session (recorded for traceability)
+
+An over-broad refresh briefly overwrote the tracked `upstream/gstack-review/SKILL.md` and added
+two out-of-scope files under `upstream/crucible/`. Both were restored to HEAD. `crucible` stays
+retired (superseded by `claudex-loop`) and `gstack-review`'s mirror is a hand-port, so neither
+should be blanket-refreshed from the installed copy — only in the deliberate direction taken here.
+
 ## [1.9.8] — 2026-09-22
 
 Re-added 3 skill rows that commit `3757869` removed on a premise that later became false.
