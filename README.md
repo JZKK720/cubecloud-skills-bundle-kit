@@ -1,8 +1,8 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 246 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 249 skills, 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-246-2ea44f)](#whats-included)
+[![Skills](https://img.shields.io/badge/skills-249-2ea44f)](#whats-included)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills          | **246** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
+| 🧠 Skills          | **249** | Discovered by Copilot Chat — superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
 | 📚 Fork mirrors    | **50**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill |
@@ -109,7 +109,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (246 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
+### Skills (249 in manifest — 1 disabled, 19 gate-blocked entries parked as comments)
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -387,7 +387,7 @@ Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 ├── setup/                      # the one-command installer + config
 │   ├── setup-global-skills.ps1 # master installer
 │   ├── install-skill.ps1       # security-gated skill install helper
-│   ├── skills-list.csv         # manifest of 246 entries (245 active + 1 disabled)
+│   ├── skills-list.csv         # manifest of 249 entries (248 active + 1 disabled)
 │   ├── mcp.json.template       # 11 MCP server config
 │   └── SETUP_GUIDE.md          # detailed guide
 ├── bin/                        # 19 audit/fix/install helper scripts
@@ -454,6 +454,47 @@ cd ~/dev/bin
 | recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.8 (2026-09-22)
+
+**Re-added 3 skill rows that commit `3757869` removed on a premise that later became false.**
+
+Commit `3757869` (2026-08-11 00:18) deleted `local/loop-engineering`,
+`local/watch-skill` and `local/wigolo`, recording the reason as *"hand-authored
+placeholder entries that never had a SKILL.md."* That was accurate when written.
+It stopped being accurate **9 hours later**, when those three SKILL.md files were
+authored (2026-08-11 09:21) and installed:
+
+| skill | size | gate |
+| --- | --- | --- |
+| `loop-engineering` | 2840 B | SkillSpector LOW/SAFE · skills-ref Valid |
+| `watch-skill` | 2012 B | SkillSpector LOW/SAFE · skills-ref Valid |
+| `wigolo` | 2335 B | SkillSpector LOW/SAFE · skills-ref Valid |
+
+**Why this mattered.** The three were live and being served to Copilot from
+`~/.agents/skills/`, but untracked. That orphaned them: `install-missing-skills.ps1`
+skips untracked skills entirely, so they could never be refreshed, and a future
+cleanup pass would have seen three unknown directories and deleted them. The
+manifest's own comment was actively misleading a reader into thinking removal was
+current policy.
+
+- **Fix:** rows re-added as `local/<name>|<name>||upstream/<name>`, and the
+  now-false comment replaced with one that records the real history.
+- **`upstream/` mirrors created** for all three (`upstream/<name>/SKILL.md`),
+  byte-identical to the installed copies (SHA-256 verified). This is the
+  convention all 40 `local/*` rows follow — the resolver at
+  `install-missing-skills.ps1:120-124` maps `local/*` to `upstream/$Name`, so
+  without a mirror the rows would report `no source`.
+- **Deliberately left alone:** the CLI/MCP half of `3757869`'s rationale still
+  holds and needed no change. All three CLIs install in Phase 2 (uv/npm), and all
+  three MCP servers are already present in `mcp.json.template` **and** in the
+  installed `mcp.json` — verified, not assumed.
+- **`archify` untouched.** It was named in the same removal commit but was
+  re-integrated separately at line ~372 via `JZKK720/archify` + `upstream/archify`.
+
+**Counters:** manifest 246 → **249** (248 active + 1 disabled); `local/*` 37 → **40**.
+Installed count unchanged at 294 — these three were already on disk; only their
+manifest tracking was restored.
 
 ### v1.9.7 (2026-09-22)
 

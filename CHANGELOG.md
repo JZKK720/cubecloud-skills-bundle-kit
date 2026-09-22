@@ -2,6 +2,51 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.8] — 2026-09-22
+
+Re-added 3 skill rows that commit `3757869` removed on a premise that later became false.
+Manifest-tracking only: 0 of 294 installed skills were modified.
+
+### Fixed — 3 live skills were untracked because the manifest comment went stale
+
+Commit `3757869` (2026-08-11 00:18) deleted `local/loop-engineering`,
+`local/watch-skill` and `local/wigolo`, recording the reason as *"hand-authored placeholder
+entries that never had a SKILL.md."* That was accurate when written. It stopped being
+accurate **9 hours later**, when those three SKILL.md files were authored
+(2026-08-11 09:21) and installed.
+
+| skill | size | gate |
+| --- | --- | --- |
+| `loop-engineering` | 2840 B | SkillSpector LOW/SAFE · skills-ref Valid |
+| `watch-skill` | 2012 B | SkillSpector LOW/SAFE · skills-ref Valid |
+| `wigolo` | 2335 B | SkillSpector LOW/SAFE · skills-ref Valid |
+
+**Why this mattered.** The three were live and being served to Copilot from
+`~/.agents/skills/`, but untracked. That orphaned them: `install-missing-skills.ps1`
+skips untracked skills entirely, so they could never be refreshed, and a future cleanup
+pass would have seen three unknown directories and deleted them. The manifest's own
+comment was actively misleading a reader into thinking removal was current policy.
+
+### Changed
+
+- Rows re-added as `local/<name>|<name>||upstream/<name>`; the now-false comment replaced
+  with one recording the real history.
+- `upstream/` mirrors created for all three (`upstream/<name>/SKILL.md`), byte-identical to
+  the installed copies (SHA-256 verified). This is the convention all 40 `local/*` rows
+  follow — the resolver at `install-missing-skills.ps1:120-124` maps `local/*` to
+  `upstream/$Name`, so without a mirror the rows would report `no source`.
+- **Counters:** manifest 246 → **249** (248 active + 1 disabled); `local/*` 37 → **40**.
+  Installed count unchanged at 294 — these three were already on disk; only their manifest
+  tracking was restored.
+
+### Not changed (deliberately)
+
+- The CLI/MCP half of `3757869`'s rationale still holds. All three CLIs install in Phase 2
+  (uv/npm), and all three MCP servers are already present in `mcp.json.template` **and** in
+  the installed `mcp.json` — verified, not assumed.
+- `archify` was named in the same removal commit but was re-integrated separately via
+  `JZKK720/archify` + `upstream/archify`.
+
 ## [1.9.7] — 2026-09-22
 
 Two data-only fixes. No script changed, no skill content changed, 0 of 294 installed

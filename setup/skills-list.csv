@@ -18,10 +18,24 @@ obra/superpowers|using-superpowers||
 obra/superpowers|dispatching-parallel-agents||
 shadcn/improve|improve||
 Forward-Future/loopy|loopy|skills/loopy|
-# loop-engineering, watch-skill, wigolo, archify: these are CLI/MCP tools, not
-# installable skills. They were hand-authored placeholder entries that never
-# had a SKILL.md. The CLIs are installed in Phase 2 (uv/npm), and the MCP
-# servers are in mcp.json.template. Removed from the skills manifest.
+# --- loop-engineering, watch-skill, wigolo: hand-authored companion skills ---
+# RE-ADDED 2026-09-22. Commit 3757869 (2026-08-11) removed these as "dead
+# placeholder entries that never had a SKILL.md". That was true when written;
+# it is no longer true. The SKILL.md files were authored 9h later
+# (2026-08-11 09:21) and are live and valid:
+#   - loop-engineering  2840 B  (loop infrastructure: scaffold/score/schedule/govern)
+#   - watch-skill       2012 B  (video intelligence: watch/remember/verify)
+#   - wigolo            2335 B  (local-first web intelligence: search/fetch/crawl)
+# All three install clean (SkillSpector LOW/SAFE, skills-ref Valid) and are
+# already served to Copilot from ~/.agents/skills/. Leaving them untracked
+# orphaned them: install-missing-skills.ps1 would never refresh them and a
+# future cleanup pass could delete them as unknown.
+# The CLIs are ALSO installed in Phase 2 (uv/npm) and the MCP servers are in
+# mcp.json.template — those parts of commit 3757869's rationale still hold.
+# archify stays tracked separately (line ~372) via JZKK720/archify upstream.
+local/loop-engineering|loop-engineering||upstream/loop-engineering
+local/watch-skill|watch-skill||upstream/watch-skill
+local/wigolo|wigolo||upstream/wigolo
 DietrichGebert/ponytail|ponytail||
 Nutlope/hallmark|hallmark||
 Leonxlnx/taste-skill|taste-skill|skills/taste-skill|
