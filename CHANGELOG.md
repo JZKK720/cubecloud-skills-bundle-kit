@@ -72,6 +72,64 @@ name is the wrong one; the shim was uninstalled.
 Manifest 255 → **257**; `local/*` 46 → **48**; `~/.agents/skills` 282 → **284**;
 `~/.claude/skills` 515 → **517**; `upstream/` 49 → **51**.
 
+### Verified — a real Jev call, not just an install
+
+Everything above was verified without a key: imports, schemas, SDK signatures. That leaves one
+gap — no live round-trip. Closed:
+
+```python
+from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
+
+client = TypeSafeClient(api_key=KEY, base_url="https://openrouter.ai/api")
+resp = client.system_one(model="jev-1.13", state=..., questions={...})
+```
+
+Result — a genuine call, OpenRouter-billed, routed to TypeSafe:
+
+```
+is_urgent    noul   = 0.97
+department   choice = billing   (confidence 0.84 · probabilities billing 0.89 / technical 0.11 / sales 0.0)
+frustration  score  = 1.17      (legend: 0 Calm · 1 Frustrated · 2 Very angry)
+model        = "typesafe/jev-1.13-20260917"
+usage        = 409 input / 73 output
+```
+
+`model` reports the **resolved** ID, not the requested `jev-1.13` — the version-pinning behaviour
+the docs describe, confirmed empirically.
+
+### The route that actually works
+
+| Route | Endpoint | Model ID accepted | Method |
+|---|---|---|---|
+| **OpenRouter System One** ← preferred | `openrouter.ai/api/v1/systemone` | `jev-1.13`, `jev-latest` | `system_one()` / `systemOne()` |
+| OpenRouter Decisions (**alpha**) | `openrouter.ai/api/alpha/decisions` | `~typesafe/jev-latest` | `alpha.decisions.create()` |
+| TypeSafe direct | `api.typesafe.ai/v1/systemone` | `jev-latest` | `system_one()` |
+| Vercel AI Gateway | `ai-gateway.vercel.sh` | `typesafe-ai/jev` | — |
+
+Routing the **official** TypeSafe SDK at OpenRouter is 4 lines — *"Change the base URL and the
+API key. Everything else stays the same."* That beats the `@openrouter/sdk` alpha Decisions
+endpoint, which works but is alpha.
+
+### Corrections to earlier guidance in this release
+
+- **"Python runtime is macOS-only" was too broad.** Only **functional Python nodes** are. Verified:
+  `import auto_jev` / `spec` / `runtime` / `PipelineRuntime` all succeed on `win32`, and the
+  shipped `configs/flow_seed.json` — a real 8-node parallel expression+Jev v2 flow — **validates on
+  Windows**. The sandbox raises only when a Python node *executes*, and has no host-exec fallback.
+- **Absence from the models list is not a health check.** `GET /api/v1/models` returns **454**
+  models with **0** `typesafe/jev` entries, yet the model routes fine. Do not use that list to
+  decide whether Jev is available.
+- **`ask()` does not exist.** The SDK method is `system_one()` (Python) / `systemOne()` (JS).
+- **`Choice.criteria` is a mapping** (id → description) while **`Score.criteria` is a sequence**
+  (2–10 levels). Easy to invert; the SDK rejects it if you do.
+
+### Trap — User-scope env vars do not reach a running shell
+
+`[Environment]::SetEnvironmentVariable(..., "User")` writes the registry, but shells already
+running keep their old environment block. A script that reads `os.environ` fails with a
+"key not set" error that looks wrong. Read from the registry directly
+(`winreg` → `HKCU\Environment`) or start a fresh shell.
+
 ## [1.9.13] — 2026-09-23
 
 ### Added — `github-repo-metadata`

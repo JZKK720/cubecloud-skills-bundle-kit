@@ -470,15 +470,195 @@ cd ~/dev/bin
 .\install-skill.ps1 -Repo "owner/repo" -Name "skill-name" -SkillRelPath "path/to/skill"
 ```
 
+## Using Jev (typed decisions)
+
+Jev is TypeSafe's **System One** model: it takes a `state` plus typed questions and returns
+`choice` (with per-option probabilities), `score`, or `noul` (0–1). It does **not** generate text
+or write code — it is not a replacement for your coding-agent LLM, and the
+[vendor says so explicitly](https://docs.typesafe.ai/introduction/coding-agents). You call it
+*from* code your agent writes.
+
+Two skills cover it: **`typesafe-ai`** (the official vendor skill — API, primitives, patterns) and
+**`jev-harness`** (build measurable decision pipelines, optionally evolved against outcomes).
+
+```python
+from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
+
+client = TypeSafeClient(api_key=KEY, base_url="https://openrouter.ai/api")
+resp = client.system_one(
+    model="jev-1.13",
+    state="Help! My payouts have been failing for 3 days.",
+    questions={
+        "is_urgent": Noul(instructions="Does this convey urgency?"),
+        "department": Choice(
+            instructions="Which team should handle this?",
+            criteria={"billing": "Payments", "technical": "Bugs"},
+        ),
+        "frustration": Score(
+            instructions="How frustrated is the customer?",
+            criteria=["Calm", "Frustrated", "Very angry"],
+        ),
+    },
+)
+resp.answers["department"].choice        # 'billing'
+resp.answers["department"].confidence    # 0.84
+resp.answers["is_urgent"].noul           # 0.97
+```
+
+**Routes.** Point the official TypeSafe SDK at whichever provider you have:
+
+| Route | `base_url` | Key | Model ID |
+|---|---|---|---|
+| OpenRouter | `https://openrouter.ai/api` | `OPENROUTER_API_KEY` | `jev-1.13`, `jev-latest` |
+| TypeSafe direct | *(default)* | `TYPESAFE_API_KEY` | `jev-latest` |
+| Vercel AI Gateway | *(default)* | `AI_GATEWAY_API_KEY` | `typesafe-ai/jev` |
+
+`Choice.criteria` is a **mapping** (id → description); `Score.criteria` is a **sequence** (2–10
+levels). The method is `system_one()` — not `ask()`.
+
+> **No API key?** The `jev` skill documents a keyless simulation route (route "B") that runs the
+> same state, questions and criteria through your own agent. It returns `jev_called: false` with
+> null probabilities — useful for building the integration, and explicitly **not** real Jev. The
+> skill also warns that a missing key is never a reason to paste a secret into chat.
+
 ## Platform limitations (Windows)
 
-| Tool     | Issue                                                                      | Workaround                                                                                                                                                  |
-| -------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| EverOS   | `import fcntl` (Unix-only)                                                 | Not installed. `gbrain` MCP used instead.                                                                                                                   |
-| headroom | Windows Defender blocks `ast-grep-cli.exe` (false positive on Rust binary) | Run `bin/add-defender-exclusion-ast-grep.ps1` in an elevated PowerShell, then `uv tool install "headroom-ai[proxy]"`. Exclusion is scoped to ast-grep only. |
-| recall   | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
+| Tool        | Issue                                                                      | Workaround                                                                                                                                                  |
+| ----------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| EverOS      | `import fcntl` (Unix-only)                                                 | Not installed. `gbrain` MCP used instead.                                                                                                                   |
+| headroom    | Windows Defender blocks `ast-grep-cli.exe` (false positive on Rust binary) | Run `bin/add-defender-exclusion-ast-grep.ps1` in an elevated PowerShell, then `uv tool install "headroom-ai[proxy]"`. Exclusion is scoped to ast-grep only. |
+| jev-harness | Functional **Python nodes** require the macOS native sandbox                | Expression + Jev flows (v1 and v2 specs) work fine — the shipped `configs/flow_seed.json` validates on Windows. Only Python nodes need macOS.               |
+| recall      | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.14 (2026-09-23)
+
+**Two skills added, the Jev-vs-LLM question answered, and a real Jev call verified.**
+
+#### Does the Jev API replace our LLM models? No — and the vendor says so
+
+From [TypeSafe — *Jev with coding agents*](https://docs.typesafe.ai/introduction/coding-agents):
+
+> Jev is **not** a drop-in replacement for the LLM behind Claude Code, Cursor, opencode,
+> **Copilot**… There is no `model: "jev-latest"` setting that turns your coding agent into a
+> Jev-powered agent, because the two systems solve different problems.
+
+Jev is a **System One** model — `state` + typed questions in, `choice`/`score`/`noul` out. It
+cannot generate text, so it structurally cannot drive a coding agent. Copilot and Claude stay
+exactly as they are; Jev is called *by the code* your agent writes.
+
+**No MCP server was added, deliberately.** MCP grants an agent *tool* access; Jev is a typed call
+made by application code, not a tool an agent invokes. The count stays at 11.
+
+#### Added — `typesafe-ai` (official skill)
+
+The vendor's own skill, MIT, 1.9k★. Teaches the Jev API, the three primitives, the patterns, and
+the habit of reading live docs over stale knowledge. SkillSpector **score 3 / LOW / SAFE**, 100%
+coverage, zero Claude-Code coupling.
+
+#### Added — `jev-harness` (TianyuCodings, 143★)
+
+Builds task-specific Jev decision pipelines: code prepares observations and enforces actions, Jev
+supplies judgments, an optional reflection model improves the pipeline offline. This is pipeline
+optimisation, **not** model-weight training.
+
+> **Windows caveat, precisely.** Only **functional Python nodes** are macOS-only —
+> `python_nodes.py` raises `PythonSandboxUnavailable` unless `sys.platform == 'darwin'`, with no
+> host-exec fallback by design. Everything else works here: verified that `import auto_jev`,
+> `spec`, `runtime` and `PipelineRuntime` all succeed on `win32`, and the shipped
+> `configs/flow_seed.json` (a real 8-node parallel expression+Jev flow) **validates on Windows**.
+> `auto-jev` is not on PyPI — source-only, Python ≥3.11.
+
+**Gated: score 37 / MEDIUM / CAUTION — all four findings verified false positive.** The gate blocks
+only on `do_not_install` (exit 1); this scanned exit 0, consistent with the 7 MEDIUM/CAUTION
+skills already shipped.
+
+| Finding | Flagged line | Verdict |
+|---|---|---|
+| **PE3 HIGH** "credential access" | "**Do not** … access credentials … until enough of the contract is known" | A **prohibition** read as an action — negation is not parsed |
+| **EA1/PE1** "`permissions:*`" | "**Environment and permissions:** Where will code run…" | Markdown **bold matched as a YAML grant**; frontmatter has only `name` + `description` |
+| **EA2** "without checking" | "Avoid treating confidence as validated **without checking** calibration" | A **cautionary** instruction read as autonomy |
+
+#### Added — official SDKs
+
+- **Python** `typesafe-sdk` **0.7.1** → `import typesafe_sdk`
+- **JavaScript** `@typesafe-ai/sdk` **0.6.0**
+
+**Trap:** the PyPI name `typesafe-ai` is a **name-squatting redirect shim**, not the SDK. It warns
+at import: *"Install `typesafe-sdk` and use `import typesafe_sdk` instead."*
+
+#### Verified — a real call, not just an install
+
+Everything else here was verified without a key. This closes that gap — a genuine call,
+OpenRouter-billed, routed to TypeSafe:
+
+```python
+client = TypeSafeClient(api_key=KEY, base_url="https://openrouter.ai/api")
+resp = client.system_one(model="jev-1.13", state=..., questions={...})
+```
+
+```
+is_urgent    noul   = 0.97
+department   choice = billing   (confidence 0.84)
+frustration  score  = 1.17      (0 Calm · 1 Frustrated · 2 Very angry)
+model        = "typesafe/jev-1.13-20260917"     ← resolved ID, not the requested alias
+usage        = 409 input / 73 output
+```
+
+#### The route that works
+
+| Route | Endpoint | Model ID | Method |
+|---|---|---|---|
+| **OpenRouter System One** ← preferred | `openrouter.ai/api/v1/systemone` | `jev-1.13`, `jev-latest` | `system_one()` / `systemOne()` |
+| OpenRouter Decisions (**alpha**) | `openrouter.ai/api/alpha/decisions` | `~typesafe/jev-latest` | `alpha.decisions.create()` |
+| TypeSafe direct | `api.typesafe.ai/v1/systemone` | `jev-latest` | `system_one()` |
+| Vercel AI Gateway | `ai-gateway.vercel.sh` | `typesafe-ai/jev` | — |
+
+Pointing the **official** SDK at OpenRouter is 4 lines — *"Change the base URL and the API key.
+Everything else stays the same."* Preferred over the `@openrouter/sdk` alpha endpoint, which works
+but is alpha.
+
+#### Corrections to guidance published earlier in this release
+
+- **"Python runtime is macOS-only" was too broad** — only functional Python nodes are. See the
+  caveat above.
+- **Absence from the models list is not a health check.** `GET /api/v1/models` returns **454**
+  models with **0** `typesafe/jev` entries, yet the model routes fine.
+- **`ask()` does not exist** — the method is `system_one()`.
+- **`Choice.criteria` is a mapping**, **`Score.criteria` is a sequence**. Easy to invert.
+
+#### Counts
+
+Manifest 255 → **257**; `local/*` 46 → **48**; `~/.agents/skills` 282 → **284**;
+`~/.claude/skills` 515 → **517**; `upstream/` 49 → **51**.
+
+### v1.9.13 (2026-09-23)
+
+**New skill: `github-repo-metadata`**, harvested from a workflow that took several wrong turns.
+
+Updating a repo's description looks blocked when `gh` is absent, `GITHUB_TOKEN` is unset, and an
+unauthenticated `PATCH` returns 401 — the natural conclusion is *"no auth, ask the user for a
+token."* That is wrong. A machine that has pushed over HTTPS holds a usable token in the Windows
+credential store (`credential.helper=manager`); `git credential fill` retrieves it with no env var
+and no CLI. The check order is now explicit: `gh` → env token → credential store → *only then*
+genuinely blocked.
+
+Two traps recorded, both of which cost real time:
+
+- **`GET /repos/...` is cached.** A `PATCH` returning **200** can read back the *old* value seconds
+  later. This looked like a silent no-op; it was a stale read.
+- **PowerShell `$home` is read-only** (alias for `HOME`). Assigning to it throws. Use `$homeUrl`.
+
+**Gated:** SkillSpector **score 5 / LOW / SAFE**, 100% coverage. One MEDIUM flag (confidence 0.5)
+on the `api.github.com` call — correct, expected, no secret embedded. Logged to `SCAN_LOG.md`
+rather than suppressed.
+
+**Security:** the token was read in memory only — never printed, logged, or persisted. Only length
+and token class were reported. A post-run sweep for token-shaped strings in the working tree
+returned 0 matches.
+
+Counts: 254 → **255** manifest entries; on-disk 281 → **282**.
 
 ### v1.9.12 (2026-09-22)
 
