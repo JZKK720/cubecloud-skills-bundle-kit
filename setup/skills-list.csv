@@ -953,3 +953,4 @@ local/airunway-aks-setup|airunway-aks-setup||upstream/airunway-aks-setup
 #   before answering from memory. Wraps the gbrain MCP server.
 #   MCP: gbrain
 local/retrieval-reflex|retrieval-reflex||upstream/retrieval-reflex
+local/github-repo-metadata|github-repo-metadata||upstream/github-repo-metadata

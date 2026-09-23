@@ -62,3 +62,4 @@ OpenCodeReview (OCR) is a deterministic + agent hybrid code review engine (aliba
 - **Overlap**: no true redundancy. The existing `code-review-and-quality` (addyosmani/agent-skills) is a methodology checklist; OCR adds a deterministic engineering layer (file selection, rule matching, smart bundling) that the methodology skill lacks. Complementary, not redundant.
 - **Manifest entries**: 114 -> 116 (skills-list.csv). Active skills: 142 -> 144.
 | 2026-07-20 01:34 | local/webapp-testing | webapp-testing | pass (exit 0) | active | ref:valid |
+| 2026-09-23 09:05 | local/github-repo-metadata | github-repo-metadata | pass (score 5, LOW, SAFE) | active | ref:valid; 1 MEDIUM/0.5 flag = api.github.com call, expected (see note) |
