@@ -954,3 +954,5 @@ local/airunway-aks-setup|airunway-aks-setup||upstream/airunway-aks-setup
 #   MCP: gbrain
 local/retrieval-reflex|retrieval-reflex||upstream/retrieval-reflex
 local/github-repo-metadata|github-repo-metadata||upstream/github-repo-metadata
+local/typesafe-ai|typesafe-ai||upstream/typesafe-ai
+local/jev-harness|jev-harness||upstream/jev-harness

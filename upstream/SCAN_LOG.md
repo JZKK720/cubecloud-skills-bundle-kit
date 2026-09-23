@@ -63,3 +63,5 @@ OpenCodeReview (OCR) is a deterministic + agent hybrid code review engine (aliba
 - **Manifest entries**: 114 -> 116 (skills-list.csv). Active skills: 142 -> 144.
 | 2026-07-20 01:34 | local/webapp-testing | webapp-testing | pass (exit 0) | active | ref:valid |
 | 2026-09-23 09:05 | local/github-repo-metadata | github-repo-metadata | pass (score 5, LOW, SAFE) | active | ref:valid; 1 MEDIUM/0.5 flag = api.github.com call, expected (see note) |
+| 2026-09-23 09:24 | local/typesafe-ai | typesafe-ai | pass (score 3, LOW, SAFE) | active | ref:valid; official TypeSafe skill, MIT, 1.9k stars; 1 LOW EA3 flag (advisory prose) |
+| 2026-09-23 09:24 | local/jev-harness | jev-harness | pass (score 37, MEDIUM, CAUTION) | active | ref:valid; EXIT 0 so gate proceeds. All 4 findings VERIFIED FALSE POSITIVE: PE3 HIGH "access credentials" is a NEGATION ("Do not...access credentials"); EA1/PE1 "permissions:*" matched markdown bold "Environment and permissions:" as YAML, frontmatter has only name+description; EA2 "without checking" is a caution. No allowed-tools, no credential access. NOTE: Python runtime is macOS-only. |

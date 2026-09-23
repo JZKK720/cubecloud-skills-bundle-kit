@@ -2,6 +2,76 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.14] — 2026-09-23
+
+### Answered — does the Jev API replace our LLM models?
+
+**No, and the vendor's own docs say so explicitly.** From
+[TypeSafe — *Jev with coding agents*](https://docs.typesafe.ai/introduction/coding-agents):
+
+> Jev is **not** a drop-in replacement for the LLM behind Claude Code, Cursor, opencode,
+> **Copilot**... There is no `model: "jev-latest"` setting that turns your coding agent into a
+> Jev-powered agent, because the two systems solve different problems.
+
+Jev is a **System One** model — it takes `state` + typed questions and returns a `choice` (with
+per-option probabilities), a `score`, or a `noul` (0–1). It does not generate text, write code, or
+hold a conversation, so it cannot power a coding agent. Copilot/Claude stays as-is; Jev is called
+by the code you write with the agent.
+
+### Rejected — no Jev MCP server
+
+Considered and declined. MCP exists to give an agent *tool* access; Jev is not a tool an agent
+invokes, it is a typed call made by application code. Shipping an MCP server would misrepresent
+it. Confirmed there is no official one either (`@typesafe-ai/mcp` is not on npm). This release
+adds a **skill + SDKs**, not an MCP server — 11 MCP servers remain, unchanged.
+
+### Added — `typesafe-ai` (official vendor skill)
+
+MIT, 1.9k★, the vendor's own skill. Teaches the Jev API, the primitives, the patterns, and the
+practice of reading live docs over stale knowledge. **SkillSpector score 3 / LOW / SAFE, 100%
+coverage.** Zero Claude-Code coupling — no `allowed-tools`, no `$ARGUMENTS`, no `mcp__`.
+
+### Added — `jev-harness` (TianyuCodings, 143★)
+
+Builds task-specific Jev pipelines: code prepares observations and enforces actions, Jev supplies
+judgments, an optional reflection model improves the pipeline offline. Pipeline optimisation, not
+weight training.
+
+### Windows caveat (documented, not hidden)
+
+JevHarness's Python runtime is **macOS-only**. `python_nodes.py` raises `PythonSandboxUnavailable`
+unless `sys.platform == 'darwin'` and `/usr/bin/sandbox-exec` exists, and it has **no host-execution
+fallback** by design. `auto-jev` is also **not on PyPI** (source-only, Python ≥3.11). The skill is
+installed and useful as guidance on Windows; the pipeline needs macOS or a macOS container.
+
+### Gate — MEDIUM/CAUTION, all four findings verified false positive
+
+The gate blocks on `do_not_install` (exit 1). This scanned **exit 0**, so it proceeds — consistent
+with the 7 MEDIUM/CAUTION skills already shipped. Each finding was checked against the source:
+
+| Finding | Flagged line | Verdict |
+|---|---|---|
+| **PE3 HIGH** "credential access" | "**Do not** ... access credentials ... until enough of the contract is known" | A **prohibition** read as an action — negation is not parsed |
+| **EA1/PE1** "`permissions:*`" | "**Environment and permissions:** Where will code run..." | Markdown **bold matched as a YAML permission grant**; frontmatter has only `name` + `description` |
+| **EA2** "without checking" | "Avoid treating confidence as validated **without checking** calibration" | A **cautionary** instruction read as autonomy |
+
+No `allowed-tools`, no `permissions:` key, no credential-file access. Logged to `SCAN_LOG.md` with
+the reasoning rather than suppressed.
+
+### Added — official SDKs
+
+- **Python** `typesafe-sdk` **0.7.1** → `import typesafe_sdk` (`TypeSafeClient`, `AsyncTypeSafeClient`, `Choice`, `Noul`, `Score`)
+- **JavaScript** `@typesafe-ai/sdk` **0.6.0**
+
+**Trap:** the PyPI name `typesafe-ai` is a **name-squatting redirect shim**, not the SDK. It warns
+at import: *"Install `typesafe-sdk` and use `import typesafe_sdk` instead."* The obvious-looking
+name is the wrong one; the shim was uninstalled.
+
+### Counts
+
+Manifest 255 → **257**; `local/*` 46 → **48**; `~/.agents/skills` 282 → **284**;
+`~/.claude/skills` 515 → **517**; `upstream/` 49 → **51**.
+
 ## [1.9.13] — 2026-09-23
 
 ### Added — `github-repo-metadata`
