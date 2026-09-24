@@ -1,6 +1,6 @@
 ---
 name: ops-authorization-methodology
-description: Authorization and scope methodology for security/penetration/red-team tasks. Read-only checklist: confirm scope.md, network_profile mode, in-scope/out-of-scope assets, deliverables, and stop/replan conditions. No scripts, no toolchain coupling.
+description: 'Authorization and scope methodology for security/penetration/red-team tasks. Read-only checklist: confirm scope.md, network_profile mode, in-scope/out-of-scope assets, deliverables, and stop/replan conditions. No scripts, no toolchain coupling.'
 license: MIT
 metadata:
   version: "1.0"
