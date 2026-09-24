@@ -69,16 +69,25 @@ $forkRoot = "$env:USERPROFILE\dev\forks\JZKK720"
 #     that delegate to the sibling claudex-loop skill, because the real workflow MOVED
 #     into claudex-loop. Overwriting would delete a working standalone workflow in favour
 #     of a pointer, so they are pinned and the user decides.
-#   - RENAMED-UPSTREAM skills: the installed copy deliberately carries a DIFFERENT
-#     frontmatter `name:` than upstream (and a matching directory name). The bundle renames
-#     these to avoid a cross-root collision or to match the manifest name. A refresh copies
-#     upstream's `name:` back and BREAKS the install. Verified 2026-09-21: a dry run flagged
-#     exactly these three, and the only differing line was the `name:` field.
+#   - RENAMED-UPSTREAM skills: these were installed under a directory name that differed
+#     from upstream's frontmatter `name:`, so a refresh copied upstream's `name:` back and
+#     broke the install. Verified 2026-09-21: a dry run flagged exactly these three, and the
+#     only differing line was the `name:` field.
 #       hallmark                    -> 3 rewritten reference links (upstream-only doc paths)
-#       taste-skill                 -> upstream name is 'design-taste-frontend', which ALREADY
-#                                      EXISTS as a real .copilot/skills skill => collision
+#       taste-skill                 -> upstream name is 'design-taste-frontend'
 #       create-technical-design-doc -> upstream name is 'technical-design-doc-creator'
-#     Evidence for the convention: all 294 installed skills satisfy name == folder name,
+#     CORRECTED 2026-09-24: the earlier claim that 'design-taste-frontend' "ALREADY EXISTS
+#     as a real .copilot/skills skill => collision" was FALSE. Verified: NEITHER
+#     'design-taste-frontend' NOR 'technical-design-doc-creator' exists in any discovery
+#     root (~/.agents/skills, ~/.claude/skills, ~/.copilot/skills, .vscode/extensions),
+#     so there was never a collision to avoid. Keeping those names instead of aligning them
+#     to the directory was itself the bug: VS Code documents that a name/dir mismatch means
+#     the skill is NOT loaded (silent failure), while upstream/AUDIT_REPORT_FINAL.md had
+#     called it "cosmetic -- discovered by folder name". The docs win.
+#     The real convention is the one below: name MUST equal the folder name. Both installed
+#     files now carry the directory name, so this list keeps its OTHER job -- protecting them
+#     from -Refresh reverting the alignment back to the upstream value.
+#     Evidence for the convention: all 321 installed skills satisfy name == folder name,
 #     with zero exceptions. Same hazard class as the documented book-to-skill 702->414
 #     regression, so this is enforced in code, not in a comment.
 #   - compound-engineering-plugin (EveryInc): the 20 `ce-*` skills plus `lfg`. Their mirror
