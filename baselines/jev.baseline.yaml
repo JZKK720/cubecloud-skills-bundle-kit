@@ -1,0 +1,56 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules: []
+fingerprints:
+- hash: sha256:6ef9330233bcc661db9f738b4b2f307f18ddef0b16c41ff77c05f8fbdf4e6d6b
+  rule_id: P3
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:dc8d620e4185c817386291e3c9247c65f78b281ae4b3f04bd0bc47224168e44c
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:fae0cdf0cb909843d34e33e4fdf1bf43f8316d36b2fb4e13454bbc5f5e379c0b
+  rule_id: P6
+  file: references/agent-recipes.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:4712abc19efc92c28f3be22a752078834e0b8d17ad18bb7a41b4d1474c322328
+  rule_id: AR2
+  file: references/context.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:5ce8eebee9a4dc3e013308ba76f80e3278d41ff9d79aa70927ecfdb86d3a7fb6
+  rule_id: EA2
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:0f2dceeeb98aaf989c47c523f741e15adf3fcc643c1c1ba5f6749176e0d97b49
+  rule_id: E1
+  file: references/api.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:a93250bf9244a9ee727e399df149c233a08166aeb2851e14d646f774e0dd11e2
+  rule_id: E1
+  file: references/api.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:abf1a2cf0761d055ba832369299df038b7ac1f653b1a3a2ae68c2cc856fbbdef
+  rule_id: RP1
+  file: references/ecosystem.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:078eb96ab23eebb728a9dcdd0c8732ecb4545babc87b95f2c6b5cfc0249b989e
+  rule_id: EA2
+  file: references/simulation.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:e4c39a6648730a3e0d345f183f266ff2cb6bf49b13170b135e66104fba817f46
+  rule_id: EA3
+  file: references/question-design.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'

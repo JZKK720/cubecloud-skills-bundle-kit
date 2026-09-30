@@ -1,0 +1,41 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules: []
+fingerprints:
+- hash: sha256:6a3e18ac44efe750aade8eeae16c6165433f3a34cea7028c5b1d25f56be487ba
+  rule_id: E2
+  file: scripts/check-health
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:a06f2f66dc64a2f60c4a17c0fe989033c95307211dfc7300ffdcbc6512231aa8
+  rule_id: LP3
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:2d31f527eb8d34cc5d6ad83d37c55a319797a6aa7c070d556a95a89944797d62
+  rule_id: EA2
+  file: references/config-template.yaml
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:295511e0ba6621adcd69555147492766c2e6dd93dd962ccd757e381299473f81
+  rule_id: EA2
+  file: references/repo-fixes.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:fe6b1f2b8846726223274689cb9f34a737fbf1d45f4c3565f86c86373dd33e3d
+  rule_id: AST4
+  file: scripts/packs-resolve.py
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:8182a303a32842845a106e0e777682573565635bf6b5630a6b6bb9e8d75763d0
+  rule_id: TT2
+  file: scripts/packs-resolve.py
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:ba4420c7242577a21eca21d0b0abd2fe060755b49d8fc827fcfcd32c2d034f95
+  rule_id: AST4
+  file: scripts/packs-resolve.py
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'

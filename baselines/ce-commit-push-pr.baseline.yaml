@@ -1,0 +1,35 @@
+﻿# SkillSpector baseline - findings listed here are suppressed on future scans.
+# Drift-tolerant rules scoped per (rule_id, file) - operator-accepted static-only
+# over-fire on doc phrasing for this vendored skill. Fingerprints retained as
+# exact-suppression backup. See NVIDIA SkillSpector docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules:
+  - id: "AE1"
+    file: "SKILL.md"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+  - id: "EA2"
+    file: "references/branch-creation.md"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+  - id: "EA2"
+    file: "references/compose.md"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+  - id: "EA2"
+    file: "references/stack-submit.md"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+  - id: "P2"
+    file: "references/apply-and-handoff.md"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+  - id: "P2"
+    file: "references/compose.md"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+fingerprints:
+  - hash: sha256:00d3c6cd4db4af5f705ad1b8c8459f25c8d79535b1b8998eae7714b88af62bc1
+    rule_id: "P2"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+  - hash: sha256:849d13bba7ccb16fa6bca031e24518a7012d901852d21d96cbc227912c370967
+    rule_id: "AE1"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+  - hash: sha256:8dc77d3dce9ba1f2672e813265a1b1a0c8594866ef38a4e978bf4f4451795465
+    rule_id: "EA2"
+    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"

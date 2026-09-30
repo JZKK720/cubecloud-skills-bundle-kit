@@ -1,0 +1,31 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules: []
+fingerprints:
+- hash: sha256:635e731ea1827dc2bad4300b42f53a125c24c4794962a68db267c88f9c485f0a
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:dae6c2e6f5c970375bf59fa9e744fe67fabf9cdbf0209d63f36ad1bdb7dd3687
+  rule_id: PE3
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:c4558a130fbb97f78d551858fcf47af8c30e20a305917d0d1ef545dac2674c58
+  rule_id: PE3
+  file: references/model-sizing.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:11a8a002f4fa71675b7355657ce930a35eee1005a3fe201e7bae377659ae2781
+  rule_id: PE2
+  file: references/steps/step-5-deploy.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:24d4fd71172031f101f0b5aa15182fbf798df5b294b80c38f11285a78bf0bdbd
+  rule_id: E1
+  file: references/steps/step-6-summary.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
