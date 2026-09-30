@@ -2,7 +2,7 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
-## [Unreleased] — 2026-09-30
+## [1.9.15] — 2026-09-30
 
 ### Added — `laya` (local decision-model skill, open-source Jev alternative)
 

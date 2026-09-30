@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 257 bundled skills (284 on disk), 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 258 bundled skills (285 on disk), 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-257%20bundled-2ea44f)](#what-you-get)
+[![Skills](https://img.shields.io/badge/skills-258%20bundled-2ea44f)](#what-you-get)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.14-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.15-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **284** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **257** are bundle-installed from `skills-list.csv` (256 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
+| 🧠 Skills on disk  | **285** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **258** are bundle-installed from `skills-list.csv` (257 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
 | 🅿️ Parked skills   | **14**  | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: 1 upstream-disabled (`caveman`) + 13 Copilot-incompatible (12 research-integrity forensics + retired `crucible`). Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
@@ -110,13 +110,13 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (257 bundled — 256 active + 1 disabled)
+### Skills (258 bundled — 257 active + 1 disabled)
 
-> **Why the README says 257 but the installer prints 284.** The installer ends with
+> **Why the README says 258 but the installer prints 285.** The installer ends with
 > `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that
 > folder — including the **27 skills VS Code installs itself** for the Azure, Entra, and
 > Foundry extensions. Those are already on disk on any normal install and the bundle neither
-> writes nor removes them (README §"Azure & cloud" below). 257 + 27 = 284. Both numbers are
+> writes nor removes them (README §"Azure & cloud" below). 258 + 27 = 285. Both numbers are
 > correct; they just measure different sets.
 
 A further **19 gate-blocked entries** are parked as comments **inside** `skills-list.csv`
@@ -398,7 +398,7 @@ cubecloud-skills-bundle-kit/          # git clone target — run installers from
 ├── setup/                            # the one-command installer + config
 │   ├── setup-global-skills.ps1       # master installer (run this)
 │   ├── install-skill.ps1             # security-gated skill install helper
-│   ├── skills-list.csv               # manifest of 257 entries (256 active + 1 disabled)
+│   ├── skills-list.csv               # manifest of 258 entries (257 active + 1 disabled)
 │   ├── mcp.json.template             # 11 MCP server config
 │   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
 │   └── SETUP_GUIDE.md                # detailed guide
