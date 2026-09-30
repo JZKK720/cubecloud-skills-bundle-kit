@@ -1136,6 +1136,8 @@ Verified before shipping: `archify doctor` → exit 0 (15/15 checks), `render` �
 `validate --quality showcase` → exit 0 with receipt. The installer runs `doctor` first, so it
 never advertises a command it has not verified.
 
+**Optional laya-serve sidecar (opt-in separately):** after `pip install laya` works, run `bin/install-laya-serve.ps1` to ship an always-hot decision API on `http://127.0.0.1:8770` (copies `upstream/laya/laya-serve.py` to `C:\rocm-sdk\`, writes start/stop shims + per-user autostart). Copilot-written tools then POST decisions there at ~30-50 ms without loading torch themselves. See CHANGELOG 1.9.15.
+
 **Opt-in** because every other phase of the installer is unconditional and this one adds a command
 to your PATH. Requires the archify fork mirror, so it warns and skips under `-SkipForks`.
 

@@ -18,6 +18,18 @@ fall through to Jev's hosted route per `jev`'s consent rules).
 - Manifest: `local/laya|laya||upstream/laya` (manifest rows now **258** active)
 - Gate: SkillSpector exit 0 · skills-ref valid · installed to `~/.agents/skills/laya`,
   mirrored to `~/.claude/skills/laya`, logged in SCAN_LOG
+
+### Added — optional laya-serve sidecar installer (opt-in)
+
+`bin/install-laya-serve.ps1` ships the FastAPI sidecar as a reproducible, opt-in
+install: copies the vendored server (`upstream/laya/laya-serve.py`) to
+`C:\rocm-sdk\laya-serve.py`, writes `laya-serve.cmd` / `laya-serve-stop.cmd`
+shims onto PATH (`~\.local\bin\`), and registers the per-user `HKCU Run\\LayaServe`
+autostart key (no elevation needed, archify-shim pattern). Requires the ROCm
+torch venv (script verifies and fails with guidance if absent). Idempotent —
+verified by re-running against the live machine. Loopback-only API:
+`GET /api/health` + `POST /predict` on `127.0.0.1:8770`, ~30-50 ms/decision on
+the AMD 8060S (gfx1151), no warm-up cost for clients after boot.
 - Counter note: manifest grew by 1; README badge says 257 until the next release re-basel.
   Runtime note: real Laya calls need `pip install laya` + ~2.3 GB weights on first load —
   the skill documents the sidecar/loopback pattern; no bundle CLI surface added (opt-in
