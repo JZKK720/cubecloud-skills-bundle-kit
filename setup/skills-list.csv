@@ -458,6 +458,15 @@ local/diagram-design|diagram-design||upstream/diagram-design
 #
 # Companion skills below are the gate-clean upstream direct installs.
 local/jev|jev||upstream/jev
+# --- laya (local decision model): open-source Jev alternative, runs offline ---
+# UPSTREAM (2026-09-30): Laya by Nandakishor M / Convai Innovations (Apache-2.0,
+#   github.com/NandhaKishorM/laya); integration skill by brainfunctioncollapse
+#   (playground repo MIT; source brainfunctioncollapse.com/laya). Same typed-question
+#   contract as Jev (choice/score/noul + confidence) but open weights that run locally
+#   in ~20-35 ms per call with no API key and no data leaving the machine. This is the
+#   Local-first default for the `jev` skill's fallback route; both compose via the
+#   cascade pattern documented in each skill. Vendored clean-port: upstream/laya/.
+local/laya|laya||upstream/laya
 JZKK720/jev-skill|jev-triage|skills/jev-triage|
 JZKK720/jev-skill|jev-documents|skills/jev-documents|
 JZKK720/jev-skill|jev-eval|skills/jev-eval|
