@@ -48,21 +48,23 @@ graph TB
         EXT["extensions · presets · bundles"]
     end
 
-    subgraph L2["LAYER 2 — Skills (117 core, 26 Azure)"]
+    subgraph L2["LAYER 2 — Skills (258 bundled)"]
         direction LR
         METH["superpowers (12)"] --> COPILOT["VS Code Copilot Chat"]
         DSN["design systems (74)"] --> COPILOT
         REV["code review (6)"] --> COPILOT
         DBG["debugging (4)"] --> COPILOT
         LOOP["loop engineering (5)"] --> COPILOT
-        AZURE["Azure/cloud (26)"] --> COPILOT
+        AZURE["Azure/cloud (27)"] --> COPILOT
         CRAFT["crafted (16)"] --> COPILOT
+        DEC["decision models: jev + laya (7)"] --> COPILOT
     end
 
-    subgraph L1["LAYER 1 — CLIs + MCP Servers"]
+    subgraph L1["LAYER 1 — CLIs + MCP Servers + Decision Sidecars"]
         direction LR
-        CLI["16 CLIs on PATH"] --> MCP["11 MCP servers"]
+        CLI["18 CLIs on PATH"] --> MCP["11 MCP servers"]
         MCP --> VSCODE["VS Code mcp.json"]
+        SC["laya-serve: decision sidecar on 127.0.0.1:8770 (opt-in, AMD ROCm)"] --> COPILOT
     end
 
     subgraph L0["LAYER 0 — Design Systems"]
