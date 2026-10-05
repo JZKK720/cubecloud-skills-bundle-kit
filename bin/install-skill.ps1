@@ -32,12 +32,6 @@
 .PARAMETER SourcePath
   Optional: use a local already-cloned path instead of cloning from Repo.
 
-.PARAMETER BaselineFile
-  Optional: path to a SkillSpector baseline (YAML/JSON) of operator-accepted
-  findings. Passed to the scan as --baseline; suppressed findings are dropped
-  before scoring. Use for skills where static-only analysis over-fires on
-  documentation phrasing and the operator has accepted the existing findings.
-
 .EXAMPLE
   .\install-skill.ps1 -Repo "obra/superpowers" -Name "test-driven-development"
   .\install-skill.ps1 -Repo "JuliusBrussee/caveman" -Name "caveman" -Disabled
@@ -50,8 +44,7 @@ param(
   [Parameter(Mandatory)][string]$Name,
   [Parameter()][string]$SkillRelPath,
   [switch]$Disabled,
-  [Parameter()][string]$SourcePath,
-  [Parameter()][string]$BaselineFile
+  [Parameter()][string]$SourcePath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -95,15 +88,9 @@ if (-not (Test-Path (Join-Path $skillDir 'SKILL.md'))) {
 Write-OK "Skill folder: $skillDir"
 
 # --- 2. SkillSpector scan (HARD GATE) ---
-$baselineArgs = ''
-if ($BaselineFile) {
-  if (-not (Test-Path $BaselineFile)) { Die "Baseline file not found: $BaselineFile" }
-  Write-Warn "Baseline in use: $BaselineFile (operator-accepted findings are suppressed from scoring)"
-  $baselineArgs = " --baseline `"$BaselineFile`""
-}
 Write-Stage "SkillSpector scan --no-llm $skillDir"
 $scanOutFile = "$env:TEMP\skillspector_$Name.log"
-cmd /c "skillspector scan `"$skillDir`" --no-llm$baselineArgs > `"$scanOutFile`" 2>&1"
+cmd /c "skillspector scan `"$skillDir`" --no-llm > `"$scanOutFile`" 2>&1"
 $scanCode = $LASTEXITCODE
 if (Test-Path $scanOutFile) {
   $scanSummary = Get-Content $scanOutFile -ErrorAction SilentlyContinue | Select-Object -Last 15
