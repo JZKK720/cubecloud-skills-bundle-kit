@@ -15,3 +15,5 @@ desktop.ini
 # Editor
 .vscode/
 *.code-workspace
+# Tracked workspace tasks (verification entry points for agents)
+!.vscode/tasks.json

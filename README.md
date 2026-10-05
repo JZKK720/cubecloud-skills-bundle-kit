@@ -48,21 +48,23 @@ graph TB
         EXT["extensions · presets · bundles"]
     end
 
-    subgraph L2["LAYER 2 — Skills (117 core, 26 Azure)"]
+    subgraph L2["LAYER 2 — Skills (258 bundled)"]
         direction LR
         METH["superpowers (12)"] --> COPILOT["VS Code Copilot Chat"]
         DSN["design systems (74)"] --> COPILOT
         REV["code review (6)"] --> COPILOT
         DBG["debugging (4)"] --> COPILOT
         LOOP["loop engineering (5)"] --> COPILOT
-        AZURE["Azure/cloud (26)"] --> COPILOT
+        AZURE["Azure/cloud (27)"] --> COPILOT
         CRAFT["crafted (16)"] --> COPILOT
+        DEC["decision models: jev + laya (7)"] --> COPILOT
     end
 
-    subgraph L1["LAYER 1 — CLIs + MCP Servers"]
+    subgraph L1["LAYER 1 — CLIs + MCP Servers + Decision Sidecars"]
         direction LR
-        CLI["16 CLIs on PATH"] --> MCP["11 MCP servers"]
+        CLI["18 CLIs on PATH"] --> MCP["11 MCP servers"]
         MCP --> VSCODE["VS Code mcp.json"]
+        SC["laya-serve: decision sidecar on 127.0.0.1:8770 (opt-in, AMD ROCm)"] --> COPILOT
     end
 
     subgraph L0["LAYER 0 — Design Systems"]
@@ -110,13 +112,13 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (257 bundled — 256 active + 1 disabled)
+### Skills (258 bundled — 257 active + 1 disabled)
 
-> **Why the README says 257 but the installer prints 284.** The installer ends with
+> **Why the README says 258 but the installer prints 285.** The installer ends with
 > `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that
 > folder — including the **27 skills VS Code installs itself** for the Azure, Entra, and
 > Foundry extensions. Those are already on disk on any normal install and the bundle neither
-> writes nor removes them (README §"Azure & cloud" below). 257 + 27 = 284. Both numbers are
+> writes nor removes them (README §"Azure & cloud" below). 258 + 27 = 285. Both numbers are
 > correct; they just measure different sets.
 
 A further **19 gate-blocked entries** are parked as comments **inside** `skills-list.csv`
@@ -398,7 +400,7 @@ cubecloud-skills-bundle-kit/          # git clone target — run installers from
 ├── setup/                            # the one-command installer + config
 │   ├── setup-global-skills.ps1       # master installer (run this)
 │   ├── install-skill.ps1             # security-gated skill install helper
-│   ├── skills-list.csv               # manifest of 257 entries (256 active + 1 disabled)
+│   ├── skills-list.csv               # manifest of 258 entries (257 active + 1 disabled)
 │   ├── mcp.json.template             # 11 MCP server config
 │   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
 │   └── SETUP_GUIDE.md                # detailed guide
@@ -1161,6 +1163,8 @@ upstream `package.json` sets `"private": true`.
 Verified before shipping: `archify doctor` → exit 0 (15/15 checks), `render` → 820,813-byte HTML,
 `validate --quality showcase` → exit 0 with receipt. The installer runs `doctor` first, so it
 never advertises a command it has not verified.
+
+**Optional laya-serve sidecar (opt-in separately):** after `pip install laya` works, run `bin/install-laya-serve.ps1` to ship an always-hot decision API on `http://127.0.0.1:8770` (copies `upstream/laya/laya-serve.py` to `C:\rocm-sdk\`, writes start/stop shims + per-user autostart). Copilot-written tools then POST decisions there at ~30-50 ms without loading torch themselves. See CHANGELOG 1.9.15.
 
 **Opt-in** because every other phase of the installer is unconditional and this one adds a command
 to your PATH. Requires the archify fork mirror, so it warns and skips under `-SkipForks`.

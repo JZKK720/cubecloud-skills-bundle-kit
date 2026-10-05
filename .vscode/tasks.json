@@ -1,0 +1,83 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "verify-global-bundle",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "bin\\verify-global-bundle.ps1"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "full-audit",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "bin\\full-audit.ps1"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "fast-audit",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "bin\\fast-audit.ps1"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "mcp-smoke-test",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "bin\\mcp-smoke-test.ps1"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "verify-all",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "$ErrorActionPreference='Continue'; $env:Path=\"$env:USERPROFILE\\.local\\bin;C:\\Program Files\\GitHub CLI;$env:Path\"; Set-Location 'C:\\Users\\colorfire-ai-395\\pr\\cubecloud-skills-bundle-kit'; '=== fast-audit ==='; powershell -NoProfile -ExecutionPolicy Bypass -File bin\\fast-audit.ps1 2>&1 | Select-Object -Last 2; '=== mcp-smoke ==='; powershell -NoProfile -ExecutionPolicy Bypass -File bin\\mcp-smoke-test.ps1 2>&1 | Select-Object -Last 2; '=== counters ==='; $onDisk=(gci \"$env:USERPROFILE\\.agents\\skills\" -Directory).Count; $cl=(gci \"$env:USERPROFILE\\.claude\\skills\" -Directory).Count; $mf=(gc setup\\skills-list.csv | ? { $_ -match '^[a-zA-Z][^|#]*\\|' }).Count; $pk=(gci \"$env:USERPROFILE\\.agents\\skills._disabled\" -Directory -ErrorAction SilentlyContinue).Count; \"onDisk=$onDisk mirror=$cl manifest=$mf parked=$pk\"; if ($onDisk -eq $cl -and $onDisk -eq $mf) { 'COUNTERS RECONCILED' } else { 'COUNTERS DIVERGED' }"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    }
+  ]
+}

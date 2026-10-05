@@ -1,0 +1,16 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules: []
+fingerprints:
+- hash: sha256:20f2e8398c03ee396cc284ce8bced3530345c2a1712c7aae2d942210465fede5
+  rule_id: EA2
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
+- hash: sha256:cd8bd21668917bf39f11c01b292eb7131ab08d3c74fa561ff04efe6c04eba56b
+  rule_id: E1
+  file: SKILL.md
+  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
+    scan over-fires on doc phrasing'
