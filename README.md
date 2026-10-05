@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 257 bundled skills (284 on disk), 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 261 bundled skills (288 on disk), 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-257%20bundled-2ea44f)](#what-you-get)
+[![Skills](https://img.shields.io/badge/skills-261%20bundled-2ea44f)](#what-you-get)
 [![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.14-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.16-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,11 +22,11 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **284** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **257** are bundle-installed from `skills-list.csv` (256 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, and the impeccable design-methodology series |
+| 🧠 Skills on disk  | **288** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **261** are bundle-installed from `skills-list.csv` (260 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills, the impeccable design-methodology series, and the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop) |
 | 🅿️ Parked skills   | **14**  | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: 1 upstream-disabled (`caveman`) + 13 Copilot-incompatible (12 research-integrity forensics + retired `crucible`). Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
-| 📚 Fork mirrors    | **50**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill |
+| 📚 Fork mirrors    | **55**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill, hardikpandya/stop-slop, aashaexo/soundshuman, asavvin-pixel/unslop, stephenturner/skill-deslop, ehmo/slopkit |
 | 🎨 DESIGN.md files | **74**  | Real-world design systems (Apple, Stripe, Linear, Vercel, Notion, Airbnb, Tesla…) indexed by the `design-md-library` skill                                                                                                                                                                                                                                                                      |
 | 🔒 Security-gated  | **yes** | Every skill scanned by SkillSpector before install; blocked upstreams are either ported clean or parked as comments with a per-skill reason code (see the blocked-skills table)                                                                                                                                                                                                                                                                                                                  |
 
@@ -531,6 +531,32 @@ levels). The method is `system_one()` — not `ask()`.
 | recall      | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.16 (2026-10-05)
+
+**Full upstream-sync day + a research-driven writing-quality suite upgrade.**
+
+- **13 mirror re-clones**: agent-skills, awesome-design-md, compound-engineering-plugin, EverOS, Gskills,
+  humanizer, humanlayer-skills, jev-skill, marketingskills, markitdown, ponytail, superpowers, ui-skills.
+  All were shallow-stale (the v1.9.2 anti-bloat SKIP trade-off); all re-cloned from current upstream and
+  re-pushed to the JZKK720 forks (`--force-with-lease` after a 403-then-non-FF sequence — each fork tip
+  was a strictly older snapshot, no independent work overwritten).
+- **27 skill refreshes** applied via `-Refresh`: superpowers/TDD family (executing-plans 65→374 lines),
+  agent-skills methodology family, marketing family, the jev-triage/documents/eval trio, and
+  **humanizer → v3.1.0 (35 patterns, from 26)**.
+- **4 new skills installed**: `stop-slop` (hardikpandya, 17.8k⭐, false-agency detection),
+  `humanize` (aashaexo/soundshuman — **as a prose-only port** in `upstream/humanize/`; direct install
+  gate-BLOCKED on AR2 x2 false positives + the sloplint.js CLI), `unslop` (asavvin-pixel,
+  structure-over-vocabulary, "clean slop" second-pass category, UMD/DeepMind study),
+  `deslop` (stephenturner, scientific-writing skew). All MIT, all gate-PASS (humanize re-gated at
+  20/100 LOW SAFE after the port).
+- **1 skill parked with reason**: `slopgent` (ehmo/slopkit) — its judge-benchmark corpus of
+  deliberately-wrong force-push replies trips HIGH YR1 x2; fixtures, not malware, but unfixable
+  without forking the benchmark data. Row commented out; mirror kept.
+- **verify-state.ps1** PATH bootstrap now includes `%LOCALAPPDATA%\Programs\witr` (witr 0.3.4 was
+  present on disk but invisible to a stale-shell PATH — the 2026-10-05 FAIL was environmental).
+- Totals: manifest **261** (260 active + 1 disabled), `local/*` **49**, ~/.agents/skills **288**,
+  ~/.claude/skills **521**, mirrors **55**, `upstream/` **52**.
 
 ### v1.9.14 (2026-09-23)
 

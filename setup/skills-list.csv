@@ -956,3 +956,17 @@ local/retrieval-reflex|retrieval-reflex||upstream/retrieval-reflex
 local/github-repo-metadata|github-repo-metadata||upstream/github-repo-metadata
 local/typesafe-ai|typesafe-ai||upstream/typesafe-ai
 local/jev-harness|jev-harness||upstream/jev-harness
+
+hardikpandya/stop-slop|stop-slop|.|
+# SOUNDSSHUMAN direct row replaced by local/humanize prose port: upstream ships bin/sloplint.js (npm CLI) whose
+# install was HARD-BLOCKED by SkillSpector (HIGH AR2 x2 @ SKILL.md:166/167 - the em-dash rewrite rule reads as an
+# anti-refusal statement to the substring matcher). Prose-only port (SKILL.md + references + docs/WORKFLOW.md) passes: exit 0, 20/100 LOW SAFE. Same pattern as jev/impeccable-*.
+local/humanize|humanize||upstream/humanize
+asavvin-pixel/unslop|unslop|.|
+stephenturner/skill-deslop|deslop|.|
+# slopgent (ehmo/slopkit) PARKED: SkillSpector --no-llm verdict do_not_install (exit 1).
+#   HIGH YR1 x2 "YARA agent_skill_destructive_autonomous_actions" at benchmarks/judge/judge_packet.md:205 -
+#   the skill ships a judge-benchmark CORPUS containing example malicious replies (git push --force dialogues);
+#   the substring matcher keys on the literal text, not the "these are test fixtures" framing. The other slopkit
+#   skill (slopbeth) is also inside this repo and was NOT requested. If a future slopgent-only fork drops
+#   benchmarks/, re-add the row. Mirror + fork left in place for provenance.

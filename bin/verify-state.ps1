@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:PATH"
+$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:LOCALAPPDATA\Programs\witr;$env:PATH"
 $script:failed = 0
 
 Write-Host '=== CLI CHECK (18) ==='
