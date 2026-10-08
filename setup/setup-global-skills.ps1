@@ -339,6 +339,22 @@ if ($npm) {
   }
 }
 
+  # worktrunk (winget) - git worktree management for parallel AI agents
+  # Installs as both `wt` and `git-wt` (git-wt avoids the Windows Terminal alias conflict).
+  $wtBin = "$env:LOCALAPPDATA\Microsoft\WinGet\Links\wt.exe"
+  if (Test-Path $wtBin) {
+    Write-OK "worktrunk already installed"
+  } else {
+    $winget = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
+    if (Test-Path $winget) {
+      Write-Host "  Installing worktrunk (winget)..." -NoNewline
+      cmd /c "`"$winget`" install --id max-sixty.worktrunk --silent --accept-source-agreements --accept-package-agreements --disable-interactivity >nul 2>nul"
+      if ($LASTEXITCODE -eq 0) { Write-OK "" } else { Write-Fail "exit $LASTEXITCODE" }
+    } else {
+      Write-Warn "winget not found; skipping worktrunk. Install: winget install max-sixty.worktrunk"
+    }
+  }
+
 # bun tools
 foreach ($pkg in @("github:garrytan/gbrain")) {
   $binName = ($pkg -split ':')[-1] -replace 'github:', ''

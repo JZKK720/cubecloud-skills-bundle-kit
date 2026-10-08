@@ -2,6 +2,56 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.17] — 2026-10-08
+
+### GitHub trending deep-research integration: 12 new skills + worktrunk CLI
+
+**Method.** Scraped `github.com/trending` (weekly + monthly, 2026-10-08) via firecrawl + direct
+fetch, cross-checked against the 262-skill manifest, then deep-dived every candidate's README,
+license, platform support, and Copilot compatibility. 7 of the top-24 monthly trending repos were
+**already in the bundle** (open-code-review, ECC, ponytail, agent-skills, Agent-Reach, hyperframes,
+i-have-adhd) — independent validation that the bundle tracks the ecosystem's center of gravity.
+
+**Added — mattpocock/skills (MIT, trending #7 weekly).** "Skills for Real Engineers" — small,
+composable, model-agnostic skills built on decades of engineering practice. 8 skills, all
+SkillSpector-pass, all with native Copilot plugin support upstream:
+
+| skill | type | what it adds |
+|---|---|---|
+| `grilling` | model-invoked | Reusable interview primitive: interrogate a plan until every branch of the design tree is resolved. Backs grill-me, triage, wayfinder upstream. |
+| `grill-me` | user-invoked | Get relentlessly interviewed about a plan or design before implementation. |
+| `handoff` | user-invoked | Compact the current conversation into a handoff doc so another agent can continue. |
+| `writing-for-agents` | model-invoked | How to write skills, AGENTS.md/CLAUDE.md, and agent-reachable docs. |
+| `wizard` | user-invoked | Generate an interactive wizard for steps only a human can do (provisioning, credentials, cutover). |
+| `retro` | user-invoked | Post-session environment improvement suggestions (navigation, checks, standards, tooling). |
+| `domain-modeling` | model-invoked | Build/sharpen a project's domain model; maintain `GLOSSARY.md` + ADRs inline. |
+| `codebase-design` | model-invoked | Deep-module design discipline (Ousterhout): small interfaces, clean seams, testability. |
+
+**Added — NVIDIA/OpenShell (Apache-2.0, monthly trending).** The safe, private runtime for
+autonomous agent fleets — kernel-level sandbox policy enforcement with formally verified policy
+changes. Same org as SkillSpector. 4 skills teaching agents to drive the OpenShell CLI:
+
+`openshell-cli` · `generate-sandbox-policy` · `debug-inference` · `debug-openshell-cluster`
+
+**Added — worktrunk (MIT/Apache-2.0, monthly trending).** Git worktree management CLI designed for
+parallel AI agents (`wt switch -c -x claude feat`). Windows-native via winget as `git-wt`
+(avoids the Windows Terminal `wt` alias conflict). Added to the installer's winget phase.
+
+**Evaluated and skipped (with reasons):**
+
+| repo | verdict | reason |
+|---|---|---|
+| claude-mem | skip | Overlaps `gbrain` (persistent memory) + `headroom` (context compression); Claude-Code-hook-centric install. |
+| hindsight | skip | Overlaps gbrain; Docker/Postgres service footprint. Revisit if gbrain proves insufficient. |
+| context-mode | skip | ELv2 license (not OSI); overlaps headroom's token-compression role. |
+| openrig | skip | WSL2-only on Windows; requires tmux. |
+| cursor/plugins | skip | `.cursor-plugin` manifest format, not Agent Skills. `thermos`/`ralph-loop` concepts portable later. |
+| paperclip / substrate / OpenShell-runtime / cua | skip | Apps/runtimes, not skills. The OpenShell *skills* are bundled instead. |
+| knowledge-work-plugins | skip | Claude Cowork plugin format; connectors are Anthropic-service-specific. |
+| worktrunk-as-skill | n/a | Bundled as CLI (19th) — it is a tool, not a methodology. |
+
+**Counts:** 274 bundled (273 active + 1 disabled) · 301 on disk · 19 CLIs · 11 MCP servers.
+
 ## [1.9.16] — 2026-10-05
 
 ### Full upstream sync day: 13 mirrors re-cloned to current upstream, 14 JZKK720 forks pushed forward

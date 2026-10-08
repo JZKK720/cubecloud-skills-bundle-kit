@@ -979,3 +979,18 @@ stephenturner/skill-deslop|deslop|.|
 #   the substring matcher keys on the literal text, not the "these are test fixtures" framing. The other slopkit
 #   skill (slopbeth) is also inside this repo and was NOT requested. If a future slopgent-only fork drops
 #   benchmarks/, re-add the row. Mirror + fork left in place for provenance.
+# v1.9.17 additions (2026-10-08): GitHub trending deep-research picks
+# mattpocock/skills (MIT) - Skills for Real Engineers, native Copilot plugin upstream
+mattpocock/skills|grilling|skills/productivity/grilling|
+mattpocock/skills|grill-me|skills/productivity/grill-me|
+mattpocock/skills|handoff|skills/productivity/handoff|
+mattpocock/skills|writing-for-agents|skills/productivity/writing-for-agents|
+mattpocock/skills|wizard|skills/engineering/wizard|
+mattpocock/skills|retro|skills/engineering/retro|
+mattpocock/skills|domain-modeling|skills/engineering/domain-modeling|
+mattpocock/skills|codebase-design|skills/engineering/codebase-design|
+# NVIDIA/OpenShell (Apache-2.0) - sandboxed agent runtime skills
+NVIDIA/OpenShell|openshell-cli|skills/openshell-cli|
+NVIDIA/OpenShell|generate-sandbox-policy|skills/generate-sandbox-policy|
+NVIDIA/OpenShell|debug-inference|skills/debug-inference|
+NVIDIA/OpenShell|debug-openshell-cluster|skills/debug-openshell-cluster|

@@ -1,13 +1,13 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 262 bundled skills (289 on disk), 18 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 274 bundled skills (301 on disk), 19 CLIs, 11 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-262%20bundled-2ea44f)](#what-you-get)
-[![CLIs](https://img.shields.io/badge/CLIs-18-blue)](#clis-installed)
+[![Skills](https://img.shields.io/badge/skills-274%20bundled-2ea44f)](#what-you-get)
+[![CLIs](https://img.shields.io/badge/CLIs-19-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-11-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.16-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.17-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,9 +22,9 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **289** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **262** are bundle-installed from `skills-list.csv` (261 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, and the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop) |
+| 🧠 Skills on disk  | **301** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **274** are bundle-installed from `skills-list.csv` (273 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), and the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference, debug-openshell-cluster) |
 | 🅿️ Parked skills   | **14**  | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: 1 upstream-disabled (`caveman`) + 13 Copilot-incompatible (12 research-integrity forensics + retired `crucible`). Parked, not deleted — reversible by a directory move, see v1.9.10 |
-| 🔧 CLIs            | **18**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`                                                                                                                                                                |
+| 🔧 CLIs            | **19**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`, `git-wt` (worktrunk)                                                                                                                                               |
 | 🔌 MCP servers     | **11**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt                                                                                                                                                                                                                                   |
 | 📚 Fork mirrors    | **55**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill, hardikpandya/stop-slop, aashaexo/soundshuman, asavvin-pixel/unslop, stephenturner/skill-deslop, ehmo/slopkit |
 | 🎨 DESIGN.md files | **74**  | Real-world design systems (Apple, Stripe, Linear, Vercel, Notion, Airbnb, Tesla…) indexed by the `design-md-library` skill                                                                                                                                                                                                                                                                      |
@@ -62,7 +62,7 @@ graph TB
 
     subgraph L1["LAYER 1 — CLIs + MCP Servers + Decision Sidecars"]
         direction LR
-        CLI["18 CLIs on PATH"] --> MCP["11 MCP servers"]
+        CLI["19 CLIs on PATH"] --> MCP["11 MCP servers"]
         MCP --> VSCODE["VS Code mcp.json"]
         SC["laya-serve: decision sidecar on 127.0.0.1:8770 (opt-in, AMD ROCm)"] --> COPILOT
     end
@@ -333,6 +333,7 @@ excluded"). Excluding them keeps the bundle coherent.
 | `wigolo`        | npm    | Local-first web intelligence — `npx wigolo`. 10 MCP tools for search, fetch, crawl, extract, research. No API keys needed for core tools.                                                                                                                                                              |
 | `ocr`           | npm    | AI-powered code review CLI — `ocr review`, `scan`, `delegate`. Deterministic + agent hybrid architecture (alibaba/open-code-review, Apache-2.0). Battle-tested at Alibaba's scale.                                                                                                                     |
 | `witr`          | binary | "Why is this running?" — Go process ancestry investigator (v0.3.3). Installed from GitHub releases (no Go toolchain needed).                                                                                                                                                                           |
+| `git-wt`        | winget | Worktrunk (v0.80.0) — git worktree management for parallel AI agents (`wt switch -c -x <agent> <branch>`). Installed as `git-wt` to avoid the Windows Terminal `wt` alias conflict; also installs `wt` alias.                                                                                           |
 
 ### MCP servers
 
