@@ -44,7 +44,7 @@
     "loop-engineering": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@cobusgreyling/loop-mcp-server"],
+            "args": ["-y", "@cobusgreyling/loop-mcp-server@1.0.0"],
       "env": {}
     },
     "watch-skill": {
