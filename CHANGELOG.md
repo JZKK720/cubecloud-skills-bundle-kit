@@ -2,6 +2,36 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [1.9.18] — 2026-10-11
+
+### REA integration: reverse-engineering with agents (skill + CLI + MCP server)
+
+**Repo:** [morluto/rea](https://github.com/morluto/rea) — MIT, 79.1k stars, 17k forks, created
+2026-04-14, actively pushed (2026-10-11). "Reverse engineer anything with agents, from app
+behavior down to native binaries." TypeScript, MCP-native, security policy with capability-token
+provider bridges.
+
+**Evaluation.** Deep-dived README, LICENSE, SECURITY.md, installation docs, repo structure, and
+the npm package (`rea-agents@6.4.0`). Verified: MIT license; native **VS Code** and **GitHub
+Copilot CLI** client support in `rea setup`; MCP stdio transport via `npx rea-agents mcp`;
+Windows supported for JS/Electron/.NET/Android/browser targets (native binaries need Hopper/
+Ghidra/IDA — optional, not bundled). No overlap with existing bundle coverage — the bundle had
+zero reverse-engineering skills.
+
+**Added:**
+
+| component | what | gate |
+|---|---|---|
+| `reverse-engineer-anything` skill | Agent-facing methodology: route targets (native/JS/Electron/.NET/APK/firmware/browser), connect to REA MCP only when needed, evidence-first analysis. 7 files incl. references. | SkillSpector pass, skills-ref valid |
+| `rea` CLI (20th) | `npm i -g rea-agents` — terminal access to the same analysis tools | v6.4.0 verified |
+| `rea` MCP server (12th) | `npx -y rea-agents@latest mcp` in mcp.json.template + live VS Code config | MCP initialize handshake verified (`rea 6.4.0`) |
+
+**Skipped from the same repo:** `rea-changelog-update` and `rea-tool-design` skills — they are
+REA-repo-internal (release notes and tool-contract design for the REA codebase itself), not
+useful outside it.
+
+**Counts:** 275 bundled (274 active + 1 disabled) · 302 on disk · 20 CLIs · 12 MCP servers.
+
 ## [1.9.17] — 2026-10-08
 
 ### GitHub trending deep-research integration: 12 new skills + worktrunk CLI

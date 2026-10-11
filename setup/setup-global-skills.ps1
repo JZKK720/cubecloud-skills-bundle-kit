@@ -326,8 +326,9 @@ if ($npm) {
     @{pkg = "firecrawl-cli"; bin = "firecrawl" },
     @{pkg = "@cobusgreyling/loop"; bin = "loop" },
     @{pkg = "wigolo"; bin = "wigolo" },
-    @{pkg = "@alibaba-group/open-code-review"; bin = "ocr" }
-  )
+      @{pkg = "@alibaba-group/open-code-review"; bin = "ocr" },
+      @{pkg = "rea-agents"; bin = "rea" }
+    )
   foreach ($tool in $npmTools) {
     $pkg = $tool.pkg
     $binName = $tool.bin

@@ -19,8 +19,9 @@ $servers = @(
   @{name="loop-engineering"; cmd="node"; args="-e `"const{spawn}=require('child_process');const p=spawn(process.env.APPDATA+'\\npm\\loop-mcp-server.cmd',[],{shell:true});let got='';p.stdout.on('data',d=>{got+=d;});p.stdin.write(JSON.stringify({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2024-11-05',capabilities:{},clientInfo:{name:'probe',version:'1.0'}}})+'\n');setTimeout(()=>{console.log(got.includes('loop-engineering')?'MCP_OK':'MCP_FAIL:'+got.slice(0,120));p.kill();process.exit(got.includes('loop-engineering')?0:1);},4000);`""; timeout=20},
   @{name="watch-skill"; cmd="watch-skill"; args="serve --help"; timeout=15},
   @{name="wigolo"; cmd="npx"; args="-y wigolo --help"; timeout=20},
-    @{name="skillopt"; cmd="python"; args="`"$PSScriptRoot\skillopt-mcp-probe.py`""; timeout=20}
-  )
+    @{name="skillopt"; cmd="python"; args="`"$PSScriptRoot\skillopt-mcp-probe.py`""; timeout=20},
+        @{name="rea"; cmd="npx"; args="-y rea-agents@latest mcp --help"; timeout=30}
+      )
 
 foreach ($s in $servers) {
   Write-Output ("[SMOKE] {0} (timeout={1}s)" -f $s.name, $s.timeout)

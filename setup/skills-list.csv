@@ -994,3 +994,8 @@ NVIDIA/OpenShell|openshell-cli|skills/openshell-cli|
 NVIDIA/OpenShell|generate-sandbox-policy|skills/generate-sandbox-policy|
 NVIDIA/OpenShell|debug-inference|skills/debug-inference|
 NVIDIA/OpenShell|debug-openshell-cluster|skills/debug-openshell-cluster|
+
+# v1.9.18 additions (2026-10-11): morluto/rea (MIT, 79k stars) - reverse engineering with agents
+# reverse-engineer-anything is the agent-facing skill; the other two are REA-repo-internal
+# (changelog/tool-design) and not useful outside the REA codebase.
+morluto/rea|reverse-engineer-anything|.agents/skills/reverse-engineer-anything|

@@ -67,7 +67,13 @@
         "SKILLOPT_REPO": "${env:USERPROFILE}\\dev\\forks\\JZKK720\\SkillOpt",
         "PYTHONUTF8": "1"
       }
-    }
-  },
-  "inputs": []
+        },
+        "rea": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "rea-agents@latest", "mcp"],
+          "env": {}
+        }
+      },
+      "inputs": []
 }
