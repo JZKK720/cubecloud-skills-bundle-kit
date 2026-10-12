@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-12-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.18-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.19-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **302** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **275** are bundle-installed from `skills-list.csv` (274 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference, debug-openshell-cluster), and REA reverse-engineering (reverse-engineer-anything) |
+| 🧠 Skills on disk  | **302** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **302** are bundle-installed from `skills-list.csv` (274 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference, debug-openshell-cluster), and REA reverse-engineering (reverse-engineer-anything) |
 | 🅿️ Parked skills   | **14**  | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: 1 upstream-disabled (`caveman`) + 13 Copilot-incompatible (12 research-integrity forensics + retired `crucible`). Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **20**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`, `git-wt` (worktrunk), `rea`                                                                                                                                               |
 | 🔌 MCP servers     | **12**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt, rea                                                                                                                                                                                  |
@@ -112,7 +112,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (275 bundled — 274 active + 1 disabled)
+### Skills (275 bundled \u2014 274 active + 1 disabled)
 
 > **Why the README says 275 but the installer prints 302.** The installer ends with
 > `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that

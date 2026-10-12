@@ -2,7 +2,7 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
-## [Unreleased] — 2026-10-12
+## [1.9.19] - 2026-10-12
 
 ### Pipeline hardening: baseline wiring, count reconciliation, CI integrity gate
 
