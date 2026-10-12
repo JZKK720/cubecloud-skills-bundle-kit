@@ -46,6 +46,19 @@ function Get-BundleMcpServers([string]$RepoRoot) {
   return @((Get-Content $tpl -Raw | ConvertFrom-Json).servers.PSObject.Properties.Name)
 }
 
+# Locate the suppression baseline for a skill, mirroring install-skill.ps1's precedence:
+# explicit path, then <repoRoot>\baselines\<name>.baseline.yaml, then ~/dev/baselines (the
+# deployed copy), then $env:SKILL_BASELINES_DIR. Returns $null when none applies. Audit scripts
+# must pass this to 'skillspector scan --baseline' or a reviewed skill shows a false do_not_install.
+function Resolve-SkillBaseline([string]$Name, [string]$RepoRoot, [string]$Explicit) {
+  if ($Explicit) { return (Resolve-Path -LiteralPath $Explicit -ErrorAction SilentlyContinue).Path }
+  $candidates = @()
+  if ($RepoRoot) { $candidates += (Join-Path $RepoRoot "baselines\$Name.baseline.yaml") }
+  $candidates += "$env:USERPROFILE\dev\baselines\$Name.baseline.yaml"
+  if ($env:SKILL_BASELINES_DIR) { $candidates += (Join-Path $env:SKILL_BASELINES_DIR "$Name.baseline.yaml") }
+  return ($candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1)
+}
+
 # Compare the live MCP config against the template's expected set.
 # Returns a hashtable @{ Ok; Missing; Wanted; Live; LiveNorm }.
 function Test-BundleMcpServers([string]$McpPath, [string]$RepoRoot) {

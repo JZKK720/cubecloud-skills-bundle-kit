@@ -1,6 +1,6 @@
 # Full audit script - writes results to a file for reading
-$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:PATH"
-$env:PYTHONUTF8 = "1"
+. (Join-Path $PSScriptRoot 'lib\bundle-common.ps1')
+Initialize-BundlePath
 $reportFile = "$env:USERPROFILE\dev\upstream\AUDIT_REPORT.md"
 $results = @()
 
@@ -245,15 +245,24 @@ if (Test-Path $helperPath) {
 # ============ AUDIT 7: SKILLSPECTOR RE-SCAN ============
 # Scan 3 sample skills to verify the scanner is functional
 $sampleSkills = @("hallmark", "ponytail", "improve")
+$repoRoot = Get-BundleRoot $PSScriptRoot
 foreach ($s in $sampleSkills) {
   $skillPath = "$skillsDir\$s"
   $logFile = Join-Path $env:TEMP "audit_skillspector_$s.log"
-  cmd /c "skillspector scan `"$skillPath`" --no-llm > `"$logFile`" 2>&1"
+  # Apply the committed suppression baseline, exactly as install-skill.ps1 does; without it a
+  # reviewed skill re-reports do_not_install and shows a false FAIL here.
+  $baseline = Resolve-SkillBaseline $s $repoRoot
+  if ($baseline) {
+    cmd /c "skillspector scan `"$skillPath`" --no-llm --baseline `"$baseline`" > `"$logFile`" 2>&1"
+  } else {
+    cmd /c "skillspector scan `"$skillPath`" --no-llm > `"$logFile`" 2>&1"
+  }
   $exitCode = $LASTEXITCODE
   if ($exitCode -eq 0) {
-    Add-Result "SKILLSPECTOR" $s "PASS" "Scan exit 0 (safe)"
+    Add-Result "SKILLSPECTOR" $s "PASS" "Scan exit 0 (safe)$(if ($baseline) { ' (baseline)' })"
   } elseif ($exitCode -eq 1) {
-    Add-Result "SKILLSPECTOR" $s "FAIL" "do_not_install (exit 1)"
+    $detail = if ($baseline) { "do_not_install (baseline stale/incomplete - re-baseline)" } else { "do_not_install (exit 1)" }
+    Add-Result "SKILLSPECTOR" $s "FAIL" $detail
   } else {
     Add-Result "SKILLSPECTOR" $s "WARN" "Scan exit $exitCode"
   }

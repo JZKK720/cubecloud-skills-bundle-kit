@@ -1,6 +1,6 @@
 # Fast audit - no MCP daemon tests (those block). Checks everything else.
-$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:PATH"
-$env:PYTHONUTF8 = "1"
+. (Join-Path $PSScriptRoot 'lib\bundle-common.ps1')
+Initialize-BundlePath
 $reportFile = "$env:USERPROFILE\dev\upstream\AUDIT_REPORT.md"
 $r = @()
 
@@ -129,14 +129,28 @@ if (Test-Path $helperPath) {
 }
 
 # === SKILLSPECTOR SAMPLE SCAN ===
+# Pass each skill's committed suppression baseline, exactly as install-skill.ps1 does; without
+# it a reviewed skill re-reports do_not_install and shows a false FAIL here.
+$repoRoot = Get-BundleRoot $PSScriptRoot
 foreach ($s in @("hallmark","ponytail","improve")) {
   $skillPath = "$skillsDir\$s"
   $logFile = Join-Path $env:TEMP "audit_ss_$s.log"
-  cmd /c "skillspector scan `"$skillPath`" --no-llm > `"$logFile`" 2>&1" | Out-Null
+  $baseline = Resolve-SkillBaseline $s $repoRoot
+  if ($baseline) {
+    cmd /c "skillspector scan `"$skillPath`" --no-llm --baseline `"$baseline`" > `"$logFile`" 2>&1" | Out-Null
+  } else {
+    cmd /c "skillspector scan `"$skillPath`" --no-llm > `"$logFile`" 2>&1" | Out-Null
+  }
   $exitCode = $LASTEXITCODE
-  if ($exitCode -eq 0) { Add-Row "SKILLSPECTOR" $s "PASS" "Scan exit 0 (safe)" }
-  elseif ($exitCode -eq 1) { Add-Row "SKILLSPECTOR" $s "FAIL" "do_not_install" }
-  else { Add-Row "SKILLSPECTOR" $s "WARN" "exit $exitCode" }
+  $note = if ($baseline) { " (baseline)" } else { "" }
+  if ($exitCode -eq 0) { Add-Row "SKILLSPECTOR" $s "PASS" "Scan exit 0 (safe)$note" }
+  elseif ($exitCode -eq 1) {
+    # A failing scan *with* a baseline means the baseline no longer covers the finding - usually
+    # the skill changed upstream. That is a real signal, not a regression in this pipeline.
+    $detail = if ($baseline) { "do_not_install (baseline stale/incomplete - re-baseline)" } else { "do_not_install" }
+    Add-Row "SKILLSPECTOR" $s "FAIL" $detail
+  }
+  else { Add-Row "SKILLSPECTOR" $s "WARN" "exit $exitCode$note" }
 }
 
 # === WRITE REPORT ===

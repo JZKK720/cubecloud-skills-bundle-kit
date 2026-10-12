@@ -402,7 +402,7 @@ cubecloud-skills-bundle-kit/          # git clone target — run installers from
 │   ├── setup-global-skills.ps1       # master installer (run this)
 │   ├── install-skill.ps1             # security-gated skill install helper
 │   ├── skills-list.csv               # manifest of 275 entries (274 active + 1 disabled)
-│   ├── mcp.json.template             # 11 MCP server config
+│   ├── mcp.json.template             # 12 MCP server config
 │   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
 │   └── SETUP_GUIDE.md                # detailed guide
 ├── bin/                              # 27 audit / fix / install helper scripts

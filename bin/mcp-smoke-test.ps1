@@ -1,7 +1,7 @@
 # MCP entrypoint smoke test - deterministic command probes for each MCP server.
 # This intentionally avoids long-lived daemon startup paths that can hang on Windows.
-$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:PATH"
-$env:PYTHONUTF8 = "1"
+. (Join-Path $PSScriptRoot 'lib\bundle-common.ps1')
+Initialize-BundlePath
 $reportFile = "$env:USERPROFILE\dev\upstream\MCP_SMOKE_TEST.md"
 $runId = "{0}_{1}" -f (Get-Date -Format "yyyyMMdd_HHmmss"), $PID
 $reportDir = Split-Path -Parent $reportFile

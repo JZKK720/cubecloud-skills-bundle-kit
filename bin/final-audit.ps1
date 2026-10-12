@@ -1,6 +1,6 @@
 # Final global audit pass - comprehensive check of everything
-$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:PATH"
-$env:PYTHONUTF8 = "1"
+. (Join-Path $PSScriptRoot 'lib\bundle-common.ps1')
+Initialize-BundlePath
 $reportFile = "$env:USERPROFILE\dev\upstream\FINAL_AUDIT.md"
 $r = @()
 
@@ -108,13 +108,23 @@ if (Test-Path "$env:USERPROFILE\dev\bin\install-skill.ps1") { Add-Row "HELPER" "
 else { Add-Row "HELPER" "install-skill.ps1" "FAIL" "Missing" }
 
 # === 10. SKILLSPECTOR SAMPLE (including new karpathy) ===
+# Apply each skill's committed suppression baseline, as install-skill.ps1 does.
+$repoRoot = Get-BundleRoot $PSScriptRoot
 foreach ($s in @("karpathy-guidelines","hallmark","ponytail","improve")) {
   $skillPath = "$skillsDir\$s"
   $logFile = Join-Path $env:TEMP "final_ss_$s.log"
-  cmd /c "skillspector scan `"$skillPath`" --no-llm > `"$logFile`" 2>&1" | Out-Null
+  $baseline = Resolve-SkillBaseline $s $repoRoot
+  if ($baseline) {
+    cmd /c "skillspector scan `"$skillPath`" --no-llm --baseline `"$baseline`" > `"$logFile`" 2>&1" | Out-Null
+  } else {
+    cmd /c "skillspector scan `"$skillPath`" --no-llm > `"$logFile`" 2>&1" | Out-Null
+  }
   $exitCode = $LASTEXITCODE
-  if ($exitCode -eq 0) { Add-Row "SKILLSPECTOR" $s "PASS" "SAFE (exit 0)" }
-  elseif ($exitCode -eq 1) { Add-Row "SKILLSPECTOR" $s "FAIL" "do_not_install" }
+  if ($exitCode -eq 0) { Add-Row "SKILLSPECTOR" $s "PASS" "SAFE (exit 0)$(if ($baseline) { ' (baseline)' })" }
+  elseif ($exitCode -eq 1) {
+    $detail = if ($baseline) { "do_not_install (baseline stale/incomplete - re-baseline)" } else { "do_not_install" }
+    Add-Row "SKILLSPECTOR" $s "FAIL" $detail
+  }
   else { Add-Row "SKILLSPECTOR" $s "WARN" "exit $exitCode" }
 }
 

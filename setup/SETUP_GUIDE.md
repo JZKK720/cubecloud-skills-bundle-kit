@@ -29,7 +29,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-global-skills.ps1 -I
 | 1     | Install SkillSpector (security scanner) + skills-ref (spec validator)                                                                                                                                                                                                                                                        | ~2 min  |
 | 1b    | Copy install-skill.ps1 helper + SkillSpector suppression baselines to ~/dev/                                                                                                                                                                                                                                                | instant |
 | 2     | Install 20 CLI tools (uv tool + npm + bun + release binary)                                                                                                                                                                                                                                                                  | ~5 min  |
-| 3     | Clone 50 fork mirrors (JZKK720 mirrors + awesome-design-md + microsoft/SkillOpt + alibaba/open-code-review + EveryInc/compound-engineering-plugin + Shubhamsaboo/awesome-llm-apps + openai/skills + tech-leads-club/agent-skills + coreyhaines31/marketingskills + humanlayer/skills + kunchenguid/firstmate + blader/humanizer + petergyang/no-ai-slop + cathrynlavery/diagram-design + tt-a1i/archify + virgiliojr94/book-to-skill + pbakaus/impeccable + wuyoscar/jev-skill) (skip with -SkipForks) | ~2 min  |
+| 3     | Clone 55 fork mirrors (JZKK720 mirrors + awesome-design-md + microsoft/SkillOpt + alibaba/open-code-review + EveryInc/compound-engineering-plugin + Shubhamsaboo/awesome-llm-apps + openai/skills + tech-leads-club/agent-skills + coreyhaines31/marketingskills + humanlayer/skills + kunchenguid/firstmate + blader/humanizer + petergyang/no-ai-slop + cathrynlavery/diagram-design + tt-a1i/archify + virgiliojr94/book-to-skill + pbakaus/impeccable + wuyoscar/jev-skill) (skip with -SkipForks) | ~2 min  |
 | 3b    | **Opt-in** (`-IncludeArchifyCli`): write `~/.local/bin/archify.cmd` shim for the archify CLI. Runs `archify doctor` first; skips with a warning if the mirror is absent | instant |
 | 4     | Install 275 manifest entries (274 active + 1 disabled) through the security-gated pipeline; combined with extension/CLI-provisioned skills this yields 302 dirs in `~/.agents/skills/` (plus 14 parked in `skills._disabled/`)                                                                          | ~5 min  |
 | 5     | Configure 12 MCP servers in VS Code User/mcp.json (and optional alternate editor profiles)                                                                                                                                                                                                                                   | instant |
@@ -76,15 +76,13 @@ winget install Microsoft.VisualStudioCode
 - `chat.utilitySmallModel = ollama-models/ornith:9b-q8_0`
 - `chat.byokUtilityModelDefault = mainAgent` (BYOK fallback when a utility flow needs a default)
 
-**18 CLI tools** (on permanent user PATH):
+**20 CLI tools** (on permanent user PATH):
 
 - skillspector, skills-ref, specify, skillopt-eval, agent-reach, graphify, markitdown, scrapling, semantica (via uv)
-- uipro, firecrawl, loop, wigolo, ocr (via npm)
+- uipro, firecrawl, loop, wigolo, ocr, **rea** (via npm)
 - gbrain (via bun)
 - headroom, watch-skill (via uv; watch-skill from GitHub source)
 - witr (via GitHub release binary — Go binary, no Go toolchain needed)
-
-> The manifest carries **20** CLI entries (adds `rea` and `skills-ref`-adjacent tooling); the 18 above are the ones the guide walks through. See README §"CLIs installed" for the current list.
 
 **275 manifest entries (274 active + 1 disabled) + extension/CLI-provisioned and hand-ported skills = 302 dirs in `~/.agents/skills/`** (discovered by VS Code Copilot Chat), with **14 more parked** in `skills._disabled/` (1 upstream-disabled + 13 Copilot-incompatible, see v1.9.10 in the changelog):
 
@@ -127,7 +125,7 @@ Notes:
 - Azure/Foundry skills are standard extension-provided Copilot skills.
 - Custom implementations in this setup are `agent-reach` and `gstack-review`.
 
-**50 fork mirrors** (in ~/dev/forks/JZKK720/ — read-only backups, incl. VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, loop-engineering, watch-skill, wigolo, pbakaus/impeccable, wuyoscar/jev-skill — the last as a **sparse, depth-1** checkout with its `.git` trimmed
+**55 fork mirrors** (in ~/dev/forks/JZKK720/ — read-only backups, incl. VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, loop-engineering, watch-skill, wigolo, pbakaus/impeccable, wuyoscar/jev-skill — the last as a **sparse, depth-1** checkout with its `.git` trimmed
 (v1.9.1), since upstream is a ~358 MB application rather than a skill package. That mirror is
 now **static**: sync skips it as "not a git checkout", so it will not auto-update. 21 of the 50
 mirrors are static; the other 20 stay syncable.)
