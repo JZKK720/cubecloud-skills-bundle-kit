@@ -169,8 +169,21 @@ if ($DryRun) {
     Write-Host '  [dry-run] gh release create <tag> --title ... --notes-file ... --latest' -ForegroundColor DarkCyan
 } else {
     if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
-        $env:Path = "$env:Path;C:\Program Files\GitHub CLI"
-        if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { Die 'gh CLI not found' }
+        # gh is not always in the same place: the MSI/WinGet install lands in
+        # %LOCALAPPDATA%\Programs, WinGet shims in %LOCALAPPDATA%\Microsoft\WinGet\Links, and a
+        # machine-wide install in Program Files. Probe each rather than assuming one.
+        $ghCandidates = @(
+            "$env:ProgramFiles\GitHub CLI",
+            "$env:LOCALAPPDATA\Programs\GitHub CLI",
+            "$env:LOCALAPPDATA\Microsoft\WinGet\Links",
+            "$env:ProgramFiles\GitHub CLI\bin"
+        )
+        foreach ($d in $ghCandidates) {
+            if ((Test-Path $d) -and -not (Get-Command gh -ErrorAction SilentlyContinue)) {
+                $env:Path = "$env:Path;$d"
+            }
+        }
+        if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { Die 'gh CLI not found (install GitHub CLI or add its dir to PATH)' }
     }
     $credInput = "protocol=https`nhost=github.com`n`n"
     $tokLine = $credInput | git credential fill 2>$null | Where-Object { $_ -like 'password=*' }
