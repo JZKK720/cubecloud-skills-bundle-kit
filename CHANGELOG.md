@@ -6,6 +6,8 @@ All notable changes to the CubeCloud Skills Bundle.
 
 ### Pipeline hardening: baseline wiring, count reconciliation, CI integrity gate
 
+> **Verified release command:** `bin/make-release.ps1 -Version 1.9.19 -BundledCount 275 -OnDiskCount 302 -Title "Pipeline hardening"` (add `-DryRun` to preview). It fails closed unless the tree is clean, on `main`, and the manifest row count matches `-BundledCount`. The version is single-sourced from that parameter, which is then propagated into CHANGELOG, README, tag, and release title.
+
 **Method.** Deep-dived all three pipeline families (install, verify, sync/release) with an
 evidence-first pass, then empirically confirmed each finding against the live environment rather
 than trusting the docs.
@@ -41,7 +43,7 @@ to fail on an injected stale count.
 |---|---|
 | `setup/install-skill.ps1` | `--baseline` resolution + `-BaselinePath` param; scan-log baseline column; **atomic staged-rename install** (`Install-SkillTree`) so an interrupted copy can no longer leave a half-installed skill. Mirrored to `bin/install-skill.ps1` and `~/dev/bin/`. |
 | `setup/setup-global-skills.ps1` | Phase 1b deploys `baselines/*.baseline.yaml` to `~/dev/baselines/`. |
-| `bin/make-release.ps1` | 4 dead/stale README count patterns replaced with 8 working ones; active/disabled split derived from the manifest. |
+| `bin/make-release.ps1` | 4 dead/stale README count patterns replaced with 8 working ones; active/disabled split derived from the manifest; ASCII-safe patterns (BOM-less UTF-8 was parsed as ANSI by PS 5.1, corrupting emoji/em-dash literals); release-body extraction guarded against a top-section `[Unreleased]`. |
 | `.vscode/tasks.json` | `verify-all` hard-coded another machine's path (`C:\Users\colorfire-ai-395\...`) → `${workspaceFolder}`. |
 | `bin/check-bundle-integrity.ps1`, `.github/workflows/bundle-integrity.yml` | New gate + CI. |
 | README / AGENTS.md / SETUP_GUIDE.md / unblock report | Counts corrected; baseline mechanism documented. |
