@@ -76,6 +76,37 @@ function Write-Warn($msg)  { Write-Host "  WARN: $msg" -ForegroundColor Yellow }
 function Write-Fail($msg)   { Write-Host "  FAIL: $msg" -ForegroundColor Red }
 function Die($msg)          { Write-Fail $msg; exit 1 }
 
+# Install a skill tree atomically: build the full copy in a sibling staging dir, then rename it
+# into place while moving any existing tree aside. The visible destination is therefore always
+# either the previous complete install or the new complete install - never a half-copied skill.
+# A rename within the same parent directory is atomic on Windows, so an interrupted copy can no
+# longer leave a broken install (the failure mode of 'Remove-Item $dest; Copy-Item').
+function Install-SkillTree([string]$Source, [string]$Dest, [switch]$ParkDisabled) {
+  $parent = Split-Path $Dest -Parent
+  if ($parent) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
+  $token   = [System.Guid]::NewGuid().ToString('N').Substring(0, 8)
+  $staging = "$Dest.__staging_$token"
+  $backup  = "$Dest.__old_$token"
+
+  if (Test-Path $staging) { Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue }
+  New-Item -ItemType Directory -Force -Path $staging | Out-Null
+  Copy-Item -Path "$Source\*" -Destination $staging -Recurse -Force
+  if ($ParkDisabled) {
+    $sf = Join-Path $staging 'SKILL.md'
+    if (Test-Path $sf) { Rename-Item $sf 'SKILL.md.disabled' -Force }
+  }
+
+  if (Test-Path $Dest) { Move-Item -Path $Dest -Destination $backup -Force }
+  try {
+    Move-Item -Path $staging -Destination $Dest -Force
+  } catch {
+    if (Test-Path $backup) { Move-Item -Path $backup -Destination $Dest -Force }
+    Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue
+    throw
+  }
+  Remove-Item $backup -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 # --- 1. Resolve source skill folder ---
 if ($SourcePath) {
   $skillDir = $SourcePath
@@ -161,31 +192,15 @@ if ($refCode -eq 0 -and ($refOut -join ' ') -match 'Valid skill') {
 # --- 4. Copy to discovery dir (or disabled parking) ---
 $dest = if ($Disabled) { Join-Path $DisabledRoot $Name } else { Join-Path $AgentsRoot $Name }
 Write-Stage "Install -> $dest"
-if (Test-Path $dest) {
-  Write-Host "  Existing install at $dest; overwriting." -ForegroundColor Yellow
-  Remove-Item $dest -Recurse -Force
-}
-New-Item -ItemType Directory -Force -Path $dest | Out-Null
-Copy-Item -Path "$skillDir\*" -Destination $dest -Recurse -Force
-if ($Disabled) {
-  $skillFile = Join-Path $dest 'SKILL.md'
-  if (Test-Path $skillFile) {
-    Rename-Item $skillFile 'SKILL.md.disabled' -Force
-    Write-OK "Disabled: SKILL.md -> SKILL.md.disabled"
-  }
-}
+if (Test-Path $dest) { Write-Host "  Existing install at $dest; replacing atomically." -ForegroundColor Yellow }
+if ($Disabled) { Install-SkillTree -Source $skillDir -Dest $dest -ParkDisabled } else { Install-SkillTree -Source $skillDir -Dest $dest }
+if ($Disabled) { Write-OK "Disabled: SKILL.md -> SKILL.md.disabled" }
 Write-OK "Installed to $dest"
 
 # --- 5. Mirror to Claude Code skills dir (respect Disabled flag) ---
 $claudeDest = Join-Path $ClaudeRoot $Name
 Write-Stage "Mirror -> $claudeDest"
-if (Test-Path $claudeDest) { Remove-Item $claudeDest -Recurse -Force }
-New-Item -ItemType Directory -Force -Path $claudeDest | Out-Null
-Copy-Item -Path "$skillDir\*" -Destination $claudeDest -Recurse -Force
-if ($Disabled) {
-  $claudeSkill = Join-Path $claudeDest 'SKILL.md'
-  if (Test-Path $claudeSkill) { Rename-Item $claudeSkill 'SKILL.md.disabled' -Force }
-}
+if ($Disabled) { Install-SkillTree -Source $skillDir -Dest $claudeDest -ParkDisabled } else { Install-SkillTree -Source $skillDir -Dest $claudeDest }
 Write-OK "Mirrored to $claudeDest"
 
 # --- 6. Append scan log row ---
