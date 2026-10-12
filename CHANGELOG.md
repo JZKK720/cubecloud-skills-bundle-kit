@@ -62,6 +62,14 @@ to fail on an injected stale count.
   top-level scripts the README documents.
 - **`verify-global-bundle.ps1`** now exits non-zero explicitly and its MCP gate can actually fail.
 
+### Temp-clone leak in the installer
+
+`install-skill.ps1`'s cleanup used a single `Remove-Item -Recurse -Force -ErrorAction SilentlyContinue`,
+which silently fails on the read-only pack/object files git creates — **51 `skill_install_*` clones
+(12 MB) plus ~77 scan/ref logs were found leaked in `%TEMP%`**. New `Remove-TempTree` clears
+read-only/hidden/system attributes and retries, warning if anything survives; the per-run scan and
+ref logs are now removed too. Verified against a clone containing read-only git objects.
+
 ## [1.9.18] — 2026-10-11
 
 ### REA integration: reverse-engineering with agents (skill + CLI + MCP server)

@@ -215,10 +215,21 @@ if (Test-Path $ScanLog) {
 }
 Write-OK "Logged to $ScanLog"
 
-# --- 7. Cleanup temp clone ---
-if ($tmpClone -and (Test-Path $tmpClone)) {
-  Remove-Item $tmpClone -Recurse -Force -ErrorAction SilentlyContinue
+# --- 7. Cleanup temp artifacts ---
+# Git leaves pack/object files read-only, so a plain Remove-Item -Recurse -Force can silently
+# fail and leak the clone in %TEMP% (this previously leaked 50+ clones undetected). Clear the
+# read-only/hidden/system attributes, retry, and warn if anything survives.
+function Remove-TempTree([string]$Path) {
+  if (-not $Path -or -not (Test-Path $Path)) { return }
+  Remove-Item $Path -Recurse -Force -ErrorAction SilentlyContinue
+  if (Test-Path $Path) {
+    cmd /c "attrib -r -s -h `"$Path`" /s /d >nul 2>nul"
+    Remove-Item $Path -Recurse -Force -ErrorAction SilentlyContinue
+  }
+  if (Test-Path $Path) { Write-Warn "Could not fully remove temp path: $Path" }
 }
+Remove-TempTree $tmpClone
+foreach ($lf in @($scanOutFile, $refLog)) { if ($lf) { Remove-Item $lf -Force -ErrorAction SilentlyContinue } }
 
 Write-Host ""
 Write-Host "=== install-skill.ps1 complete: $Name ($status) ===" -ForegroundColor Green
