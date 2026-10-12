@@ -111,12 +111,23 @@ $agents = [System.IO.File]::ReadAllText((Join-Path $RepoRoot 'AGENTS.md'))
 $claims = @()
 $claims += [regex]::Matches($readme, '(\d+) bundled skills \(')
 $claims += [regex]::Matches($readme, 'Skills \((\d+) bundled')
-$claims += [regex]::Matches($readme, 'Skills \(\d+ bundled — (\d+) active')
 $claims += [regex]::Matches($agents, '(\d+) bundle skills')
 $mismatched = $claims | Where-Object { $_.Groups[1].Value -ne "$manifestCount" }
 if ($mismatched) {
   foreach ($m in $mismatched) { Fail "stale count claim '$($m.Value.Trim())' (manifest = $manifestCount)" }
 } else { Pass "all $($claims.Count) present-tense 'bundled' claims equal manifest ($manifestCount)" }
+
+# The active count must equal manifest - disabled. This regex must stay ASCII-only: CI runs
+# pwsh (UTF-8) while local runs Windows PowerShell 5.1 (ANSI on a BOM-less file), so a literal
+# em-dash behaves differently between them. '.' matches the dash under both.
+$disabledCount = @($rows | Where-Object { ($_ -split '\|')[3].Trim() -eq 'true' }).Count
+$expectedActive = $manifestCount - $disabledCount
+$activeClaims = [regex]::Matches($readme, 'Skills \(\d+ bundled . (\d+) active')
+$activeBad = $activeClaims | Where-Object { $_.Groups[1].Value -ne "$expectedActive" }
+if ($activeBad) {
+  foreach ($m in $activeBad) { Fail "stale active count '$($m.Value.Trim())' (expected $expectedActive = $manifestCount - $disabledCount)" }
+} elseif ($activeClaims.Count) { Pass "active count matches manifest - disabled ($expectedActive)" }
+else { Warn 'no "N bundled - N active" claim found to check' }
 
 $badge = [regex]::Match($readme, 'skills-(\d+)%20bundled')
 if (-not $badge.Success) { Fail 'README has no skills-N%20bundled badge' }
