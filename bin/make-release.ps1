@@ -5,20 +5,33 @@
 #   2. Validate the counter reconciliations (manifest rows vs README badge).
 #   3. Rewrite CHANGELOG "[Unreleased] - <date>" -> "[<version>] - <date>"
 #      (fails if there is no [Unreleased] block, or if the version already exists).
-#   4. Update README badge + title + table counts (257->258 style) from parameters.
+#   4. Update README badge + title + table counts from the -BundledCount/-OnDiskCount
+#      parameters (the manifest row count is the source of truth; active/disabled is
+#      derived from the CSV).
 #   5. Commit "chore(release): v<version>".
 #   6. Push main; create annotated tag; push tag (deleting a stale remote tag first
 #      if it points anywhere else).
 #   7. Create the GitHub Release with the changelog body via gh --notes-file --latest.
 #
 # Usage:
-#   powershell -NoProfile -ExecutionPolicy Bypass -File bin\make-release.ps1 -Version 1.9.16 `
-#     -BundledCount 258 -OnDiskCount 285 -Title "short release title"
+#   powershell -NoProfile -ExecutionPolicy Bypass -File bin\make-release.ps1 -Version 1.9.19 `
+#     -BundledCount 275 -OnDiskCount 302 -Title "short release title"
+#
+# Modes:
+#   -DryRun   Preview every write; changes nothing on disk or remote.
+#   -NoPush    Stage the release locally (stamp + commit + tag), print the publish
+#              commands, and touch neither origin nor GitHub. Use to review before
+#              it goes public.
 #
 # Notes:
 #   - gh auth: uses GH_TOKEN from git credential fill (no `gh auth login` needed;
 #     login rejects credential-manager tokens for missing read:org).
-#   - Never prints the token. Dry-run mode changes nothing on disk or remote.
+#   - Never prints the token.
+#   - README count regexes are ASCII-only by design: a BOM-less .ps1 with literal
+#     non-ASCII (brain emoji, em-dash) is parsed as ANSI by Windows PowerShell 5.1,
+#     which corrupts the literal so the pattern silently stops matching. Build any
+#     non-ASCII replacement character from its code point (e.g. [char]0x2014) - a
+#     literal '\uXXXX' is written out verbatim, it is not a PowerShell escape.
 
 [CmdletBinding()]
 param(
