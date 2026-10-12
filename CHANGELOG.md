@@ -39,12 +39,26 @@ to fail on an injected stale count.
 
 | area | change |
 |---|---|
-| `setup/install-skill.ps1` | `--baseline` resolution + `-BaselinePath` param; scan-log baseline column. Mirrored to `bin/install-skill.ps1` and `~/dev/bin/`. |
+| `setup/install-skill.ps1` | `--baseline` resolution + `-BaselinePath` param; scan-log baseline column; **atomic staged-rename install** (`Install-SkillTree`) so an interrupted copy can no longer leave a half-installed skill. Mirrored to `bin/install-skill.ps1` and `~/dev/bin/`. |
 | `setup/setup-global-skills.ps1` | Phase 1b deploys `baselines/*.baseline.yaml` to `~/dev/baselines/`. |
-| `bin/make-release.ps1` | 4 dead/stale README count patterns replaced with 8 working ones. |
+| `bin/make-release.ps1` | 4 dead/stale README count patterns replaced with 8 working ones; active/disabled split derived from the manifest. |
 | `.vscode/tasks.json` | `verify-all` hard-coded another machine's path (`C:\Users\colorfire-ai-395\...`) → `${workspaceFolder}`. |
 | `bin/check-bundle-integrity.ps1`, `.github/workflows/bundle-integrity.yml` | New gate + CI. |
 | README / AGENTS.md / SETUP_GUIDE.md / unblock report | Counts corrected; baseline mechanism documented. |
+
+### Consolidation: real MCP validator, shared audit lib, deduped scripts
+
+- **`bin/validate-mcp.ps1` was not a validator** — it printed a summary and never set an exit
+  code, so `verify-global-bundle.ps1`'s MCP gate was always green. It now asserts every template
+  server is present and exits 1 on a miss (negative-tested with a 1-of-12 fixture).
+- **`bin/lib/bundle-common.ps1`** — shared `Initialize-BundlePath`, `Get-BundleRoot`,
+  `Get-NormalizedMcpName`, `Get-BundleMcpServers`, `Test-BundleMcpServers`. Removes the
+  copy-pasted PATH prelude and MCP cross-check from `verify-state.ps1` / `validate-mcp.ps1`.
+- **Deleted 3 zero-consumer duplicates** — `bin/check-mcp-cmds.ps1` (its only consumer was a
+  plan doc; its config check is now real in `verify-state`), `bin/audit-mcp.ps1` and
+  `bin/retest-mcp.ps1` (superseded by `bin/mcp-smoke-test.ps1`). `bin/` is back to the 27
+  top-level scripts the README documents.
+- **`verify-global-bundle.ps1`** now exits non-zero explicitly and its MCP gate can actually fail.
 
 ## [1.9.18] — 2026-10-11
 

@@ -31,3 +31,4 @@ if ($missing.Count -gt 0) {
 }
 
 Write-Host "`nGlobal bundle verification passed."
+exit 0

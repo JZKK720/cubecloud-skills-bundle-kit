@@ -15,7 +15,7 @@ verification; [CHANGELOG.md](CHANGELOG.md) records dated fixes. Link, don't dupl
 | --- | --- |
 | `setup/setup-global-skills.ps1` | Global installer (phases 0–7) — see "Installer surface" below |
 | `setup/skills-list.csv` | **Pipe-delimited** manifest: `repo\|name\|skillRelPath\|disabled[\|localSourcePath]`; `local/*` rows point at vendored clean-ports under `upstream/` |
-| `bin/*.ps1` | Audit/repair/verify scripts; shared prelude (PATH prepend + `PYTHONUTF8=1`), emit Markdown reports into `~/dev/upstream/` (`AUDIT_REPORT.md`, `MCP_SMOKE_TEST.md`) or console PASS/MISS/FAIL lines |
+| `bin/*.ps1` | Audit/repair/verify scripts; shared prelude in `bin/lib/bundle-common.ps1` (PATH prepend + `PYTHONUTF8=1`, repo-root discovery, MCP template cross-check), emit Markdown reports into `~/dev/upstream/` (`AUDIT_REPORT.md`, `MCP_SMOKE_TEST.md`) or console PASS/MISS/FAIL lines |
 | `upstream/` | Vendored skill sources for `local/*` manifest rows — mix of methodology-only clean ports (`archify`, `webapp-testing`, `idea-to-design`) and adapted copies (`agent-reach`) |
 | `docs/plans/` | Dated evaluation/plan reports |
 | `plans/001-local-addon-sourcepaths.md` | **Closed P1 fix (DONE)** — see "Closed: plan 001" below |
@@ -38,7 +38,8 @@ normalization means gallery installs don't read as missing).
 Smoke-testing MCP servers in isolation: `bin/mcp-smoke-test.ps1` (deterministic `--help` probes,
 writes `~/dev/upstream/MCP_SMOKE_TEST.md`, no hanging daemons). In VS Code, the verified path is
 the `verify-global-bundle` workspace task → `bin/verify-global-bundle.ps1` (avoids large inline
-`-Command` quoting failures).
+`-Command` quoting failures); it delegates MCP validation to `bin/validate-mcp.ps1`, which now
+exits non-zero when a bundle server is absent (it previously never failed).
 
 ## Verification = counters + counts, every time
 

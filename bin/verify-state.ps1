@@ -1,5 +1,6 @@
 $ErrorActionPreference = 'Stop'
-$env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:LOCALAPPDATA\Programs\witr;$env:PATH"
+. (Join-Path $PSScriptRoot 'lib\bundle-common.ps1')
+Initialize-BundlePath
 $script:failed = 0
 
 Write-Host '=== CLI CHECK (18) ==='
@@ -41,32 +42,18 @@ try {
 
 # Expected bundle servers are declared once, in setup/mcp.json.template. Read
 # them from there instead of hardcoding a second copy that will silently drift.
-#
-# Name matching must be tolerant: a server installed from the MCP gallery is
-# keyed as "owner/name" and version-pinned, while the template keys it by the
-# short name with @latest. So "firecrawl" (template) and
-# "firecrawl/firecrawl-mcp-server" (live) are the SAME server. Compare
-# normalized leaf names, not raw keys, or every gallery install reads as missing.
-function Get-NormalizedName([string] $s) {
-  $leaf = ($s -split '/')[-1]
-  return ($leaf -replace '[^a-z0-9]', '').ToLowerInvariant()
-}
-$tplPath = Join-Path (Split-Path $PSScriptRoot -Parent) 'setup\mcp.json.template'
-if (Test-Path $tplPath) {
-  $tpl = Get-Content $tplPath -Raw | ConvertFrom-Json
-  $wanted = @($tpl.servers.PSObject.Properties.Name)
-  $liveNorm = @($live | ForEach-Object { Get-NormalizedName $_ })
-  $mcpMissing = @()
-  foreach ($w in $wanted) {
-    $wn = Get-NormalizedName $w
-    $hit = @($liveNorm | Where-Object { $_ -eq $wn -or $_ -like "*$wn*" })
-    if ($hit.Count -eq 0) { $mcpMissing += $w }
-  }
-  if ($mcpMissing.Count -gt 0) {
-    Write-Host "FAIL bundle MCP servers not configured: $($mcpMissing -join ', ')"
+# Name matching is tolerant: a server installed from the MCP gallery is keyed as
+# "owner/name" and version-pinned, while the template keys it by the short name
+# with @latest (e.g. "firecrawl" vs "firecrawl/firecrawl-mcp-server").
+$repoRoot = Get-BundleRoot $PSScriptRoot
+$tplPath = if ($repoRoot) { Join-Path $repoRoot 'setup\mcp.json.template' } else { $null }
+if ($tplPath -and (Test-Path $tplPath)) {
+  $res = Test-BundleMcpServers $mcpPath $repoRoot
+  if ($res.Missing.Count -gt 0) {
+    Write-Host "FAIL bundle MCP servers not configured: $($res.Missing -join ', ')"
     $script:failed = 1
   } else {
-    Write-Host "PASS all $($wanted.Count) bundle MCP servers present"
+    Write-Host "PASS all $($res.Wanted.Count) bundle MCP servers present"
   }
 } else {
   Write-Host "WARN mcp.json.template not found at $tplPath - server cross-check skipped"
