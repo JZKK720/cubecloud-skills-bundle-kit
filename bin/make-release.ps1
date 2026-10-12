@@ -27,7 +27,10 @@ param(
     [Parameter(Mandatory)] [int] $OnDiskCount,
     [string] $Title,
     [string] $DisabledCount = '1',
-    [switch] $DryRun
+    [switch] $DryRun,
+    # Stage the release locally (stamp + commit + tag) but do not push, create the GitHub
+    # release, or touch the remote. Lets a release be reviewed before it becomes public.
+    [switch] $NoPush
 )
 
 $ErrorActionPreference = 'Stop'
@@ -158,7 +161,14 @@ else {
 Step 'Push + tag'
 if ($DryRun) {
     Write-Host '  [dry-run] git push origin main; git tag -a <tag>; git push origin <tag>' -ForegroundColor DarkCyan
-} else {
+}
+elseif ($NoPush) {
+    # Tag locally so the staged release is complete and inspectable, but do not contact origin.
+    git tag -a $tag -m "$tag - $BundledCount bundled skills" -m $Title
+    Ok "tagged $tag locally (NOT pushed)"
+    Warn "remote unchanged - review, then push: git push origin main; git push origin $tag"
+}
+else {
     git push origin main | Out-Null
     Ok 'pushed main'
     git tag -a $tag -m "$tag - $BundledCount bundled skills" -m $Title
@@ -176,7 +186,11 @@ if ($DryRun) {
 Step 'GitHub release'
 if ($DryRun) {
     Write-Host '  [dry-run] gh release create <tag> --title ... --notes-file ... --latest' -ForegroundColor DarkCyan
-} else {
+}
+elseif ($NoPush) {
+    Write-Host "  [no-push] skipped GitHub release for $tag (run without -NoPush after pushing)" -ForegroundColor DarkCyan
+}
+else {
     if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
         # gh is not always in the same place: the MSI/WinGet install lands in
         # %LOCALAPPDATA%\Programs, WinGet shims in %LOCALAPPDATA%\Microsoft\WinGet\Links, and a
@@ -207,5 +221,17 @@ if ($DryRun) {
 }
 
 Step 'Done'
-if ($DryRun) { Write-Host 'DRY RUN - nothing was written. Re-run without -DryRun to publish.' -ForegroundColor Yellow }
-else { Write-Host "Released $tag. Verify:" -ForegroundColor Green; Write-Host "  gh release view $tag" }
+if ($DryRun) {
+    Write-Host 'DRY RUN - nothing was written. Re-run without -DryRun to publish.' -ForegroundColor Yellow
+}
+elseif ($NoPush) {
+    $relTitle = if ($Title) { "$tag - $Title" } else { "$tag - $BundledCount bundled skills" }
+    Write-Host "Staged $tag locally (unpushed). To publish:" -ForegroundColor Yellow
+    Write-Host "  git push origin main"
+    Write-Host "  git push origin $tag"
+    Write-Host "  gh release create $tag --title `"$relTitle`" --notes-file <notes> --latest"
+}
+else {
+    Write-Host "Released $tag. Verify:" -ForegroundColor Green
+    Write-Host "  gh release view $tag"
+}
