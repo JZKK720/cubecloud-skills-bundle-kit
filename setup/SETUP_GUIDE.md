@@ -27,12 +27,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-global-skills.ps1 -I
 | 0b    | Persist PATH + PYTHONUTF8=1 for user                                                                                                                                                                                                                                                                                         | instant |
 | 0c    | Create directory skeleton (~/.agents/skills, ~/.claude/skills, ~/dev/)                                                                                                                                                                                                                                                       | instant |
 | 1     | Install SkillSpector (security scanner) + skills-ref (spec validator)                                                                                                                                                                                                                                                        | ~2 min  |
-| 1b    | Copy install-skill.ps1 helper to ~/dev/bin/                                                                                                                                                                                                                                                                                  | instant |
-| 2     | Install 18 CLI tools (uv tool + npm + bun + release binary)                                                                                                                                                                                                                                                                  | ~5 min  |
+| 1b    | Copy install-skill.ps1 helper + SkillSpector suppression baselines to ~/dev/                                                                                                                                                                                                                                                | instant |
+| 2     | Install 20 CLI tools (uv tool + npm + bun + release binary)                                                                                                                                                                                                                                                                  | ~5 min  |
 | 3     | Clone 50 fork mirrors (JZKK720 mirrors + awesome-design-md + microsoft/SkillOpt + alibaba/open-code-review + EveryInc/compound-engineering-plugin + Shubhamsaboo/awesome-llm-apps + openai/skills + tech-leads-club/agent-skills + coreyhaines31/marketingskills + humanlayer/skills + kunchenguid/firstmate + blader/humanizer + petergyang/no-ai-slop + cathrynlavery/diagram-design + tt-a1i/archify + virgiliojr94/book-to-skill + pbakaus/impeccable + wuyoscar/jev-skill) (skip with -SkipForks) | ~2 min  |
 | 3b    | **Opt-in** (`-IncludeArchifyCli`): write `~/.local/bin/archify.cmd` shim for the archify CLI. Runs `archify doctor` first; skips with a warning if the mirror is absent | instant |
-| 4     | Install 257 manifest entries (256 active + 1 disabled) through the security-gated pipeline; combined with extension/CLI-provisioned skills this yields 281 dirs in `~/.agents/skills/` (plus 14 parked in `skills._disabled/`)                                                                          | ~5 min  |
-| 5     | Configure 11 MCP servers in VS Code User/mcp.json (and optional alternate editor profiles)                                                                                                                                                                                                                                   | instant |
+| 4     | Install 275 manifest entries (274 active + 1 disabled) through the security-gated pipeline; combined with extension/CLI-provisioned skills this yields 302 dirs in `~/.agents/skills/` (plus 14 parked in `skills._disabled/`)                                                                          | ~5 min  |
+| 5     | Configure 12 MCP servers in VS Code User/mcp.json (and optional alternate editor profiles)                                                                                                                                                                                                                                   | instant |
 | 5b    | Pin Copilot utility models in VS Code User/settings.json (and optional alternate editor profiles)                                                                                                                                                                                                                            | instant |
 | 6     | Create governance docs (README, CONFLICTS, MEMORY_POLICY, UPDATE_POLICY, SCAN_LOG)                                                                                                                                                                                                                                           | instant |
 | 7     | Quick audit (skill count, CLI check, mcp.json validation)                                                                                                                                                                                                                                                                    | instant |
@@ -66,9 +66,9 @@ winget install Microsoft.VisualStudioCode
 
 ### What gets installed
 
-**11 MCP servers** (in VS Code User/mcp.json):
+**12 MCP servers** (in VS Code User/mcp.json):
 
-- markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt
+- markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt, rea
 
 **Copilot utility model pins** (in VS Code User/settings.json):
 
@@ -84,7 +84,9 @@ winget install Microsoft.VisualStudioCode
 - headroom, watch-skill (via uv; watch-skill from GitHub source)
 - witr (via GitHub release binary — Go binary, no Go toolchain needed)
 
-**257 manifest entries (256 active + 1 disabled) + extension/CLI-provisioned and hand-ported skills = 281 dirs in `~/.agents/skills/`** (discovered by VS Code Copilot Chat), with **14 more parked** in `skills._disabled/` (1 upstream-disabled + 13 Copilot-incompatible, see v1.9.10 in the changelog):
+> The manifest carries **20** CLI entries (adds `rea` and `skills-ref`-adjacent tooling); the 18 above are the ones the guide walks through. See README §"CLIs installed" for the current list.
+
+**275 manifest entries (274 active + 1 disabled) + extension/CLI-provisioned and hand-ported skills = 302 dirs in `~/.agents/skills/`** (discovered by VS Code Copilot Chat), with **14 more parked** in `skills._disabled/` (1 upstream-disabled + 13 Copilot-incompatible, see v1.9.10 in the changelog):
 
 - superpowers methodology (12 skills): TDD, systematic-debugging, writing/executing-plans, subagent-driven-development, code review, git-worktrees, finishing-branch, writing-skills, using-superpowers, dispatching-parallel-agents
 - ECC agent engineering (35 skills): safety-guard, token-budget-advisor, intent-driven-development, verification-loop, eval-harness, agent-self-evaluation, prompt-optimizer, rules-distill, knowledge-ops, codebase-onboarding, repo-scan, code-tour, search-first, blueprint, strategic-compact, enterprise-agent-ops, production-audit, error-handling, delivery-gate, coding-standards, context-budget, security-review, security-scan, security-bounty-hunter, brand-discovery, brand-voice, frontend-design-direction, make-interfaces-feel-better, continuous-agent-loop, cost-tracking, cost-aware-llm-pipeline, automation-audit-ops, connections-optimizer, mcp-server-patterns, backend-patterns

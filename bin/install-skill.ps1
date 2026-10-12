@@ -8,6 +8,9 @@
     1. Clone upstream repo to a temp dir (or use a provided local path).
     2. Locate the skill folder inside the repo (default: skills/<name>/, or override with -SkillRelPath).
     3. Run `skillspector scan` on the skill folder. Verdict exit 0 = proceed; 1 = block (do_not_install); 2 = retry/error.
+       When a committed suppression baseline exists at <repoRoot>/baselines/<Name>.baseline.yaml (or an
+       explicit -BaselinePath), it is passed via --baseline so operator-reviewed findings are suppressed
+       instead of re-blocking on every install. See docs/plans/*-install-unblock-report.md.
     4. Run `skills-ref validate` on the skill folder. Must report "Valid skill".
     5. Copy the skill folder to ~/.agents/skills/<name>/ (VS Code Copilot discovery).
     6. Mirror to ~/.claude/skills/<name>/ (Claude Code).
@@ -32,6 +35,11 @@
 .PARAMETER SourcePath
   Optional: use a local already-cloned path instead of cloning from Repo.
 
+.PARAMETER BaselinePath
+  Optional: explicit SkillSpector suppression baseline (YAML/JSON) to pass via --baseline.
+  When omitted, the pipeline auto-discovers <repoRoot>\baselines\<Name>.baseline.yaml
+  (repoRoot is located by walking up from this script to the folder containing setup\skills-list.csv).
+
 .EXAMPLE
   .\install-skill.ps1 -Repo "obra/superpowers" -Name "test-driven-development"
   .\install-skill.ps1 -Repo "JuliusBrussee/caveman" -Name "caveman" -Disabled
@@ -44,7 +52,8 @@ param(
   [Parameter(Mandatory)][string]$Name,
   [Parameter()][string]$SkillRelPath,
   [switch]$Disabled,
-  [Parameter()][string]$SourcePath
+  [Parameter()][string]$SourcePath,
+  [Parameter()][string]$BaselinePath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -88,9 +97,41 @@ if (-not (Test-Path (Join-Path $skillDir 'SKILL.md'))) {
 Write-OK "Skill folder: $skillDir"
 
 # --- 2. SkillSpector scan (HARD GATE) ---
-Write-Stage "SkillSpector scan --no-llm $skillDir"
-$scanOutFile = "$env:TEMP\skillspector_$Name.log"
-cmd /c "skillspector scan `"$skillDir`" --no-llm > `"$scanOutFile`" 2>&1"
+# Resolve a suppression baseline if one applies. Precedence: explicit -BaselinePath, then the
+# auto-discovered committed baseline <repoRoot>\baselines\<Name>.baseline.yaml. Baselines hold
+# operator-reviewed suppressions (see 'skillspector baseline'); passing one via --baseline is
+# the sanctioned way to stop a reviewed skill from re-blocking on every install.
+if (-not $BaselinePath) {
+  # Candidate 1: repo root discovered by walking up from this script (works for the repo copy
+  # at setup\install-skill.ps1, i.e. when the installer runs it in-place).
+  $repoRoot = $PSScriptRoot
+  while ($repoRoot -and -not (Test-Path (Join-Path $repoRoot 'setup\skills-list.csv'))) {
+    $parent = Split-Path $repoRoot -Parent
+    if ($parent -eq $repoRoot) { $repoRoot = $null; break }
+    $repoRoot = $parent
+  }
+  $candidates = @()
+  if ($repoRoot) { $candidates += (Join-Path $repoRoot "baselines\$Name.baseline.yaml") }
+  # Candidate 2: deployed location, created by Phase 1b of setup-global-skills.ps1, so the
+  # helper works when invoked as ~/dev/bin/install-skill.ps1 with no repo root in scope.
+  $candidates += "$env:USERPROFILE\dev\baselines\$Name.baseline.yaml"
+  # Candidate 3: operator override for custom layouts.
+  if ($env:SKILL_BASELINES_DIR) { $candidates += (Join-Path $env:SKILL_BASELINES_DIR "$Name.baseline.yaml") }
+  $BaselinePath = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+}
+
+if ($BaselinePath) {
+  if (-not (Test-Path $BaselinePath)) { Die "Baseline file not found: $BaselinePath" }
+  Write-Stage "SkillSpector scan --no-llm --baseline `"$BaselinePath`" $skillDir"
+  $scanOutFile = "$env:TEMP\skillspector_$Name.log"
+  cmd /c "skillspector scan `"$skillDir`" --no-llm --baseline `"$BaselinePath`" > `"$scanOutFile`" 2>&1"
+  Write-OK "Baseline applied: $(Split-Path $BaselinePath -Leaf)"
+}
+else {
+  Write-Stage "SkillSpector scan --no-llm $skillDir"
+  $scanOutFile = "$env:TEMP\skillspector_$Name.log"
+  cmd /c "skillspector scan `"$skillDir`" --no-llm > `"$scanOutFile`" 2>&1"
+}
 $scanCode = $LASTEXITCODE
 if (Test-Path $scanOutFile) {
   $scanSummary = Get-Content $scanOutFile -ErrorAction SilentlyContinue | Select-Object -Last 15
@@ -150,7 +191,8 @@ Write-OK "Mirrored to $claudeDest"
 # --- 6. Append scan log row ---
 $status = if ($Disabled) { 'DISABLED' } else { 'active' }
 $refNote = if ($refCode -eq 0) { 'ref:valid' } else { 'ref:advisory' }
-$logRow = "| $(Get-Date -Format 'yyyy-MM-dd HH:mm') | $Repo | $Name | pass (exit $scanCode) | $status | $refNote |"
+$baselineNote = if ($BaselinePath) { "baseline:$(Split-Path $BaselinePath -Leaf)" } else { 'baseline:none' }
+$logRow = "| $(Get-Date -Format 'yyyy-MM-dd HH:mm') | $Repo | $Name | pass (exit $scanCode) | $status | $refNote | $baselineNote |"
 if (Test-Path $ScanLog) {
   Add-Content -Path $ScanLog -Value $logRow
 } else {

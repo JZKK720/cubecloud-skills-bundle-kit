@@ -48,7 +48,7 @@ graph TB
         EXT["extensions · presets · bundles"]
     end
 
-    subgraph L2["LAYER 2 — Skills (258 bundled)"]
+    subgraph L2["LAYER 2 — Skills (275 bundled)"]
         direction LR
         METH["superpowers (12)"] --> COPILOT["VS Code Copilot Chat"]
         DSN["design systems (74)"] --> COPILOT
@@ -112,16 +112,16 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (258 bundled — 257 active + 1 disabled)
+### Skills (275 bundled — 274 active + 1 disabled)
 
-> **Why the README says 258 but the installer prints 285.** The installer ends with
+> **Why the README says 275 but the installer prints 302.** The installer ends with
 > `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that
 > folder — including the **27 skills VS Code installs itself** for the Azure, Entra, and
 > Foundry extensions. Those are already on disk on any normal install and the bundle neither
-> writes nor removes them (README §"Azure & cloud" below). 258 + 27 = 285. Both numbers are
+> writes nor removes them (README §"Azure & cloud" below). 275 + 27 = 302. Both numbers are
 > correct; they just measure different sets.
 
-A further **19 gate-blocked entries** are parked as comments **inside** `skills-list.csv`
+A further **45 gate-blocked entries** are parked as comments **inside** `skills-list.csv`
 (not installed, not counted above) with a per-skill reason code — see the blocked-skills table.
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
@@ -401,7 +401,7 @@ cubecloud-skills-bundle-kit/          # git clone target — run installers from
 ├── setup/                            # the one-command installer + config
 │   ├── setup-global-skills.ps1       # master installer (run this)
 │   ├── install-skill.ps1             # security-gated skill install helper
-│   ├── skills-list.csv               # manifest of 258 entries (257 active + 1 disabled)
+│   ├── skills-list.csv               # manifest of 275 entries (274 active + 1 disabled)
 │   ├── mcp.json.template             # 11 MCP server config
 │   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
 │   └── SETUP_GUIDE.md                # detailed guide
@@ -1237,7 +1237,7 @@ This re-confirms the block recorded during the v1.6.3 pruning (then classified `
 - **`calesthio/OpenMontage` is AGPL-3.0** — 138 skills of video/3D/motion content, and a hard no. AGPL's network-copyleft obligation attaches to distribution, and this bundle redistributes to end-user machines and mirrors publicly.
 - **`Tencent/WeKnora` and `THU-MAIC/OpenMAIC` are products, not skill packages** — a Go RAG platform and a Next.js learning app respectively. Their `skills/` trees are their own runtime content.
 - **`openai/skills` `.system` (5 skills)** — two blocked, three high-risk, and all five describe Codex's own skill/plugin system, which is not this harness.
-- **19 gate-blocked entries parked as comments** with per-skill reason codes, so `install-missing-skills.ps1` stops retrying them. New this round: `shopify-developer` (CRITICAL YR1 credential-exfiltration webhook), `security-ownership-map` (HIGH P6, blocked in two independent catalogs), `figma-use` (HIGH P6), `migrate-to-codex`, `ad-creative`, `stow` (HIGH E4), plus the `.system` pair.
+- **45 gate-blocked entries parked as comments** with per-skill reason codes, so `install-missing-skills.ps1` stops retrying them. New this round: `shopify-developer` (CRITICAL YR1 credential-exfiltration webhook), `security-ownership-map` (HIGH P6, blocked in two independent catalogs), `figma-use` (HIGH P6), `migrate-to-codex`, `ad-creative`, `stow` (HIGH E4), plus the `.system` pair.
 - **HIGH-severity passes skipped by policy** — `the-fool` and `the-jury` (HIGH AR2 anti-refusal), `mermaid-studio` (HIGH PE3), `codenavi` (HIGH MP3), `cloudflare-deploy` / `sentry` (HIGH E2), and others. `AR2` is a consistent tell across catalogs: skills that instruct adversarial or persistent behaviour tend to phrase it as an override of the model's own judgement.
 
 **Verified**

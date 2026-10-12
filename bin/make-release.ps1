@@ -62,6 +62,11 @@ $manifest = (Get-Content (Join-Path $repo 'setup\skills-list.csv') |
 if ($manifest -ne $BundledCount) {
     Die "manifest rows ($manifest) != -BundledCount ($BundledCount). Pass the real number."
 }
+# Derive the disabled/active split from the manifest rather than assuming exactly one disabled
+# row, so the README stamps stay correct if the disabled set ever changes.
+$disabledCount = (Get-Content (Join-Path $repo 'setup\skills-list.csv') |
+    Where-Object { $_ -match '^[a-zA-Z][^|#]*\|' -and ($_ -split '\|')[3].Trim() -eq 'true' }).Count
+$activeCount = $BundledCount - $disabledCount
 $tag = "v$Version"
 if (git tag -l $tag) { Die "tag $tag already exists locally" }
 Ok "manifest $manifest rows matches -BundledCount; tag $tag is free"
@@ -88,7 +93,15 @@ $pairs = @(
     , ('skills-\d+%20bundled', "skills-$BundledCount%20bundled")
     , ('version-[\d.]+-orange', "version-$Version-orange")
     , (' \d+ bundled skills \(', " $BundledCount bundled skills (")
-    , ('\(\*\*\d+\*\* on disk\)', "(**$OnDiskCount** on disk)")
+    # The on-disk figure appears in prose as "**N** are bundle-installed" (L25) and in the
+    # table row "| ... Skills on disk | **N** |" (L25). Match the number directly; the old
+    # '\(\*\*\d+\*\* on disk\)' pattern matched nothing and silently left stale counts.
+    , ('(\*\*)\d+(\*\* are bundle-installed)', "`${1}$OnDiskCount`${2}")
+    , ('(\| 🧠 Skills on disk\s+\|\s+\*\*)\d+(\*\*)', "`${1}$OnDiskCount`${2}")
+    # The "258" prose sites (L51/L115/L404) are the number that keeps drifting.
+    , ('(\d+) bundled — \d+ active', "$BundledCount bundled — $activeCount active")
+    , ('manifest of \d+ entries \(\d+ active', "manifest of $BundledCount entries ($activeCount active")
+    , ('Skills \(\d+ bundled\)', "Skills ($BundledCount bundled)")
 )
 $report = @()
 foreach ($p in $pairs) {

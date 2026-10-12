@@ -2,6 +2,50 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [Unreleased] — 2026-10-12
+
+### Pipeline hardening: baseline wiring, count reconciliation, CI integrity gate
+
+**Method.** Deep-dived all three pipeline families (install, verify, sync/release) with an
+evidence-first pass, then empirically confirmed each finding against the live environment rather
+than trusting the docs.
+
+**Root cause found and fixed — the security gate never applied its own baselines.** `skillspector
+scan` was invoked bare in `install-skill.ps1`, so every operator-reviewed suppression was inert and
+reviewed skills re-blocked on each install. Verified directly: `diagram-design` returns **exit 1**
+(hard block) without `--baseline` and **exit 0** (pass) with it. `setup/install-skill.ps1` now
+resolves a baseline (`-BaselinePath` → `<repoRoot>\baselines\` → `~/dev/baselines/` →
+`$env:SKILL_BASELINES_DIR`) and passes `--baseline`; Phase 1b deploys `baselines/*.baseline.yaml`
+to `~/dev/baselines/` so the helper works with no repo root in scope. The scan-log row records
+`baseline:<file>|none` for traceability.
+
+**Count truth reconciled (manifest is now the single source).** The manifest holds **275** rows
+(274 active + 1 disabled); disk holds **302** dirs. README, AGENTS.md and SETUP_GUIDE.md carried
+three mutually inconsistent sets (257/258/275, 284/302, 18/20 CLIs, 11/12 MCP). All present-tense
+claims corrected.
+
+**`make-release.ps1` could not fix the drift it was meant to.** Its on-disk regex
+``\(\*\*\d+\*\* on disk\)`` matched **0** times in README, and no pattern touched the five
+hard-coded `258` prose sites, so a release stamped the numbers that were already right and left
+the stale ones. Patterns corrected; all four now match (probed against the live README).
+
+**New CI gate (the bundle had none).** `bin/check-bundle-integrity.ps1` checks only repo artifacts
+(PowerShell AST parse, JSON validity, manifest rows/duplicates/`local/*` resolution, and manifest
+count == README/AGENTS claims == release-script patterns). Wired to
+`.github/workflows/bundle-integrity.yml` on push/PR to `main`. Verified to pass clean (10/0/0) and
+to fail on an injected stale count.
+
+**Fixes:**
+
+| area | change |
+|---|---|
+| `setup/install-skill.ps1` | `--baseline` resolution + `-BaselinePath` param; scan-log baseline column. Mirrored to `bin/install-skill.ps1` and `~/dev/bin/`. |
+| `setup/setup-global-skills.ps1` | Phase 1b deploys `baselines/*.baseline.yaml` to `~/dev/baselines/`. |
+| `bin/make-release.ps1` | 4 dead/stale README count patterns replaced with 8 working ones. |
+| `.vscode/tasks.json` | `verify-all` hard-coded another machine's path (`C:\Users\colorfire-ai-395\...`) → `${workspaceFolder}`. |
+| `bin/check-bundle-integrity.ps1`, `.github/workflows/bundle-integrity.yml` | New gate + CI. |
+| README / AGENTS.md / SETUP_GUIDE.md / unblock report | Counts corrected; baseline mechanism documented. |
+
 ## [1.9.18] — 2026-10-11
 
 ### REA integration: reverse-engineering with agents (skill + CLI + MCP server)

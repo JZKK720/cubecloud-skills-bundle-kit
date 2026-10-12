@@ -1,0 +1,35 @@
+name: bundle-integrity
+
+# Environment-independent gate for the bundle repository itself.
+# Runs on Windows because the toolkit ships PowerShell 5.1-compatible scripts.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    name: bundle integrity (counts + manifest + syntax)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run integrity gate
+        shell: pwsh
+        run: ./bin/check-bundle-integrity.ps1
+
+      - name: What this gate covers
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "Inspects only repo artifacts (no installed skills/CLIs/MCP needed):"
+          Write-Host "  - PowerShell AST parse for bin/ + setup/"
+          Write-Host "  - JSON validity for mcp.json.template + .vscode/tasks.json"
+          Write-Host "  - skills-list.csv rows, duplicates, local/* source resolution"
+          Write-Host "  - manifest count == README/AGENTS claims == make-release.ps1 patterns"

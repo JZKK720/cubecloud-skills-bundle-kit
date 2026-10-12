@@ -3,8 +3,8 @@
 ## What this repo is
 
 A Windows PowerShell toolkit (no application code — **scripts are the product**) that installs a
-global VS Code Copilot Chat stack: 257 bundle skills (284 on disk incl. 27 Azure/Entra/Foundry
-extension skills), 18 CLIs, 11 MCP servers, 50 fork mirrors, 74 DESIGN.md files — all gated by
+global VS Code Copilot Chat stack: 275 bundle skills (302 on disk incl. 27 Azure/Entra/Foundry
+extension skills), 20 CLIs, 12 MCP servers, 55 fork mirrors, 74 DESIGN.md files — all gated by
 NVIDIA SkillSpector. The source of truth for every count is [README.md](README.md) (badges +
 "What you get" table); [setup/SETUP_GUIDE.md](setup/SETUP_GUIDE.md) documents phases and
 verification; [CHANGELOG.md](CHANGELOG.md) records dated fixes. Link, don't duplicate.
@@ -44,9 +44,10 @@ the `verify-global-bundle` workspace task → `bin/verify-global-bundle.ps1` (av
 
 A session is only "done" when the numbers reconcile. Check all four:
 1. `bin/full-audit.ps1` → report the PASS/FAIL/WARN/ADVISORY line explicitly.
-2. `(Get-ChildItem ~/.agents/skills -Directory).Count` vs README badge (284 on disk / 257 bundled).
-3. `~/.agents/skills._disabled/` count vs README (14: 1 upstream + 13 Copilot-incompatible).
-4. Manifest row count in `setup/skills-list.csv` (257: regex `^[a-zA-Z][^|#]*\|`) vs README "257".
+2. `(Get-ChildItem ~/.agents/skills -Directory).Count` vs README badge (302 on disk / 275 bundled).
+3. `~/.agents/skills._disabled/` count vs README (45 manifest comment rows parked; 14 folders on
+   disk: 1 upstream `caveman` + 13 Copilot-incompatible ports).
+4. Manifest row count in `setup/skills-list.csv` (275: regex `^[a-zA-Z][^|#]*\|`) vs README "275".
    Comment/blank lines do not count. If numbers diverge, fix counters inline **and the truth**.
 
 ## Post-merge workflow
@@ -71,9 +72,21 @@ declare full verification complete while this plan is open; run its drift-check
 (MCP + model pins for Code-Insiders/Cursor/VSCodium), `-IncludeArchifyCli` (opt-in 86-byte
 `~/.local/bin/archify.cmd` shim; needs fork mirrors — incompatible with `-SkipForks`, warns and
 continues). Phases: 0 prereqs (uv/bun) · 0b PATH+PYTHONUTF8 persist · 0c dir skeleton ·
-1 SkillSpector+skills-ref · 2 18 CLIs · 3 clone 50 forks · 3b archify shim ·
-4 install 257 manifest skills (security-gated) · 5 write 11 MCP servers to `User/mcp.json` ·
-5b Copilot utility model pins · 5c SkillOpt-Sleep nightly task · 6 governance docs · 7 audit.
+1 SkillSpector+skills-ref · 1b helper + suppression baselines to `~/dev/` · 2 20 CLIs · 3 clone 55 forks ·
+3b archify shim · 4 install 275 manifest skills (security-gated) · 5 write 12 MCP servers to
+`User/mcp.json` · 5b Copilot utility model pins · 5c SkillOpt-Sleep nightly task · 6 governance
+docs · 7 audit.
+
+## Suppression baselines are applied by the gate (fixed 2026-10-12)
+
+`skillspector scan` alone re-blocks any reviewed skill on every install. `setup/install-skill.ps1`
+now resolves a suppression baseline and passes `--baseline`, in this order: explicit
+`-BaselinePath`, then `<repoRoot>\baselines\<name>.baseline.yaml`, then
+`~/dev/baselines\<name>.baseline.yaml`, then `$env:SKILL_BASELINES_DIR\<name>.baseline.yaml`.
+Phase 1b of the installer deploys `baselines/*.baseline.yaml` to `~/dev/baselines/` alongside the
+helper. Verified end-to-end: `diagram-design` exits 1 (hard block) without the baseline and 0
+(pass) with it. The scan-log row now records `baseline:<file>|none` for traceability. When a skill
+is parked or gated, check for a baseline before assuming the scanner disagrees.
 
 ## `install-missing-skills.ps1 -WhatIf` does NOT prevent installs
 

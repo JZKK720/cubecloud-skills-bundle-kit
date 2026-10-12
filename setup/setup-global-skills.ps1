@@ -253,6 +253,20 @@ else {
   Write-Warn "install-skill.ps1 not found in $PSScriptRoot - you need to copy it manually"
 }
 
+# Suppression baselines travel with the helper so the deployed copy can find them without a
+# repo root in scope (install-skill.ps1 also probes <repoRoot>\baselines and $env:SKILL_BASELINES_DIR).
+$baselinesSrc = Join-Path (Split-Path $PSScriptRoot -Parent) "baselines"
+$baselinesDst = "$env:USERPROFILE\dev\baselines"
+if (Test-Path $baselinesSrc) {
+  New-Item -ItemType Directory -Force -Path $baselinesDst | Out-Null
+  Copy-Item (Join-Path $baselinesSrc '*.baseline.yaml') $baselinesDst -Force -ErrorAction SilentlyContinue
+  $n = (Get-ChildItem $baselinesDst -Filter '*.baseline.yaml' -ErrorAction SilentlyContinue).Count
+  Write-OK "$n suppression baselines copied to ~/dev/baselines/"
+}
+else {
+  Write-Warn "baselines/ not found at $baselinesSrc - gated skills may re-block on install"
+}
+
 # ============================================================
 # PHASE 2: CLI TOOLS
 # ============================================================
