@@ -96,10 +96,13 @@ $pairs = @(
     # The on-disk figure appears in prose as "**N** are bundle-installed" (L25) and in the
     # table row "| ... Skills on disk | **N** |" (L25). Match the number directly; the old
     # '\(\*\*\d+\*\* on disk\)' pattern matched nothing and silently left stale counts.
+    # These patterns stay ASCII-only on purpose: a BOM-less .ps1 with literal non-ASCII (the
+    # brain emoji, the em-dash) is parsed as ANSI by Windows PowerShell 5.1 and the literal is
+    # corrupted, so the pattern silently stops matching. Use .*? and \u escapes instead.
     , ('(\*\*)\d+(\*\* are bundle-installed)', "`${1}$OnDiskCount`${2}")
-    , ('(\| 🧠 Skills on disk\s+\|\s+\*\*)\d+(\*\*)', "`${1}$OnDiskCount`${2}")
+    , ('(\| .*?Skills on disk\s+\|\s+\*\*)\d+(\*\*)', "`${1}$OnDiskCount`${2}")
     # The "258" prose sites (L51/L115/L404) are the number that keeps drifting.
-    , ('(\d+) bundled — \d+ active', "$BundledCount bundled — $activeCount active")
+    , ('(\d+) bundled \u2014 \d+ active', "$BundledCount bundled \u2014 $activeCount active")
     , ('manifest of \d+ entries \(\d+ active', "manifest of $BundledCount entries ($activeCount active")
     , ('Skills \(\d+ bundled\)', "Skills ($BundledCount bundled)")
 )
@@ -115,12 +118,22 @@ else {
     [System.IO.File]::WriteAllText($rdPath, $rd, (New-Object System.Text.UTF8Encoding($false)))
     $report | ForEach-Object { Ok $_ }
 }
-# body for the GitHub release, extracted pre-write so it reflects the stamped header
-$clNow = [System.IO.File]::ReadAllText($clPath)
-$s = $clNow.IndexOf("## [$Version]")
-$e = [regex]::Match($clNow.Substring($s + 10), '(?m)^## \[').Index
-$releaseBody = if ($e -gt 0) { $clNow.Substring($s, $e).TrimEnd() } else { $clNow.Substring($s).TrimEnd() }
-if (-not $releaseBody) { Die 'could not extract release notes from CHANGELOG' }
+# body for the GitHub release, extracted pre-write so it reflects the stamped header.
+# Guarded: in a fresh repo the [Unreleased] block is the top section, so the next "## [" may not
+# exist and Substring would throw. The release body is only used on the non-dry-run push path.
+if ($DryRun) {
+    Write-Host '  [dry-run] would extract the release-notes body from the stamped CHANGELOG section' -ForegroundColor DarkCyan
+}
+else {
+    $clNow = [System.IO.File]::ReadAllText($clPath)
+    $s = $clNow.IndexOf("## [$Version]")
+    if ($s -lt 0) { Die "stamped [$Version] section not found in CHANGELOG" }
+    $after = $clNow.Substring($s + 10)
+    $m = [regex]::Match($after, '(?m)^## \[')
+    $e = if ($m.Success) { $m.Index } else { -1 }
+    $releaseBody = if ($e -gt 0) { $clNow.Substring($s, $e).TrimEnd() } else { $clNow.Substring($s).TrimEnd() }
+    if (-not $releaseBody) { Die 'could not extract release notes from CHANGELOG' }
+}
 
 # --- 5. commit ---
 Step 'Commit'

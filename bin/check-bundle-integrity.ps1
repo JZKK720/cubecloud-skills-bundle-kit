@@ -138,12 +138,25 @@ if (Test-Path $guidePath) {
 }
 
 # Every count regex in make-release.ps1 must actually match README (a 0-match regex is a silent no-op).
+# Probes are kept ASCII-only: Windows PowerShell 5.1 parses a BOM-less .ps1 as ANSI, so a literal
+# em-dash or emoji in this file would be corrupted and stop matching.
 $release = [System.IO.File]::ReadAllText((Join-Path $RepoRoot 'bin\make-release.ps1'))
-foreach ($probe in @('skills-\d+%20bundled', 'version-[\d.]+-orange', ' \d+ bundled skills \(', '(\*\*)\d+(\*\* are bundle-installed)')) {
-  if ($release -notmatch [regex]::Escape($probe)) { Warn "make-release.ps1 no longer contains pattern '$probe'" ; continue }
-  if ([regex]::Matches($readme, $probe).Count -eq 0) { Fail "make-release.ps1 pattern '$probe' matches 0 times in README.md" }
+$probes = @(
+  'skills-\d+%20bundled',
+  'version-[\d.]+-orange',
+  ' \d+ bundled skills \(',
+  '(\*\*)\d+(\*\* are bundle-installed)',
+  '(\| .*?Skills on disk\s+\|\s+\*\*)\d+(\*\*)',
+  '(\d+) bundled \u2014 \d+ active',
+  'manifest of \d+ entries \(\d+ active',
+  'Skills \(\d+ bundled\)'
+)
+$deadPatterns = 0
+foreach ($probe in $probes) {
+  if ($release -notmatch [regex]::Escape($probe)) { Warn "make-release.ps1 no longer contains pattern '$probe'"; continue }
+  if ([regex]::Matches($readme, $probe).Count -eq 0) { Fail "make-release.ps1 pattern '$probe' matches 0 times in README.md"; $deadPatterns++ }
 }
-Pass "make-release.ps1 count patterns all match README.md"
+if ($deadPatterns -eq 0) { Pass "all $($probes.Count) make-release.ps1 count patterns match README.md" }
 
 Write-Host ""
 Write-Host "RESULT: PASS=$script:pass FAIL=$script:fail WARN=$script:warn"
