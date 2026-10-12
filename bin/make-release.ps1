@@ -97,12 +97,21 @@ $pairs = @(
     # table row "| ... Skills on disk | **N** |" (L25). Match the number directly; the old
     # '\(\*\*\d+\*\* on disk\)' pattern matched nothing and silently left stale counts.
     # These patterns stay ASCII-only on purpose: a BOM-less .ps1 with literal non-ASCII (the
-    # brain emoji, the em-dash) is parsed as ANSI by Windows PowerShell 5.1 and the literal is
-    # corrupted, so the pattern silently stops matching. Use .*? and \u escapes instead.
+    # brain emoji) is parsed as ANSI by Windows PowerShell 5.1 and the literal is corrupted, so
+    # the pattern silently stops matching. Use .*? to skip the non-ASCII marker instead.
+    , ('(\*\*)\d+(\*\* are bundle-installed)', "`${1}$OnDiskCount`${2}")
+    , ('(\| .*?Skills on disk\s+\|\s+\*\*)\d+(\*\*)', "`${1}$OnDiskCount`${2}")
+    # These patterns must be ASCII-only *and* their replacements must not embed non-ASCII
+    # literals. A BOM-less .ps1 with literal non-ASCII (the brain emoji, the em-dash) is parsed
+    # as ANSI by Windows PowerShell 5.1, corrupting the literal. So: match with .*? when possible,
+    # and build any non-ASCII replacement character from its code point at runtime
+    # ([char]0x2014), because PowerShell does not expand \uXXXX escapes in string literals or in
+    # a -replace replacement. (A literal '\u2014' in a replacement is written out verbatim.)
     , ('(\*\*)\d+(\*\* are bundle-installed)', "`${1}$OnDiskCount`${2}")
     , ('(\| .*?Skills on disk\s+\|\s+\*\*)\d+(\*\*)', "`${1}$OnDiskCount`${2}")
     # The "258" prose sites (L51/L115/L404) are the number that keeps drifting.
-    , ('(\d+) bundled \u2014 \d+ active', "$BundledCount bundled \u2014 $activeCount active")
+    $emDash = [char]0x2014
+    , ('(\d+) bundled . \d+ active', "$BundledCount bundled $emDash $activeCount active")
     , ('manifest of \d+ entries \(\d+ active', "manifest of $BundledCount entries ($activeCount active")
     , ('Skills \(\d+ bundled\)', "Skills ($BundledCount bundled)")
 )

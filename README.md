@@ -112,7 +112,7 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (275 bundled \u2014 274 active + 1 disabled)
+### Skills (275 bundled — 274 active + 1 disabled)
 
 > **Why the README says 275 but the installer prints 302.** The installer ends with
 > `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that

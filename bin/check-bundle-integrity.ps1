@@ -147,7 +147,7 @@ $probes = @(
   ' \d+ bundled skills \(',
   '(\*\*)\d+(\*\* are bundle-installed)',
   '(\| .*?Skills on disk\s+\|\s+\*\*)\d+(\*\*)',
-  '(\d+) bundled \u2014 \d+ active',
+  '(\d+) bundled . \d+ active',
   'manifest of \d+ entries \(\d+ active',
   'Skills \(\d+ bundled\)'
 )
