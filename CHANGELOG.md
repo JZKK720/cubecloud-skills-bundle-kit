@@ -2,6 +2,27 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [Unreleased] — 2026-10-12
+
+### Audit baselines, `-NoPush`, REA smoke test
+
+- **Audit scripts now apply suppression baselines** (`Resolve-SkillBaseline` in
+  `bin/lib/bundle-common.ps1`). They previously re-scanned with a bare `skillspector scan`, so
+  `fast-audit` reported 2 false FAILs (`hallmark`, `improve`) purely because the baseline was not
+  passed. `improve` now PASSes; `hallmark` still FAILs because its baseline predates the current
+  upstream `SKILL.md` (new AE1 findings) — that FAIL is honest and now reads
+  `baseline stale/incomplete - re-baseline`.
+- **`bin/make-release.ps1 -NoPush`** — stamp + commit + tag locally, print the publish commands,
+  and touch neither origin nor GitHub, so a release can be reviewed before it goes public.
+  Verified: origin SHA unchanged, no remote tag created.
+- **PATH prelude de-duplicated** onto `bin/lib/bundle-common.ps1` in `full-audit`, `fast-audit`,
+  `final-audit`, `mcp-smoke-test`; `check-advisories.ps1` now scans every baselined skill instead
+  of a hardcoded 4 that had drifted.
+- **Docs:** README `11 MCP server config` → 12; SETUP_GUIDE fork mirrors 50 → 55 and its CLI list
+  now 20 (adds `rea`).
+- **New:** `upstream/REA_SMOKE_TEST.md` — REA verified end-to-end (CLI `rea@6.4.0`, MCP handshake,
+  and a real `inspect-pe-resources` run) plus how to drive REA from VS Code Copilot Chat.
+
 ## [1.9.19] - 2026-10-12
 
 ### Pipeline hardening: baseline wiring, count reconciliation, CI integrity gate
