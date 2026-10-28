@@ -87,6 +87,24 @@ collapsed to 18 fingerprints and the scan **still exited 1** with 19 unsuppresse
 "this rule class was reviewed and accepted", which is what was actually verified. Result: 37
 suppressed, exit 0, installed through the full gate and mirrored to both harnesses.
 
+**Version alignment (same day).** `rea setup --client copilot_cli` was run to register the
+**GitHub Copilot CLI** server (`~/.copilot/mcp-config.json`), which until then did not exist —
+the CLI was the one supported client with no registration. Two side effects were caught:
+
+- `rea setup` **overwrote** the curated skill with the npm-bundled copy, downgrading repo-main
+  `v53` to `v42` and leaving 7 `.rea.backup` files. v42 was re-scanned before being accepted
+  (same rule classes, 43 suppressed, exit 0, 0 code files — `RA2` still only matched prose about
+  analysing `launchd plists`/`login items`), then replaced with a clean install of the bundled
+  `v49` through this repo's own gate. The baseline held across all three versions, which is
+  exactly the point of suppressing by rule class instead of by fingerprint.
+- The installed CLI was `6.7.0` while npm and the MCP server were `6.8.0`. Upgraded the CLI;
+  `doctor` now reports skill identity **aligned (v49)**.
+
+`rea doctor` shows `copilot_cli` **aligned** and `vscode` **stale**. The latter is expected and
+intentional: the template's `npx -y rea-agents@latest` is unpinned *by design* (that is what
+`RP1` flags), and `setup/mcp.json.template` is the source of truth — pinning it would desync the
+bundle from its own config.
+
 ### Known-blocked (gate working as designed, not a defect)
 
 Two manifest rows resolve but the gate refuses them; they are counted in the 278 but not
