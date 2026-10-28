@@ -65,12 +65,34 @@ tools that did not exist and nothing would notice.
   union — and it made the figure misleading, since it was almost entirely advisory `skills-ref`
   noise. Now reports `PASS / FAIL / WARN / ADVISORY / INFO` independently, matching `full-audit`.
 
+### Unblocked: `reverse-engineer-anything` (2026-10-28)
+
+Now installs under `baselines/reverse-engineer-anything.baseline.yaml`. It had been left blocked;
+on review every one of its **37 findings was a scanner false positive on prose**, verified by
+reading each flagged line rather than trusting the rule names:
+
+| Rule | Count | Why it is not a real finding |
+| --- | --- | --- |
+| `AE1` | 7 | SkillSpector's own documented parse limitation on *relative* markdown links. All 7 `references/*.md` targets and both anchors (`#rea-installed-as-a-client-plugin`, `#repair-registration-when-needed`) were confirmed to resolve on disk. |
+| `P9` / `MP2` | 12 / 7 | Markdown **table column-alignment** padding — content visible to the left, nothing hidden to the right. |
+| `RA2` | 8 | Matched the word "sessions" in prose about resource *inspection*. No scripts, hooks or startup entries exist. |
+| `EA2` | 1 | Matched the human-in-the-loop guidance itself ("Never auto-execute commands that are destructive…"). |
+| `RP1` | 2 | Flags `npx -y rea-agents@latest` — this bundle's *own* documented invocation in `setup/mcp.json.template`. Pinning would desync skill from MCP config. |
+
+The skill ships **0 executable files** (SKILL.md + 7 markdown references).
+
+The baseline uses `rules:` (glob by rule id) rather than the auto-generated fingerprint list:
+`skillspector baseline` emits one fingerprint per (rule, file, snippet) group, so 37 findings
+collapsed to 18 fingerprints and the scan **still exited 1** with 19 unsuppressed. Rules express
+"this rule class was reviewed and accepted", which is what was actually verified. Result: 37
+suppressed, exit 0, installed through the full gate and mirrored to both harnesses.
+
 ### Known-blocked (gate working as designed, not a defect)
 
-Three manifest rows resolve but the gate refuses them; they are counted in the 278 but not
+Two manifest rows resolve but the gate refuses them; they are counted in the 278 but not
 installed. Each needs an operator-reviewed baseline before it can be tracked:
-`ce-setup` (HIGH `PE3`/`E2` in its own scripts), `debug-openshell-cluster` (HIGH `PE3`/`MP3`), and
-`reverse-engineer-anything` (CRITICAL + HIGH `AE1`).
+`ce-setup` (HIGH `PE3`/`E2` in its own scripts) and `debug-openshell-cluster` (HIGH `PE3`/`MP3`).
+(`reverse-engineer-anything` was in this list and is now unblocked — see above.)
 
 ## [Unreleased] — 2026-10-12
 

@@ -1,6 +1,6 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 278 bundled skills (323 on disk), 20 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 278 bundled skills (324 on disk), 20 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
 
 [![Skills](https://img.shields.io/badge/skills-278%20bundled-2ea44f)](#what-you-get)
 [![CLIs](https://img.shields.io/badge/CLIs-20-blue)](#clis-installed)
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **323** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **278** are bundle-installed from `skills-list.csv` (277 active + 1 disabled), of which **274** are actually present (3 rows — `ce-setup`, `debug-openshell-cluster`, `reverse-engineer-anything` — are gate-blocked, see the blocked-skills table); the other **49** are not in the manifest and the installer neither writes nor removes them: 27 Azure / Entra / Foundry extension skills, 10 GCP extension skills (bigquery, cloud-run, cloud-sql, firebase, gcloud, gke-basics, gke-networking, gke-security, google-cloud-recipe-onboarding, google-cloud-solution-architecture), 8 hyperframes / media-use skills, and 4 tracked upstream extras (agent-platform-deploy, ce-compound, gstack-review, verification-before-completion). 274 + 49 = 323, plus the 2 parked dirs. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference — `debug-openshell-cluster` is gate-blocked), and REA reverse-engineering (*tracked, but `reverse-engineer-anything` is gate-blocked; the `rea` CLI and MCP server are live*) |
+| 🧠 Skills on disk  | **324** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **278** are bundle-installed from `skills-list.csv` (277 active + 1 disabled), of which **275** are actually present (2 rows — `ce-setup` and `debug-openshell-cluster` — are gate-blocked, see the blocked-skills table); the other **49** are not in the manifest and the installer neither writes nor removes them: 27 Azure / Entra / Foundry extension skills, 10 GCP extension skills (bigquery, cloud-run, cloud-sql, firebase, gcloud, gke-basics, gke-networking, gke-security, google-cloud-recipe-onboarding, google-cloud-solution-architecture), 8 hyperframes / media-use skills, and 4 tracked upstream extras (agent-platform-deploy, ce-compound, gstack-review, verification-before-completion). 275 + 49 = 324, plus the 2 parked dirs. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference — `debug-openshell-cluster` is gate-blocked), and REA reverse-engineering (reverse-engineer-anything, installed under a reviewed suppression baseline — see `baselines/`) |
 | 🅿️ Parked skills   | **2**   | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: `caveman` (upstream-disabled, the only manifest row flagged `disabled`) and `unlazy`. Earlier releases also parked 12 research-integrity forensics skills and the retired `crucible` snapshot; those are not present on this install. Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **20**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`, `git-wt` (worktrunk), `rea`                                                                                                                                               |
 | 🔌 MCP servers     | **12**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt, rea                                                                                                                                                                                  |
@@ -254,18 +254,29 @@ Two independent implementations kept as complements. The bundle's `write-concise
 | `ad-creative`                   | coreyhaines31/marketingskills              | BLOCK                                                          |
 | `stow`                          | kunchenguid/firstmate                      | HIGH `E4` — context leakage                                   |
 
-**Blocked on this install (verified 2026-10-28, after the full upstream sync):** these three
+**Blocked on this install (verified 2026-10-28, after the full upstream sync):** these two
 manifest rows are the only ones whose source resolves but which the gate refuses to install.
-They are counted in the 278 manifest rows but are **not** part of the 274 on disk.
+They are counted in the 278 manifest rows but are **not** part of the 275 on disk.
 
 | Skill | Source | Blocking findings |
 | --- | --- | --- |
 | `ce-setup` | EveryInc/compound-engineering-plugin | HIGH `PE3` credential access (`scripts/check-health:397`) + HIGH `E2` env harvesting (`scripts/check-health:866`, `scripts/packs-resolve.py:271`). Has a baseline, but it only covers 3 of the findings; the executable scripts introduce new ones. |
 | `debug-openshell-cluster` | NVIDIA/OpenShell | HIGH `PE3` credential access ×2 + HIGH `MP3` memory manipulation |
-| `reverse-engineer-anything` | morluto/rea | CRITICAL + HIGH `AE1` — referenced artifacts not completely inspected |
 
 Each needs an operator to review the cited code and write a `baselines/<name>.baseline.yaml`
 before it can be tracked as installed. Until then the gate is doing its job.
+
+**Unblocked 2026-10-28 — `reverse-engineer-anything`.** It was previously listed above. On
+review, every one of its 37 findings was a scanner false positive on prose: `AE1` is
+SkillSpector's own documented parse limitation on *relative* markdown links (all 7
+`references/*.md` targets and both anchors were confirmed to resolve), `P9`/`MP2` fired on
+Markdown table column-alignment padding, `RA2` matched the word "sessions" in prose about
+resource *inspection*, `EA2` matched the human-in-the-loop guidance itself, and `RP1` flags
+`npx -y rea-agents@latest` — this bundle's own documented MCP invocation. The skill ships
+**0 executable files**. It now installs under
+[`baselines/reverse-engineer-anything.baseline.yaml`](../baselines/reverse-engineer-anything.baseline.yaml),
+which suppresses those rule classes by id (per-fingerprint baselines collapse duplicate
+findings and left 19 unsuppressed).
 
 Also skipped for HIGH findings even though the gate returned 0: `the-fool`, `the-jury`
 (HIGH `AR2` anti-refusal), `mermaid-studio` (HIGH `PE3`), `codenavi` and

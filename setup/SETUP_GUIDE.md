@@ -84,7 +84,7 @@ winget install Microsoft.VisualStudioCode
 - headroom, watch-skill (via uv; watch-skill from GitHub source)
 - witr (via GitHub release binary — Go binary, no Go toolchain needed)
 
-**278 manifest entries (277 active + 1 disabled) + extension/CLI-provisioned and hand-ported skills = 323 dirs in `~/.agents/skills/`** (discovered by VS Code Copilot Chat), with **14 more parked** in `skills._disabled/` (1 upstream-disabled + 13 Copilot-incompatible, see v1.9.10 in the changelog):
+**278 manifest entries (277 active + 1 disabled) + extension/CLI-provisioned and hand-ported skills = 324 dirs in `~/.agents/skills/`** (discovered by VS Code Copilot Chat), with **14 more parked** in `skills._disabled/` (1 upstream-disabled + 13 Copilot-incompatible, see v1.9.10 in the changelog):
 
 - superpowers methodology (12 skills): TDD, systematic-debugging, writing/executing-plans, subagent-driven-development, code review, git-worktrees, finishing-branch, writing-skills, using-superpowers, dispatching-parallel-agents
 - ECC agent engineering (35 skills): safety-guard, token-budget-advisor, intent-driven-development, verification-loop, eval-harness, agent-self-evaluation, prompt-optimizer, rules-distill, knowledge-ops, codebase-onboarding, repo-scan, code-tour, search-first, blueprint, strategic-compact, enterprise-agent-ops, production-audit, error-handling, delivery-gate, coding-standards, context-budget, security-review, security-scan, security-bounty-hunter, brand-discovery, brand-voice, frontend-design-direction, make-interfaces-feel-better, continuous-agent-loop, cost-tracking, cost-aware-llm-pipeline, automation-audit-ops, connections-optimizer, mcp-server-patterns, backend-patterns
