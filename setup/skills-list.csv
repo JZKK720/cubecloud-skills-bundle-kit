@@ -348,6 +348,20 @@ EveryInc/compound-engineering-plugin|ce-setup|skills/ce-setup|
 EveryInc/compound-engineering-plugin|ce-retune|skills/ce-retune|
 EveryInc/compound-engineering-plugin|ce-test-browser|skills/ce-test-browser|
 EveryInc/compound-engineering-plugin|lfg|skills/lfg|
+# --- Upstream additions (verified 2026-10-28): compound-engineering-plugin grew from 16 to 36
+#     skills since this block was written. Only the gate-clean ones are tracked here; the other
+#     16 are SkillSpector-blocked on genuine HIGH/CRITICAL findings (P2 hidden instructions,
+#     PE3 credential access, AE1 uninspected artifact) and are deliberately NOT added until an
+#     operator reviews them and writes a baseline, matching how ce-setup/ce-ideate/etc. were
+#     handled. Gate result per skill recorded below.
+EveryInc/compound-engineering-plugin|ce-bakeoff|skills/ce-bakeoff|
+EveryInc/compound-engineering-plugin|ce-noslop|skills/ce-noslop|
+EveryInc/compound-engineering-plugin|ce-test-xcode|skills/ce-test-xcode|
+EveryInc/compound-engineering-plugin|wtf|skills/wtf|
+# Gate-blocked, NOT tracked (do not add without a reviewed baseline):
+#   ce-babysit-pr ce-brainstorm ce-code-review ce-compound ce-doc-review ce-dogfood ce-optimize
+#   ce-plan ce-polish ce-pov ce-proof ce-prototype ce-resolve-pr-feedback
+#   ce-riffrec-feedback-analysis ce-sweep ce-work
 # --- awesome-llm-apps (Shubhamsaboo, Apache-2.0): 4 deterministic local-tool skills ---
 # Zero Claude-Code coupling; Copilot explicitly supported. Each ships stdlib-only
 # Python scripts with CI-eval-gated tests. Apache-2.0.
@@ -470,8 +484,16 @@ local/laya|laya||upstream/laya
 JZKK720/jev-skill|jev-triage|skills/jev-triage|
 JZKK720/jev-skill|jev-documents|skills/jev-documents|
 JZKK720/jev-skill|jev-eval|skills/jev-eval|
-JZKK720/jev-skill|jev-ui|skills/jev-ui|
-JZKK720/jev-skill|jev-simulation|skills/jev-simulation|
+# UPSTREAM CULL (verified 2026-10-28 against JZKK720/jev-skill@main and wuyoscar/jev-skill@main):
+#   `skills/jev-ui` and `skills/jev-simulation` NO LONGER EXIST upstream - they were removed
+#   after this family was added in v1.9.4. Both rows had silently failed to install ever since
+#   (the fork mirror was never cloned either, so both reported "no source"). Upstream folded
+#   their job into a single new `jev-act` skill: "Choose one legal next action in a browser,
+#   desktop, game or simulation." That entry point is the intended replacement, and it passes
+#   the SkillSpector gate cleanly (exit 0, no findings), unlike the two dead rows.
+#   Replaced 2 dead rows with 1 live row: manifest total 275 -> 274. The freed slot plus the
+#   4 new upstream ce-* skills added in the compound-engineering block above bring it to 278.
+JZKK720/jev-skill|jev-act|skills/jev-act|
 # --- claudex (formerly crucible; chaseai-yt, MIT, 1.2k★): cross-model adversarial plan hardening ---
 # UPSTREAM RENAME (2026-09-06, commit a027430 "rebrand: crucible -> claudex-loop"):
 #   skills/crucible  ->  skills/claudex-loop   (legacy /crucible trigger kept in its description)

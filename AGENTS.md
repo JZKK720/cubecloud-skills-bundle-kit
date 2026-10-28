@@ -3,7 +3,7 @@
 ## What this repo is
 
 A Windows PowerShell toolkit (no application code — **scripts are the product**) that installs a
-global VS Code Copilot Chat stack: 275 bundle skills (302 on disk incl. 27 Azure/Entra/Foundry
+global VS Code Copilot Chat stack: 278 bundle skills (323 on disk incl. 27 Azure/Entra/Foundry
 extension skills), 20 CLIs, 12 MCP servers, 55 fork mirrors, 74 DESIGN.md files — all gated by
 NVIDIA SkillSpector. The source of truth for every count is [README.md](README.md) (badges +
 "What you get" table); [setup/SETUP_GUIDE.md](setup/SETUP_GUIDE.md) documents phases and
@@ -45,10 +45,11 @@ exits non-zero when a bundle server is absent (it previously never failed).
 
 A session is only "done" when the numbers reconcile. Check all four:
 1. `bin/full-audit.ps1` → report the PASS/FAIL/WARN/ADVISORY line explicitly.
-2. `(Get-ChildItem ~/.agents/skills -Directory).Count` vs README badge (302 on disk / 275 bundled).
-3. `~/.agents/skills._disabled/` count vs README (45 manifest comment rows parked; 14 folders on
-   disk: 1 upstream `caveman` + 13 Copilot-incompatible ports).
-4. Manifest row count in `setup/skills-list.csv` (275: regex `^[a-zA-Z][^|#]*\|`) vs README "275".
+2. `(Get-ChildItem ~/.agents/skills -Directory).Count` vs README badge (323 on disk / 278 bundled).
+3. `~/.agents/skills._disabled/` count vs README (2 folders on disk: upstream-disabled `caveman`
+   + `unlazy`; the 12 research-integrity forensics ports and the retired `crucible` snapshot that
+   earlier releases parked are NOT present on this install - verify, don't assume).
+4. Manifest row count in `setup/skills-list.csv` (278: regex `^[a-zA-Z][^|#]*\|`) vs README "278".
    Comment/blank lines do not count. If numbers diverge, fix counters inline **and the truth**.
 
 ## Post-merge workflow
@@ -74,7 +75,7 @@ declare full verification complete while this plan is open; run its drift-check
 `~/.local/bin/archify.cmd` shim; needs fork mirrors — incompatible with `-SkipForks`, warns and
 continues). Phases: 0 prereqs (uv/bun) · 0b PATH+PYTHONUTF8 persist · 0c dir skeleton ·
 1 SkillSpector+skills-ref · 1b helper + suppression baselines to `~/dev/` · 2 20 CLIs · 3 clone 55 forks ·
-3b archify shim · 4 install 275 manifest skills (security-gated) · 5 write 12 MCP servers to
+3b archify shim · 4 install 278 manifest skills (security-gated) · 5 write 12 MCP servers to
 `User/mcp.json` · 5b Copilot utility model pins · 5c SkillOpt-Sleep nightly task · 6 governance
 docs · 7 audit.
 

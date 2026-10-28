@@ -107,7 +107,13 @@ $upstreamMap = @{
     #   git clone --depth 1 --filter=blob:none --sparse https://github.com/pbakaus/impeccable
     # rather than relying on this entry.
     "impeccable"                  = "pbakaus/impeccable"
-    "jev-skill"                   = "wuyoscar/jev-skill"}   # Added 2026-09-21: 6 typed-decision
+    "jev-skill"                   = "wuyoscar/jev-skill"
+    # Added 2026-10-28: the `reverse-skill` mirror was cloned with an `upstream` remote
+    # pointing at zhaoxuya520/reverse-skill, but it had NO entry in this map, so every
+    # sync run reported "SKIP reverse-skill (no upstream mapping)" and the mirror was
+    # never fast-forwarded. Mapping it makes the mirror track upstream like the rest.
+    "reverse-skill"               = "zhaoxuya520/reverse-skill"
+}   # `jev-skill` added 2026-09-21: 6 typed-decision
     # ("Jev") skills. Five install direct from upstream; the general `jev` router is a
     # `local/jev` prose-only port here (SkillSpector HARD-BLOCKed upstream on HIGH E2 at
     # scripts/jev.py:131/:180 - see the manifest note). The mirror is only needed for the
@@ -238,12 +244,31 @@ foreach ($dir in (Get-ChildItem $ForksRoot -Directory | Sort-Object Name)) {
         & git -C $repo merge --ff-only "$upstreamBranch" 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) {
             # A shallow clone shares no ancestor with its remote, so git reports
-            # "refusing to merge unrelated histories" even when it is a clean
-            # fast-forward. Deepening to fix that is exactly the .git bloat this
-            # script now avoids, so report it as a SKIP with the remedy instead
-            # of a failure. Re-running setup-global-skills.ps1 re-clones cleanly.
-            Write-Host "  $name : SKIP (shallow, no common ancestor - re-clone to update)" -ForegroundColor DarkYellow
-            $skipped++
+            # "refusing to merge unrelated histories" even when the content is
+            # identical to upstream. Deepening to fix that is exactly the .git bloat
+            # this script avoids, so the mirror is HARD-RESET to upstream instead.
+            #
+            # This is what makes the sync actually work: measured 2026-10-28, all 25
+            # mapped mirrors are depth-1 clones and EVERY one reported "SKIP (shallow,
+            # no common ancestor)" under --ff-only, so the script had never synced
+            # anything. `reset --hard upstream/<branch>` is exactly equivalent to the
+            # re-clone it used to recommend, at no network cost. Mirrors whose content
+            # is expected to diverge are excluded earlier by $expectedDivergent, and a
+            # dirty worktree is refused rather than silently discarded.
+            # Only TRACKED modifications block the reset: `reset --hard` discards tracked
+            # changes but leaves untracked files alone, so counting untracked build output
+            # (e.g. firecrawl's apps/**/obj, bin) would refuse a refresh that is actually
+            # safe. --untracked-files=no makes the guard match what the command really does.
+            $dirty = @(& git -C $repo status --porcelain --untracked-files=no 2>&1)
+            if ($dirty.Count -gt 0) {
+                Write-Host "  $name : SKIP (shallow, no common ancestor + modified tracked files - refusing to reset)" -ForegroundColor DarkYellow
+                $skipped++
+                continue
+            }
+            & git -C $repo reset --hard "$upstreamBranch" 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "reset --hard $upstreamBranch failed" }
+            Write-Host "  $name : reset to upstream ($upstreamBranch; was $localHead)" -ForegroundColor Green
+            $ok++
             continue
         }
         Write-Host "  $name : fast-forwarded to upstream ($upstreamBranch)" -ForegroundColor Green

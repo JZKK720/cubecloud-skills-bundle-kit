@@ -2,6 +2,53 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [Unreleased] — 2026-10-28
+
+### End-to-end upstream re-verification: 4 tool defects fixed, 76 skills brought current
+
+A full e2e pass over every upstream the bundle tracks found the toolkit itself was the problem in
+four places. All four are fixed in this commit; a fresh install now reconciles end to end.
+
+- **`bin/sync-fork-upstreams.ps1` could never sync anything.** Every fork mirror is a `git clone
+  --depth 1`, so it shares no ancestor with upstream and `git merge --ff-only` always failed with
+  "refusing to merge unrelated histories". The script reported that as a benign SKIP and moved on,
+  so all 25 mapped mirrors had silently drifted. Measured: 21 of 21 mapped, non-skipped mirrors were
+  behind. Replaced the dead `--ff-only` path with `reset --hard upstream/<branch>`, which is exactly
+  equivalent to the re-clone it used to recommend, at no network cost. A dirty worktree is still
+  refused rather than discarded. Result: 21 mirrors fast-forwarded, 0 failed.
+- **`reverse-skill` was mapped in the script's own comment but absent from `$upstreamMap`,** so it
+  was SKIPped as "no upstream mapping" on every run and never tracked upstream. Added.
+- **Suppression baselines were unusable.** They are stamped `scanner_version: 2.12.0`, but the
+  installer's `uv tool install ... git+...skillspector.git` (no ref) had resolved to **2.11.0**, and
+  SkillSpector refuses to match fingerprints across versions ("exact fingerprints will not
+  suppress findings"). The audit therefore reported false FAILs for `hallmark` and `improve`, and
+  every baselined skill would have re-blocked at install time. Pinned the installer to `@v2.12.0`
+  and upgraded. All three previously-failing sample scans now exit 0.
+- **`full-audit.ps1` passed an empty MCP config, and could not detect a stale helper.** It printed
+  `Valid JSON, 0 servers ... PASS` while `~/.config/Code/User/mcp.json` had **zero** servers
+  configured — Phase 5 had never run on this machine — because the daemon probes use a hardcoded
+  list and never read the config. The audit now FAILs on an empty `servers` object and cross-checks
+  the live config against `setup/mcp.json.template` (leaf-name normalized, matching
+  `verify-state.ps1`). It also now compares the deployed `~/dev/bin/install-skill.ps1` against
+  `setup/install-skill.ps1` instead of merely checking that a file exists: the deployed copy was
+  the 7,525-byte July build while the repo copy was 12,119 bytes with baseline support and atomic
+  staging.
+- **Manifest drift: 2 dead rows replaced.** `JZKK720/jev-skill|jev-ui` and `|jev-simulation` pointed
+  at paths upstream deleted after v1.9.4, so neither could ever install (both reported "no source").
+  Upstream folded their purpose into the new `jev-act` ("choose one legal next action in a browser,
+  desktop, game or simulation"), which passes the gate cleanly. Replaced the two dead rows with it.
+- **4 new gate-clean upstream skills tracked** from `EveryInc/compound-engineering-plugin`, which
+  grew 16 → 36 skills since this block was written: `ce-bakeoff`, `ce-noslop`, `ce-test-xcode`,
+  `wtf`. The other 17 have genuine HIGH/CRITICAL findings and stay deliberately untracked.
+- **Counters:** manifest **275 → 278** (277 active + 1 disabled); `~/.agents/skills` **245 → 323**.
+
+### Known-blocked (gate working as designed, not a defect)
+
+Three manifest rows resolve but the gate refuses them; they are counted in the 278 but not
+installed. Each needs an operator-reviewed baseline before it can be tracked:
+`ce-setup` (HIGH `PE3`/`E2` in its own scripts), `debug-openshell-cluster` (HIGH `PE3`/`MP3`), and
+`reverse-engineer-anything` (CRITICAL + HIGH `AE1`).
+
 ## [Unreleased] — 2026-10-12
 
 ### Audit baselines, `-NoPush`, REA smoke test

@@ -20,12 +20,40 @@ Add-Result "Category" "Item" "Verdict" "Detail"
 Add-Result "---" "---" "---" "---"
 
 # Check mcp.json validity
+# IMPORTANT: a valid-but-EMPTY "servers" object is not a pass. Verified 2026-10-28: this audit
+# printed "Valid JSON, 0 servers" and still reported PASS, while ~5 MCP servers sat unconfigured
+# for weeks because Phase 5 of the installer had never run on this machine. The daemon probes
+# below use a HARDCODED list, so they kept passing (the CLIs run standalone) and could not see
+# that nothing was wired into VS Code at all. Cross-check the live config against
+# setup\mcp.json.template, which is the single source of truth for what should be configured.
 try {
   $mcp = Get-Content "$env:APPDATA\Code\User\mcp.json" -Raw | ConvertFrom-Json
-  $serverCount = $mcp.servers.PSObject.Properties.Count
-  Add-Result "MCP" "mcp.json" "PASS" "Valid JSON, $serverCount servers"
+  $serverCount = @($mcp.servers.PSObject.Properties).Count
+  $tplPath = Join-Path (Get-BundleRoot $PSScriptRoot) 'setup\mcp.json.template'
+  $expected = @()
+  if (Test-Path $tplPath) {
+    $tpl = Get-Content $tplPath -Raw | ConvertFrom-Json
+    $expected = @($tpl.servers.PSObject.Properties.Name)
+  }
+  if ($serverCount -eq 0) {
+    Add-Result "MCP" "mcp.json" "FAIL" "Valid JSON but 0 servers configured (expected $($expected.Count) from mcp.json.template - run Phase 5)"
+  } else {
+    Add-Result "MCP" "mcp.json" "PASS" "Valid JSON, $serverCount servers"
+  }
   foreach ($prop in $mcp.servers.PSObject.Properties) {
     Add-Result "MCP" "$($prop.Name) config" "PASS" "type=$($prop.Value.type) cmd=$($prop.Value.command)"
+  }
+  if ($expected.Count) {
+    $live = @($mcp.servers.PSObject.Properties.Name)
+    # Compare on the leaf name so a gallery install (e.g. "microsoft/markitdown") matches the
+    # template's plain "markitdown" instead of reading as missing.
+    $liveLeaf = $live | ForEach-Object { ($_ -split '/')[-1] }
+    $missing = $expected | Where-Object { $liveLeaf -notcontains (($_ -split '/')[-1]) }
+    if ($missing.Count) {
+      Add-Result "MCP" "bundle servers" "FAIL" "$($missing.Count) of $($expected.Count) not configured: $($missing -join ', ')"
+    } else {
+      Add-Result "MCP" "bundle servers" "PASS" "all $($expected.Count) template servers configured"
+    }
   }
 } catch {
   Add-Result "MCP" "mcp.json" "FAIL" $_.Exception.Message
@@ -234,12 +262,35 @@ $forkCount = (Get-ChildItem $forkDir -Directory -ErrorAction SilentlyContinue).C
 Add-Result "FORKS" "JZKK720 mirrors" "PASS" "$forkCount fork repos cloned"
 
 # Install helper
+# Existence alone is not enough: on 2026-10-28 the deployed helper was still the 7,525-byte
+# July build while the repo copy was 12,119 bytes with baseline support + atomic staging.
+# A stale helper silently skips suppression baselines, so every reviewed skill re-blocks at
+# install time and the audit cannot tell. Compare content, not just presence.
 $helperPath = "$env:USERPROFILE\dev\bin\install-skill.ps1"
-if (Test-Path $helperPath) {
-  $lines = (Get-Content $helperPath | Measure-Object -Line).Lines
-  Add-Result "HELPER" "install-skill.ps1" "PASS" "$lines lines"
-} else {
+$helperSrc  = Join-Path (Get-BundleRoot $PSScriptRoot) 'setup\install-skill.ps1'
+if (-not (Test-Path $helperPath)) {
   Add-Result "HELPER" "install-skill.ps1" "FAIL" "Missing"
+} elseif ((Test-Path $helperSrc) -and
+          ((Get-FileHash $helperPath).Hash -ne (Get-FileHash $helperSrc).Hash)) {
+  Add-Result "HELPER" "install-skill.ps1" "FAIL" "Stale - deployed copy differs from setup/install-skill.ps1 (re-run Phase 1b)"
+} else {
+  $lines = (Get-Content $helperPath | Measure-Object -Line).Lines
+  Add-Result "HELPER" "install-skill.ps1" "PASS" "$lines lines (matches repo)"
+}
+
+# Suppression baselines deployed next to the helper
+$baselineSrcDir = Join-Path (Get-BundleRoot $PSScriptRoot) 'baselines'
+$baselineDstDir = "$env:USERPROFILE\dev\baselines"
+if (Test-Path $baselineSrcDir) {
+  $srcCount = (Get-ChildItem $baselineSrcDir -Filter '*.baseline.yaml' -File).Count
+  $dstCount = if (Test-Path $baselineDstDir) {
+    (Get-ChildItem $baselineDstDir -Filter '*.baseline.yaml' -File).Count
+  } else { 0 }
+  if ($dstCount -lt $srcCount) {
+    Add-Result "BASELINES" "deployed" "FAIL" "$dstCount of $srcCount deployed to ~/dev/baselines"
+  } else {
+    Add-Result "BASELINES" "deployed" "PASS" "$dstCount baseline files"
+  }
 }
 
 # ============ AUDIT 7: SKILLSPECTOR RE-SCAN ============
