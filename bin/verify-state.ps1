@@ -3,11 +3,14 @@ $ErrorActionPreference = 'Stop'
 Initialize-BundlePath
 $script:failed = 0
 
-Write-Host '=== CLI CHECK (18) ==='
+Write-Host '=== CLI CHECK (20) ==='
+# This list must match the "CLIs" row in README.md. It previously stopped at 18 and
+# omitted `rea` and `git-wt`, so a missing REA CLI could never be detected while the
+# README still advertised it on PATH.
 $tools = @(
   'skillspector','skills-ref','specify','skillopt-eval','agent-reach','graphify',
   'markitdown','scrapling','uipro','firecrawl','gbrain','headroom',
-  'witr','semantica','loop','watch-skill','wigolo','ocr'
+  'witr','semantica','loop','watch-skill','wigolo','ocr','rea','git-wt'
 )
 $missing = @()
 foreach ($t in $tools) {

@@ -118,7 +118,19 @@ foreach ($s in $mcpServers) {
   } elseif ($outSize -gt 0) {
     Add-Result "MCP" "$($s.name) daemon" "PASS" "Exited early with output (out=${outSize}B, err=${errSize}B)"
   } elseif ($errSize -gt 0) {
-    Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, stderr=${errSize}B (see $errFile)"
+    # A single-writer daemon that is ALREADY running refuses a second instance. That is a
+    # healthy server, not a fault: verified 2026-10-28, `gbrain serve` (PGLite, one writer)
+    # exits 1 with "local database is already open ... PID <n>" whenever VS Code already
+    # holds the lock, which flipped a PASS into a spurious WARN between runs. Recognize the
+    # lock-contention message and treat it as evidence the server is up.
+    $errText = if (Test-Path $errFile) { Get-Content $errFile -Raw -ErrorAction SilentlyContinue } else { '' }
+    if ($errText -match 'already open|already running|\.gbrain-lock|address already in use|EADDRINUSE') {
+      $pidHit = [regex]::Match($errText, 'PID\s+(\d+)')
+      $who = if ($pidHit.Success) { "PID $($pidHit.Groups[1].Value)" } else { 'another process' }
+      Add-Result "MCP" "$($s.name) daemon" "PASS" "Already running ($who holds the single-writer lock)"
+    } else {
+      Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, stderr=${errSize}B (see $errFile)"
+    }
   } else {
     Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, no output within $($s.timeout)s"
   }

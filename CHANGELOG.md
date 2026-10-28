@@ -42,6 +42,29 @@ four places. All four are fixed in this commit; a fresh install now reconciles e
   `wtf`. The other 17 have genuine HIGH/CRITICAL findings and stay deliberately untracked.
 - **Counters:** manifest **275 → 278** (277 active + 1 disabled); `~/.agents/skills` **245 → 323**.
 
+### CLI/MCP claims were never reconciled (fixed 2026-10-28)
+
+The skills counts were gated, but the CLI and MCP counts were not — so README could advertise
+tools that did not exist and nothing would notice.
+
+- **`rea` and `git-wt` were advertised on PATH but absent.** README's "CLIs: 20" row named both,
+  yet `rea` was never installed and `worktrunk`/`git-wt` had never been provisioned, while
+  `verify-state.ps1` only checked **18** tools and therefore reported `RESULT: OK`. Installed
+  `rea-agents` (6.7.0, MCP verified staying up) and `max-sixty.worktrunk` via winget. `verify-state`
+  now checks all **20**, and `check-bundle-integrity.ps1` asserts that every CLI named in the
+  README row appears in that list and that the MCP count matches `mcp.json.template` (12). Proven
+  with a negative test: deleting `rea`/`git-wt` from `verify-state` now FAILs the gate.
+- **`full-audit` mis-read a healthy single-writer daemon as a fault.** `gbrain serve` uses PGLite,
+  which allows one writer, so when VS Code already holds the lock the probe's second instance exits
+  1 with "local database is already open ... PID <n>" — flipping PASS to WARN between runs for a
+  server that was demonstrably running. Lock-contention messages are now treated as proof the
+  daemon is up.
+
+- **`fast-audit` unioned its severity counts.** It printed one `WARN/ADVISORY/INFO` number, which
+  contradicts the repo's own rule that WARN and ADVISORY are reported separately and never as a
+  union — and it made the figure misleading, since it was almost entirely advisory `skills-ref`
+  noise. Now reports `PASS / FAIL / WARN / ADVISORY / INFO` independently, matching `full-audit`.
+
 ### Known-blocked (gate working as designed, not a defect)
 
 Three manifest rows resolve but the gate refuses them; they are counted in the 278 but not

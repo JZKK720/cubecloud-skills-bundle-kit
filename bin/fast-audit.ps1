@@ -167,12 +167,20 @@ $report += $r
 $report += ""
 $passCount = ($r | Where-Object { $_ -match "\| PASS \|" }).Count
 $failCount = ($r | Where-Object { $_ -match "\| FAIL \|" }).Count
-$warnCount = ($r | Where-Object { $_ -match "\| (WARN|ADVISORY|INFO) \|" }).Count
+# WARN and ADVISORY/INFO are counted SEPARATELY, matching full-audit.ps1. The old code
+# unioned them into one "WARN/ADVISORY/INFO" number, which contradicted the repo's own
+# reporting rule and made ~all of the count invisible: it was nearly entirely advisory
+# skills-ref validation noise, not real warnings.
+$warnCount = ($r | Where-Object { $_ -match "\| WARN \|" }).Count
+$advisoryCount = ($r | Where-Object { $_ -match "\| ADVISORY \|" }).Count
+$infoCount = ($r | Where-Object { $_ -match "\| INFO \|" }).Count
 $report += "## Summary"
 $report += ""
 $report += "- **PASS: $passCount**"
 $report += "- **FAIL: $failCount**"
-$report += "- **WARN/ADVISORY/INFO: $warnCount**"
+$report += "- **WARN: $warnCount**"
+$report += "- **ADVISORY: $advisoryCount**"
+$report += "- **INFO: $infoCount**"
 $report += ""
 $azureCount = ($skillDirs | Where-Object { $_.Name -match '^(azure|entra|microsoft|python-app|airunway|appinsights)' }).Count
 $newCount = $skillDirs.Count - $azureCount
@@ -189,4 +197,4 @@ $report += "MCP servers registered: $($mcp.servers.PSObject.Properties.Name -joi
 
 $report | Out-File -FilePath $reportFile -Encoding UTF8
 Write-Output "REPORT WRITTEN: $reportFile"
-Write-Output "PASS=$passCount FAIL=$failCount WARN=$warnCount"
+Write-Output "PASS=$passCount FAIL=$failCount WARN=$warnCount ADVISORY=$advisoryCount INFO=$infoCount"

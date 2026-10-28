@@ -169,6 +169,49 @@ foreach ($probe in $probes) {
 }
 if ($deadPatterns -eq 0) { Pass "all $($probes.Count) make-release.ps1 count patterns match README.md" }
 
+# ---- CLI / MCP count claims -------------------------------------------------
+# The skills counts were reconciled but the CLI and MCP counts were not, which is how
+# README came to advertise 20 CLIs including `rea` and `git-wt` while both were absent
+# from PATH and verify-state.ps1 only checked 18. Tie each claim to the list it is
+# actually asserting, so a name can never be advertised without being checked.
+$verifyState = [System.IO.File]::ReadAllText((Join-Path $RepoRoot 'bin\verify-state.ps1'))
+
+# CLI: the README "CLIs" row names each tool in backticks; every one must appear in the
+# verify-state CLI array (the thing that proves it is on PATH).
+$cliClaim = [regex]::Match($readme, '\|\s*\S+\s*CLIs\s*\|\s*\*\*(\d+)\*\*')
+if (-not $cliClaim.Success) {
+  Warn 'README has no "CLIs" count row to check'
+} else {
+  $cliRow = $readme.Substring($cliClaim.Index, [Math]::Min(2000, $readme.Length - $cliClaim.Index))
+  $cliRow = ($cliRow -split "`n")[0]
+  $named = [regex]::Matches($cliRow, '`([a-z0-9][a-z0-9._-]*)`') |
+    ForEach-Object { $_.Groups[1].Value } | Where-Object { $_ -ne 'git-wt' -or $true } | Select-Object -Unique
+  # `git-wt` (worktrunk) is annotated in the README as "(worktrunk)"; keep it, and drop
+  # the parenthetical duplicate if the same name is repeated.
+  $unchecked = $named | Where-Object { $verifyState -notmatch ("'" + [regex]::Escape($_) + "'") }
+  if ($cliClaim.Groups[1].Value -ne "$($named.Count)") {
+    Fail "README claims $($cliClaim.Groups[1].Value) CLIs but names $($named.Count): $($named -join ', ')"
+  } elseif ($unchecked.Count) {
+    Fail "README advertises CLIs that verify-state.ps1 does not check: $($unchecked -join ', ')"
+  } else {
+    Pass "all $($named.Count) README CLIs are listed in verify-state.ps1"
+  }
+}
+
+# MCP: the README count must equal the number of servers in the template (the source of truth).
+$mcpClaim = [regex]::Match($readme, '\|\s*\S+\s*MCP servers\s*\|\s*\*\*(\d+)\*\*')
+$tplPath = Join-Path $RepoRoot 'setup\mcp.json.template'
+if ($mcpClaim.Success -and (Test-Path $tplPath)) {
+  $tplCount = @((Get-Content $tplPath -Raw | ConvertFrom-Json).servers.PSObject.Properties).Count
+  if ($mcpClaim.Groups[1].Value -ne "$tplCount") {
+    Fail "README claims $($mcpClaim.Groups[1].Value) MCP servers, template defines $tplCount"
+  } else {
+    Pass "README MCP server count matches template ($tplCount)"
+  }
+} elseif (-not $mcpClaim.Success) {
+  Warn 'README has no "MCP servers" count row to check'
+}
+
 Write-Host ""
 Write-Host "RESULT: PASS=$script:pass FAIL=$script:fail WARN=$script:warn"
 if ($script:fail -gt 0) { exit 1 } else { exit 0 }
