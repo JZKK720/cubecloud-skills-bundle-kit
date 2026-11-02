@@ -80,6 +80,37 @@ All notable changes to the CubeCloud Skills Bundle.
   checked `git-wt` or `rea`, so their absence went unnoticed until this pass installed them.
   It now checks all 20, and the shared PATH prelude in `bin/lib/bundle-common.ps1` globs the
   versioned winget package dir so `git-wt` resolves in a fresh non-login shell.
+- **E2E audit pass: three environmental faults, each diagnosed and fixed at the source.**
+  The audit had been reporting 3 permanent WARNs; all three were real and none were bundle bugs.
+
+  1. **Dead `HTTP_PROXY` made the daemon probes lie.** `HTTP_PROXY=HTTPS_PROXY=http://127.0.0.1:7892`
+     is set in the parent shell but nothing listens there. Every `npx`/`uvx` launcher therefore
+     died with `error sending request for url (https://pypi.org/simple/...)` before reaching the
+     server — verified: markitdown exits in 18 s behind the dead proxy and stays up
+     indefinitely without it. `full-audit.ps1` now TCP-probes the configured proxy before the
+     daemon loop and drops it for the probes only (nothing is written back to the user's
+     environment), and labels the row as an environment fault rather than a bare
+     "exited early".
+  2. **`scrapling` was genuinely broken.** `scrapling[ai]` declares `mcp>=1.27.0` with **no upper
+     bound**, so it resolved `mcp 2.0.0`, which renamed `mcp.server.fastmcp` →
+     `mcp.server.mcpserver`; scrapling still imports the 1.x path and its MCP daemon died with
+     `ModuleNotFoundError: No module named 'mcp.server.fastmcp'`. Pinned `mcp<2` at install time
+     (a new `with = @(...)` field in `setup-global-skills.ps1`) and added the same re-pin to
+     `bin/safe-update-pass.ps1` — which is what re-broke it, since `uv tool upgrade --all`
+     happily crosses the major. Verified: `mcp 1.30.0`, `fastmcp OK`, daemon stays up.
+  3. **Mirror-parity WARN could never clear.** 27 Azure/Entra/Foundry skills are provisioned by
+     VS Code into `~/.agents/skills` only, so parity over them was permanent noise. Parity now
+     excludes them — but **only when they are not manifest rows**, because
+     `airunway-aks-setup` matches the extension prefix while being a real `local/*` row. That
+     distinction caught a genuine gap: it had been installed 2026-09-28 and never mirrored, so
+     it was repaired through the gated pipeline (`install-skill.ps1 -SourcePath`), which also
+     surfaced a frontmatter defect in it (`argument-hint` is not an allowed field).
+
+- **`PSObject.Properties.Count` returned `1 1 1 …` instead of a count.** In `full-audit`,
+  `fast-audit` and `final-audit` the MCP summary printed `Valid JSON, 1 1 1 1 1 1 1 1 1 1 1 1
+  servers` — member enumeration, not a scalar. Fixed with `@(...).Count` in all three; the
+  report now reads `12 servers`. This is the class of bug that makes a report untrustworthy
+  even when every verdict is correct.
 
 ## [1.9.19] - 2026-10-12
 

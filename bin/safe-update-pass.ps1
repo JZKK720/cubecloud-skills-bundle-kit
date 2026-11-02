@@ -88,6 +88,20 @@ Invoke-Logged "Repair skills-ref deterministically" {
   Write-OK "skills-ref reinstalled"
 }
 
+Invoke-Logged "Repair scrapling deterministically (mcp pinned < 2)" {
+  # scrapling[ai] declares `mcp>=1.27.0` with no upper bound. A plain `uv tool upgrade --all`
+  # therefore pulls mcp 2.x, which renamed `mcp.server.fastmcp` -> `mcp.server.mcpserver`;
+  # scrapling imports the 1.x path, so its MCP daemon dies on startup. The upgrade above is
+  # exactly what re-breaks it, so re-pin here every run. Verified 2026-11-02.
+  try { uv tool uninstall scrapling | Out-Null } catch {}
+  uv tool install --python 3.13 --with "mcp<2" "scrapling[ai]"
+  if ($LASTEXITCODE -ne 0) {
+    Write-Fail "scrapling reinstall failed"
+    exit 1
+  }
+  Write-OK "scrapling reinstalled with mcp < 2"
+}
+
 Invoke-Logged "Install headroom in isolated uv tool env (Python 3.12 guard)" {
   try { uv tool uninstall headroom-ai | Out-Null } catch {}
   uv tool install --python 3.12 "headroom-ai[proxy]"

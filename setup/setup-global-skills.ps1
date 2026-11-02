@@ -300,7 +300,12 @@ $pyTools = @(
   # graphifyy[mcp] installs as 'graphify' binary (not 'graphifyy')
   @{name = "graphifyy[mcp]"; pkg = "graphifyy[mcp]"; py = "3.13" },
   @{name = "markitdown[all]"; pkg = "markitdown[all]"; py = "3.13" },
-  @{name = "scrapling[ai]"; pkg = "scrapling[ai]"; py = "3.13" },
+  # scrapling[ai] declares `mcp>=1.27.0` with NO upper bound, so a fresh resolve picks up
+  # mcp 2.x, which renamed `mcp.server.fastmcp` -> `mcp.server.mcpserver`. scrapling still
+  # imports the 1.x path, so the MCP daemon dies on startup with
+  # "ModuleNotFoundError: No module named 'mcp.server.fastmcp'". Verified 2026-11-02.
+  # Pin below 2 until upstream widens/fixes the import.
+  @{name = "scrapling[ai]"; pkg = "scrapling[ai]"; py = "3.13"; with = @("mcp<2") },
   @{name = "headroom-ai[proxy]"; pkg = "headroom-ai[proxy]"; py = "3.12" },
   @{name = "watch-skill"; pkg = "git+https://github.com/oxbshw/watch-skill.git"; py = "3.13" },
   # semantica (semantica-agi/semantica, MIT): Python knowledge-graph library.
@@ -327,7 +332,10 @@ foreach ($t in $pyTools) {
     }
   }
   Write-Host "  Installing $($t.name)..." -NoNewline
-  cmd /c "uv tool install --python $pyVersion `"$($t.pkg)`" > `"$env:TEMP\install_$($t.name).log`" 2>&1"
+  # `with` pins transitive constraints (see the scrapling[ai] entry): a package whose
+  # dependency spec has no upper bound can resolve a major that breaks its own import.
+  $withArgs = if ($t.with) { ($t.with | ForEach-Object { "--with `"$_`"" }) -join ' ' } else { '' }
+  cmd /c "uv tool install --python $pyVersion $withArgs `"$($t.pkg)`" > `"$env:TEMP\install_$($t.name).log`" 2>&1"
   if ($LASTEXITCODE -eq 0) { Write-OK "" } else { Write-Fail "exit $LASTEXITCODE" }
 }
 

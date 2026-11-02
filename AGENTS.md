@@ -29,6 +29,20 @@ per skill → SKILL.md frontmatter check → `~/.claude/skills` mirror parity �
 existence → SkillSpector re-scan. Final line: `PASS: N | FAIL: N | WARN: N | ADVISORY: N`.
 WARN and ADVISORY are counted separately — report both, never a unioned count.
 
+The two WARN rows that were permanent until 2026-11-02 now clear, and both were real:
+- **MCP daemon WARN** — an unreachable `HTTP_PROXY` (inherited from the parent shell) makes
+  every `npx`/`uvx` launcher die with `error sending request`, before the server is reached.
+  That is the shell environment, not the bundle. The audit now labels it as such instead of
+  reporting a bare "exited early". `scrapling` had a *separate* real fault: `scrapling[ai]`
+  declares `mcp>=1.27.0` with no upper bound, so it resolved `mcp 2.x`, which renamed
+  `mcp.server.fastmcp` → `mcp.server.mcpserver` and broke the import. Pinned `mcp<2` in
+  `setup-global-skills.ps1` and `bin/safe-update-pass.ps1` (which is what re-broke it).
+- **MIRROR parity WARN** — 27 Azure/Entra/Foundry extension skills are provisioned by VS Code
+  into `~/.agents/skills` only, so they can never be mirrored. Parity now excludes them,
+  but **only when they are not manifest rows**: `airunway-aks-setup` matches the extension
+  prefix yet is a real `local/*` manifest row, and excluding it by prefix would have masked
+  the genuine gap that was just repaired by re-running `install-skill.ps1 -SourcePath`.
+
 For fast iterations when MCP daemons are irrelevant or would hang the run, `bin/fast-audit.ps1`
 is the same result-matrix minus daemon tests. For a quick global-state check,
 `bin/verify-state.ps1` is console-only (PASS/MISS/FAIL/INFO, exit 1 on failure) and reads the
