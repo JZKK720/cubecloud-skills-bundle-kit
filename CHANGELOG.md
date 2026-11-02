@@ -68,6 +68,18 @@ All notable changes to the CubeCloud Skills Bundle.
   provisioned number and the on-disk number separately, and the SETUP_GUIDE clone row lists the
   actual 11 single-repo clones instead of a stale set that included repos the installer never
   clones.
+- **`setup/skills-unmanaged.txt` + 4 new gate assertions.** The 39 unmanaged skills were
+  explained only in README prose, so drift was silent. `check-bundle-integrity.ps1` now asserts:
+  (a) every dir in `~/.agents/skills/` is a manifest row, extension skill, or allowlisted;
+  (b) no allowlist row is stale; (c) no duplicate allowlist entries; (d) the README's
+  per-disposition table matches the file. All four were verified by negative test — an
+  undocumented dir, a stale row, and a wrong README count each fail with exit 1.
+  Measured split: **22 `duplicate` / 9 `cli-owned` / 8 `hand-port`** (an earlier draft of this
+  block said 14/9/16, which is exactly the kind of guess the new assertion now catches).
+- **`verify-state.ps1` advertised `CLI CHECK (18)` against a README badge of 20.** It never
+  checked `git-wt` or `rea`, so their absence went unnoticed until this pass installed them.
+  It now checks all 20, and the shared PATH prelude in `bin/lib/bundle-common.ps1` globs the
+  versioned winget package dir so `git-wt` resolves in a fresh non-login shell.
 
 ## [1.9.19] - 2026-10-12
 

@@ -212,6 +212,25 @@ if (-not (Test-Path $skillsRoot)) {
   } else {
     Pass "no stale allowlist entries"
   }
+
+  # The README publishes a per-disposition breakdown of this allowlist. Assert it here so the
+  # table cannot drift the way the counts did before (it claimed 14/9/16 against a real 22/9/8).
+  $readmeText = [System.IO.File]::ReadAllText((Join-Path $RepoRoot 'README.md'))
+  $dispOf = @{}
+  foreach ($line in (Get-Content $unmanagedPath | Where-Object { $_ -match '\S' -and $_ -notmatch '^\s*#' })) {
+    $p = $line -split '\|'
+    if ($p.Count -ge 2 -and $p[1].Trim()) { $dispOf[$p[0].Trim()] = $p[1].Trim() }
+  }
+  $badDisp = 0
+  foreach ($d in @($dispOf.Values | Sort-Object -Unique)) {
+    $actual = @($dispOf.Keys | Where-Object { $dispOf[$_] -eq $d }).Count
+    $m = [regex]::Match($readmeText, "\| ``$([regex]::Escape($d))`` \| (\d+) \|")
+    if (-not $m.Success) { Warn "README has no disposition row for '$d' (actual $actual)"; continue }
+    if ($m.Groups[1].Value -ne "$actual") {
+      Fail "README says $($m.Groups[1].Value) '$d' entries, skills-unmanaged.txt has $actual"; $badDisp++
+    }
+  }
+  if ($badDisp -eq 0) { Pass "README disposition breakdown matches skills-unmanaged.txt" }
 }
 
 Write-Host ""

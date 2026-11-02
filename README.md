@@ -331,24 +331,33 @@ excluded"). Excluding them keeps the bundle coherent.
 
 Installed by earlier rounds, hand-ported, or provisioned by a CLI — present in
 `~/.agents/skills/` but carrying no `skills-list.csv` row, so `install-missing-skills.ps1`
-neither refreshes nor removes them. Verified 2026-11-02:
+neither refreshes nor removes them.
 
-`ar-autoresearch`, `commit-archaeologist`, `ecc-coding-standards`,
-`ecc-skill-development-guide`, `ecc-skill-scout`, `gbrain-eiirp`, `gbrain-skillify`,
-`gstack-investigate`, `gstack-plan-ceo-review`, `gstack-plan-design-review`,
-`gstack-plan-eng-review`, `gstack-qa`, `gstack-retro`, `gstack-review`, `headroom-workflow`,
-`huashu-design`, `karpathy-autoresearch`, `po-caveman`, `po-diagnose`, `po-grill-with-docs`,
-`po-improve-codebase-architecture`, `po-tdd`, `po-to-prd`, `po-write-a-skill`,
-`scope-creep-detector`, `sp-brainstorm`, `sp-debug`, `sp-execute`, `sp-finish-branch`,
-`sp-parallel`, `sp-plan`, `sp-receive-review`, `sp-request-review`, `sp-skill-first`,
-`sp-subagents`, `sp-tdd`, `sp-verify`, `sp-worktree`, `sp-write-skill`.
+**This set is now machine-checked, not prose.** [`setup/skills-unmanaged.txt`](setup/skills-unmanaged.txt)
+declares all 39 with a disposition (`hand-port`, `duplicate`, or `cli-owned`) and its
+provenance, and `bin/check-bundle-integrity.ps1` asserts the partition: every directory in
+`~/.agents/skills/` must be a manifest row, a VS Code extension skill, or an allowlisted entry.
+An undocumented directory **fails the gate** (`undocumented skill '<name>'`, exit 1), and an
+allowlist row whose skill no longer exists **also fails** (`stale`, exit 1). Both paths were
+verified by negative test.
+
+| Disposition | Count | What it is |
+| --- | --- | --- |
+| `duplicate` | 22 | Condensed Copilot adaptations of manifest-tracked skills that are already installed — `sp-tdd` is 74 lines against `test-driven-development`'s 371, and `sp-plan`/`sp-execute`/`sp-subagents`/`sp-write-skill` and the rest of the `sp-*` family follow the same pattern; `po-tdd` mirrors `test-driven-development`, `ecc-coding-standards` mirrors `coding-standards`, and `ecc-skill-*`/`po-*<methodology>` mirror `writing-skills`/`self-learning`/`grilling`/`improve`/`create-rfc` |
+| `cli-owned` | 9 | Written by a CLI rather than the manifest: `gstack-investigate`, `gstack-retro`, `gstack-qa`, `gstack-plan-ceo-review`, `gstack-plan-design-review`, `gstack-plan-eng-review`, `gbrain-eiirp`, `gbrain-skillify`, `headroom-workflow` |
+| `hand-port` | 8 | Authored or vendored in this repo, or surviving ports of gate-blocked upstreams: `gstack-review`, `ar-autoresearch`, `karpathy-autoresearch`, `commit-archaeologist`, `scope-creep-detector`, `huashu-design`, `sp-brainstorm`, `sp-verify` |
+
+Nothing was deleted, deliberately: 22 of the 39 are the Copilot-usable form of a skill the
+manifest already tracks, so deleting them would remove working capability while the original
+stays installed. The two genuine originals with no manifest equivalent are `sp-brainstorm`
+(`brainstorming`, whose upstream is gate-blocked — `idea-to-design` is the clean port) and
+`sp-verify` (`verification-before-completion`); these are the real candidates for a future
+manifest row.
 
 Six of these (`commit-archaeologist`, `gstack-review`, `huashu-design`,
 `scope-creep-detector`, `sp-receive-review`, `sp-request-review`) previously had manifest rows
 that were pruned when the gate blocked them; they survived on disk. The other 33 were never in
-the manifest at all. Either adopt them into `skills-list.csv` (so they get scanned and
-refreshed) or delete the directories — leaving them unadopted is the one state that silently
-drifts from the documented count.
+the manifest at all.
 
 ### CLIs installed
 
