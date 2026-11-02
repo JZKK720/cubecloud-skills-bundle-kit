@@ -1,6 +1,6 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 275 bundled skills (302 on disk), 20 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 275 bundled skills (338 on disk), 20 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
 
 [![Skills](https://img.shields.io/badge/skills-275%20bundled-2ea44f)](#what-you-get)
 [![CLIs](https://img.shields.io/badge/CLIs-20-blue)](#clis-installed)
@@ -22,11 +22,11 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **302** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **302** are bundle-installed from `skills-list.csv` (274 active + 1 disabled); the other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference, debug-openshell-cluster), and REA reverse-engineering (reverse-engineer-anything) |
-| 🅿️ Parked skills   | **14**  | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: 1 upstream-disabled (`caveman`) + 13 Copilot-incompatible (12 research-integrity forensics + retired `crucible`). Parked, not deleted — reversible by a directory move, see v1.9.10 |
+| 🧠 Skills on disk  | **338** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **275** are declared by `skills-list.csv` (274 active + 1 disabled); 272 are actually installed here because two rows are currently gate-blocked (below). The other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. The remaining **39** are pre-manifest hand ports carried forward from earlier rounds (see §"Skills on disk that are not in the manifest"): 272 + 27 + 39 = 338. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference — `debug-openshell-cluster` is gate-blocked), and REA reverse-engineering (reverse-engineer-anything) |
+| 🅿️ Parked skills   | **1**   | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover it: the upstream-disabled `caveman`. The 13 Copilot-incompatible forensics/crucible entries recorded in v1.9.10 are no longer on disk on this machine — they were never re-installed by any later manifest round, and a `caveman` re-install is the only write to `skills._disabled/` since. Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **20**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`, `git-wt` (worktrunk), `rea`                                                                                                                                               |
 | 🔌 MCP servers     | **12**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt, rea                                                                                                                                                                                  |
-| 📚 Fork mirrors    | **55**  | Read-only backups in `~/dev/forks/JZKK720/`, including VoltAgent/awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, cobusgreyling/loop-engineering, oxbshw/watch-skill, KnockOutEZ/wigolo, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, openai/skills, tech-leads-club/agent-skills, coreyhaines31/marketingskills, humanlayer/skills, kunchenguid/firstmate, blader/humanizer, petergyang/no-ai-slop, cathrynlavery/diagram-design, pbakaus/impeccable, wuyoscar/jev-skill, hardikpandya/stop-slop, aashaexo/soundshuman, asavvin-pixel/unslop, stephenturner/skill-deslop, ehmo/slopkit |
+| 📚 Fork mirrors    | **41**  | Read-only backups under `~/dev/forks/JZKK720/`. The installer provisions **41** (verified against `setup-global-skills.ps1`: 22 in `$forks`, 8 in `$evaluationMirrors`, 11 single-repo clones); **28** are present on this machine because a proxy-blocked clone is skipped rather than failed. Covers Gskills, ECC, agent-skills, agentskills, archify, awesome-design-md, book-to-skill, caveman, EverOS, firecrawl, gbrain, graphify, hallmark, huashu-design, improve, last30days-skill, llm_wiki, loop-engineering, markitdown, oz-skills, ponytail, Scrapling, semantica, spec-kit, superpowers, taste-skill, witr |
 | 🎨 DESIGN.md files | **74**  | Real-world design systems (Apple, Stripe, Linear, Vercel, Notion, Airbnb, Tesla…) indexed by the `design-md-library` skill                                                                                                                                                                                                                                                                      |
 | 🔒 Security-gated  | **yes** | Every skill scanned by SkillSpector before install; blocked upstreams are either ported clean or parked as comments with a per-skill reason code (see the blocked-skills table)                                                                                                                                                                                                                                                                                                                  |
 
@@ -114,15 +114,23 @@ winget install Microsoft.VisualStudioCode
 
 ### Skills (275 bundled — 274 active + 1 disabled)
 
-> **Why the README says 275 but the installer prints 302.** The installer ends with
+> **Why the README says 275 but the installer prints 338.** The installer ends with
 > `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that
 > folder — including the **27 skills VS Code installs itself** for the Azure, Entra, and
-> Foundry extensions. Those are already on disk on any normal install and the bundle neither
-> writes nor removes them (README §"Azure & cloud" below). 275 + 27 = 302. Both numbers are
-> correct; they just measure different sets.
+> Foundry extensions, plus **39 pre-manifest hand ports** carried forward from earlier rounds.
+> Those are already on disk on any normal install and the bundle neither writes nor removes
+> them (README §"Azure & cloud" and §"Skills on disk that are not in the manifest" below).
+> Of the 275 manifest rows, 272 are installed and 1 (`caveman`) is parked, so two never
+> reached disk because the gate blocked them (`ce-setup`, `debug-openshell-cluster`):
+> 272 + 27 + 39 = **338**. Both numbers are correct; they measure different sets.
 
-A further **45 gate-blocked entries** are parked as comments **inside** `skills-list.csv`
-(not installed, not counted above) with a per-skill reason code — see the blocked-skills table.
+A further **35 entries** are parked as comments **inside** `skills-list.csv` (not installed, not
+counted above) with a per-skill reason code — 10 gate-blocked, 5 curated-out or retired, and 20
+blocked for a second reason recorded inline. See the blocked-skills table.
+
+Two manifest rows blocked on this machine are documented in §"Blocked by SkillSpector" below,
+and the 39 installed skills that carry no manifest row are listed in
+§"Skills on disk that are not in the manifest".
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
 test-driven-development · systematic-debugging · writing-plans · executing-plans · subagent-driven-development · requesting-code-review · receiving-code-review · using-git-worktrees · finishing-a-development-branch · writing-skills · using-superpowers · dispatching-parallel-agents
@@ -242,6 +250,14 @@ Two independent implementations kept as complements. The bundle's `write-concise
 | diagram-design (upstream)  | HIGH AR2 — anti-refusal statement                                             | **Yes** → `diagram-design` (port)       |
 | jev (wuyoscar/jev-skill)   | HIGH E2 env-var harvesting in scripts/jev.py, plus the executable-scripts flag | **Yes** -> jev (prose-only port) |
 
+**Blocked on this machine (2026-11-02 install pass)** — rows that remain in the manifest because
+their upstreams still install cleanly elsewhere, documented rather than commented out:
+
+| Skill | Verdict | Blocked by |
+| --- | --- | --- |
+| `ce-setup` (EveryInc/compound-engineering-plugin) | 80/100 **HIGH** | HIGH `E2` env-variable harvesting, HIGH `EA2` autonomous decision making, MEDIUM `AST4` `subprocess` calls, MEDIUM `TT2` tainted flow, MEDIUM `RP1` unpinned `npx` |
+| `debug-openshell-cluster` (NVIDIA/OpenShell) | 63/100 **HIGH** | HIGH `PE3` credential access, HIGH `MP3` memory manipulation, MEDIUM `PE2` sudo/root execution, MEDIUM `RA2` session persistence, MEDIUM `RP1` untagged `docker run` |
+
 **Added v1.8.0 — blocked or high-risk entries found in the 14-repo evaluation:**
 
 | Skill(s)                        | Source repo                                | Blocked by                                                    |
@@ -310,6 +326,29 @@ excluded"). Excluding them keeps the bundle coherent.
 | `marketingskills` platform set (ads, emails, sms, social, video, …)              | Platform-specific execution; general marketing discipline was taken instead |
 | `marketingskills` `tools/` tree (60+ scripts)                                    | Optional third-party integration surface — should not land on a user machine silently |
 | `openai/skills` `.system` (5 skills)                                             | Blocked/high-risk **and** Codex-internal (they describe Codex's own skill system) |
+
+### Skills on disk that are not in the manifest (39)
+
+Installed by earlier rounds, hand-ported, or provisioned by a CLI — present in
+`~/.agents/skills/` but carrying no `skills-list.csv` row, so `install-missing-skills.ps1`
+neither refreshes nor removes them. Verified 2026-11-02:
+
+`ar-autoresearch`, `commit-archaeologist`, `ecc-coding-standards`,
+`ecc-skill-development-guide`, `ecc-skill-scout`, `gbrain-eiirp`, `gbrain-skillify`,
+`gstack-investigate`, `gstack-plan-ceo-review`, `gstack-plan-design-review`,
+`gstack-plan-eng-review`, `gstack-qa`, `gstack-retro`, `gstack-review`, `headroom-workflow`,
+`huashu-design`, `karpathy-autoresearch`, `po-caveman`, `po-diagnose`, `po-grill-with-docs`,
+`po-improve-codebase-architecture`, `po-tdd`, `po-to-prd`, `po-write-a-skill`,
+`scope-creep-detector`, `sp-brainstorm`, `sp-debug`, `sp-execute`, `sp-finish-branch`,
+`sp-parallel`, `sp-plan`, `sp-receive-review`, `sp-request-review`, `sp-skill-first`,
+`sp-subagents`, `sp-tdd`, `sp-verify`, `sp-worktree`, `sp-write-skill`.
+
+Six of these (`commit-archaeologist`, `gstack-review`, `huashu-design`,
+`scope-creep-detector`, `sp-receive-review`, `sp-request-review`) previously had manifest rows
+that were pruned when the gate blocked them; they survived on disk. The other 33 were never in
+the manifest at all. Either adopt them into `skills-list.csv` (so they get scanned and
+refreshed) or delete the directories — leaving them unadopted is the one state that silently
+drifts from the documented count.
 
 ### CLIs installed
 
@@ -405,8 +444,8 @@ cubecloud-skills-bundle-kit/          # git clone target — run installers from
 │   ├── mcp.json.template             # 12 MCP server config
 │   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
 │   └── SETUP_GUIDE.md                # detailed guide
-├── bin/                              # 27 audit / fix / install helper scripts
-├── upstream/                         # governance docs (SCAN_LOG, audits) + 51 hand-authored port skills
+├── bin/                              # 28 audit / fix / install helper scripts
+├── upstream/                         # governance docs (SCAN_LOG, audits) + 53 hand-authored port skills
 ├── docs/  plans/                     # design notes and integration plans
 ├── Update-Skills.ps1                 # thin CSV-driven wrapper (legacy)
 ├── AGENTS.md  CHANGELOG.md  LICENSE

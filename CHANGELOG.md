@@ -2,9 +2,9 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
-## [Unreleased] — 2026-10-12
+## [Unreleased] — 2026-11-02
 
-### Audit baselines, `-NoPush`, REA smoke test
+### Audit baselines, `-NoPush`, REA smoke test (2026-10-12)
 
 - **Audit scripts now apply suppression baselines** (`Resolve-SkillBaseline` in
   `bin/lib/bundle-common.ps1`). They previously re-scanned with a bare `skillspector scan`, so
@@ -22,6 +22,52 @@ All notable changes to the CubeCloud Skills Bundle.
   now 20 (adds `rea`).
 - **New:** `upstream/REA_SMOKE_TEST.md` — REA verified end-to-end (CLI `rea@6.4.0`, MCP handshake,
   and a real `inspect-pe-resources` run) plus how to drive REA from VS Code Copilot Chat.
+
+### Upstream fast-forward to v1.9.19 + manifest reconciliation
+
+- **Fast-forwarded `main` 29 commits to `origin/main` @ `9e707eb`** (v1.9.15 → v1.9.19). Tree was
+  clean and `HEAD` was a strict ancestor, so the merge was a fast-forward; a
+  `backup/pre-sync-<timestamp>` branch was created first. Incoming work: suppression baselines
+  applied by every audit script, `check-bundle-integrity.ps1`, atomic skill installs, `-NoPush`
+  release staging, REA integration, and the v1.9.15–v1.9.19 skill batches.
+- **Installed the 20 new manifest rows** (`install-missing-skills.ps1`): 17 installed,
+  2 gate-blocked, 1 already parked. Added on this machine: `laya`, `humanize`, `stop-slop`,
+  `unslop`, `deslop`, the mattpocock series (`grilling`, `grill-me`, `handoff`,
+  `writing-for-agents`, `wizard`, `retro`, `domain-modeling`, `codebase-design`), the NVIDIA
+  OpenShell series (`openshell-cli`, `generate-sandbox-policy`, `debug-inference`), and
+  `reverse-engineer-anything`.
+- **Two rows blocked by the SkillSpector hard gate, documented rather than dropped:**
+  `ce-setup` 80/100 HIGH (E2 env harvesting, EA2 autonomous decisions, AST4 subprocess, TT2
+  tainted flow, RP1 unpinned npx) and `debug-openshell-cluster` 63/100 HIGH (PE3 credential
+  access, MP3 memory manipulation, PE2 sudo/root, RA2 session persistence, RP1 untagged docker).
+- **`User/mcp.json` had drifted to a single gallery server.** Merged the 12-server bundle
+  template back in (12 present, verified by `verify-state.ps1` / `verify-global-bundle.ps1`).
+  The keyless template `firecrawl` entry was dropped in favour of the existing gallery
+  `firecrawl/firecrawl-mcp-server` entry, which already supplies `FIRECRAWL_API_KEY` — keeping
+  both would have launched the server twice.
+- **Refreshed the deployed helper + baselines**: `~/dev/bin/install-skill.ps1` was the pre-merge
+  copy (7.5 KB vs 12.1 KB) and `~/dev/baselines/` did not exist, so a helper invoked outside the
+  repo could not find a suppression baseline. Both now match the repo (31 baselines deployed).
+- **Corrected the on-disk/parked counters to measured reality.** `~/.agents/skills/` holds
+  **338** dirs = 272 manifest-installed + 27 VS Code extension skills + **39 pre-manifest hand
+  ports** that carry no manifest row (so nothing scans, refreshes, or removes them).
+  `skills._disabled/` holds **1** (`caveman`), not 14 — the 13 forensics/crucible entries from
+  v1.9.10 are no longer on disk. README gained §"Skills on disk that are not in the manifest"
+  listing all 39 so the state is visible instead of inferred.
+- **Removed a dead count pattern from `make-release.ps1`.** The
+  `**N** are bundle-installed` pair was duplicated in the `$pairs` array and matched nothing in
+  README, so it silently did nothing. `check-bundle-integrity.ps1` now probes 7 live patterns
+  instead of 8, and both files agree.
+- **Restored two missing CLIs** so the advertised set of 20 is actually on PATH: `rea` 6.7.0
+  (`npm i -g rea-agents`) and `git-wt` / `wt` 0.81.0 (`winget install max-sixty.worktrunk`).
+  Both were declared by `setup-global-skills.ps1` and the README badge but absent from PATH.
+- **Corrected the fork-mirror count to 41, verified against the installer.** The README and
+  SETUP_GUIDE claimed 55. `setup-global-skills.ps1` provisions 22 (`$forks`) + 8
+  (`$evaluationMirrors`) + 11 single-repo clones = **41**; 28 are present on this machine
+  because proxy-blocked clones are skipped rather than failed. Both documents now state the
+  provisioned number and the on-disk number separately, and the SETUP_GUIDE clone row lists the
+  actual 11 single-repo clones instead of a stale set that included repos the installer never
+  clones.
 
 ## [1.9.19] - 2026-10-12
 
