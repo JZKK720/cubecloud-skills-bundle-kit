@@ -3,11 +3,11 @@ $ErrorActionPreference = 'Stop'
 Initialize-BundlePath
 $script:failed = 0
 
-Write-Host '=== CLI CHECK (18) ==='
+Write-Host '=== CLI CHECK (20) ==='
 $tools = @(
   'skillspector','skills-ref','specify','skillopt-eval','agent-reach','graphify',
   'markitdown','scrapling','uipro','firecrawl','gbrain','headroom',
-  'witr','semantica','loop','watch-skill','wigolo','ocr'
+  'witr','semantica','loop','watch-skill','wigolo','ocr','git-wt','rea'
 )
 $missing = @()
 foreach ($t in $tools) {

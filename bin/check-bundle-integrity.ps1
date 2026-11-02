@@ -168,6 +168,52 @@ foreach ($probe in $probes) {
 }
 if ($deadPatterns -eq 0) { Pass "all $($probes.Count) make-release.ps1 count patterns match README.md" }
 
+Write-Host "`n=== 5. Unmanaged-skill allowlist ==="
+# The on-disk skill count was only ever explained in README prose, so nothing failed when a
+# directory appeared that had no manifest row. Assert the partition here instead: every dir in
+# ~/.agents/skills/ must be a manifest row, a VS Code extension skill, or a declared unmanaged
+# skill. Any fourth category means the documented count is drifting again.
+#
+# This section is repo-independent: on a machine with no ~/.agents/skills it reports SKIP, so
+# the CI runner (which only has the repo) is unaffected. The extension-skill prefix list is
+# duplicated from the README §"Azure & cloud"; it is a fixed external set, not a moving one.
+$unmanagedPath = Join-Path $RepoRoot 'setup\skills-unmanaged.txt'
+$skillsRoot = Join-Path $env:USERPROFILE '.agents\skills'
+if (-not (Test-Path $skillsRoot)) {
+  Write-Host 'SKIP ~/.agents/skills not present (repo-only checkout)'
+} elseif (-not (Test-Path $unmanagedPath)) {
+  Fail "setup\skills-unmanaged.txt missing - unmanaged skills cannot be asserted"
+} else {
+  $allowRows = Get-Content $unmanagedPath |
+    Where-Object { $_ -match '\S' -and $_ -notmatch '^\s*#' } |
+    ForEach-Object { ($_ -split '\|')[0].Trim() } |
+    Where-Object { $_ }
+
+  $allowDupes = $allowRows | Group-Object | Where-Object Count -gt 1
+  if ($allowDupes) { $allowDupes | ForEach-Object { Fail "duplicate allowlist entry '$($_.Name)' x$($_.Count)" } }
+  else { Pass "unmanaged allowlist parses cleanly ($($allowRows.Count) rows, no duplicates)" }
+
+  $extPattern = '^(azure-|entra-|discover-azure|microsoft-foundry|python-appservice-deploy|airunway-aks-setup|appinsights-instrumentation)'
+  $onDisk = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name })
+  $undeclared = @($onDisk | Where-Object {
+    $names -notcontains $_ -and $allowRows -notcontains $_ -and $_ -notmatch $extPattern
+  })
+  if ($undeclared.Count -gt 0) {
+    foreach ($u in $undeclared) {
+      Fail "undocumented skill '$u' (not a manifest row, extension skill, or skills-unmanaged.txt entry)"
+    }
+  } else {
+    Pass "every dir in ~/.agents/skills/ is manifest, extension, or allowlisted ($($onDisk.Count) dirs)"
+  }
+
+  $staleAllow = @($allowRows | Where-Object { $onDisk -notcontains $_ -and $names -notcontains $_ })
+  if ($staleAllow.Count -gt 0) {
+    foreach ($s in $staleAllow) { Fail "allowlist entry '$s' is not on disk and not a manifest row (stale)" }
+  } else {
+    Pass "no stale allowlist entries"
+  }
+}
+
 Write-Host ""
 Write-Host "RESULT: PASS=$script:pass FAIL=$script:fail WARN=$script:warn"
 if ($script:fail -gt 0) { exit 1 } else { exit 0 }

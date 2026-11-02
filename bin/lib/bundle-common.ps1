@@ -11,8 +11,16 @@ gallery-tolerant name normalization). Keep behavior identical when refactoring c
 
 # Prepend the tool install locations to PATH for this process. Mirrors the prelude the
 # standalone verify scripts each set inline. The witr entry is optional and harmless if absent.
+# worktrunk (winget) installs `git-wt`/`wt` into a versioned package dir that the installer
+# adds to the *persisted user* PATH; a fresh non-login shell does not pick that up, so the
+# package dir is globbed here (winget embeds the source in the folder name, so it is not a
+# stable literal).
 function Initialize-BundlePath {
   $env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.bun\bin;$env:APPDATA\npm;$env:LOCALAPPDATA\Programs\witr;$env:PATH"
+  $worktrunk = Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages') -Directory -Filter 'max-sixty.worktrunk*' -ErrorAction SilentlyContinue | Select-Object -First 1
+  if ($worktrunk -and $env:PATH -notlike "*$($worktrunk.FullName)*") {
+    $env:PATH = "$($worktrunk.FullName);$env:PATH"
+  }
   $env:PYTHONUTF8 = '1'
 }
 
