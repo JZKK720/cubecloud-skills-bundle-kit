@@ -111,16 +111,25 @@ foreach ($s in $mcpServers) {
   $proc = [System.Diagnostics.Process]::Start($psi)
   $aliveBeforeTimeout = -not $proc.WaitForExit($s.timeout * 1000)
 
+  # Sample the log sizes BEFORE reaping. Stop-Tree kills the real server (e.g. scrapling's
+  # python child) mid-write, and anyio then flushes an "Exception Group Traceback" into the
+  # already-redirected stderr file. Measuring afterwards therefore reports the audit's own
+  # teardown as though it were the server's output - `scrapling` read 6047B on every run while
+  # an identical probe without the kill wrote 0B. Verified 2026-11-02.
+  $outSize = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
+  $errSize = if (Test-Path $errFile) { (Get-Item $errFile).Length } else { 0 }
+  $errHead = if ($errSize -gt 0) {
+    (Get-Content $errFile -EA SilentlyContinue | Where-Object { $_ -match '\S' } | Select-Object -First 1) -replace '\|','/'
+  } else { '' }
+
   # Always reap the whole tree: on timeout it stops the leak, and on a fast exit it
   # cleans up any launcher grandchild that outlived the shell.
   Stop-Tree -ProcessId $proc.Id
 
-  $outSize = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
-  $errSize = if (Test-Path $errFile) { (Get-Item $errFile).Length } else { 0 }
-
   if ($aliveBeforeTimeout) {
     # Server was still up when the timeout fired == it started and stayed up.
-    Add-Result "MCP" "$($s.name) daemon" "PASS" "Started OK, still up at $($s.timeout)s (out=${outSize}B, err=${errSize}B)"
+    $errNote = if ($errSize -gt 0) { ", err=${errSize}B: $errHead" } else { '' }
+    Add-Result "MCP" "$($s.name) daemon" "PASS" "Started OK, still up at $($s.timeout)s (out=${outSize}B$errNote)"
   } elseif ($outSize -gt 0) {
     Add-Result "MCP" "$($s.name) daemon" "PASS" "Exited early with output (out=${outSize}B, err=${errSize}B)"
   } elseif ($errSize -gt 0) {
@@ -133,7 +142,8 @@ foreach ($s in $mcpServers) {
       $proxyVal = if ($env:HTTPS_PROXY) { $env:HTTPS_PROXY } else { $env:HTTP_PROXY }
       Add-Result "MCP" "$($s.name) daemon" "WARN" "Launcher could not reach the network (dead proxy '$proxyVal') - not a server fault; see $errFile"
     } else {
-      Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, stderr=${errSize}B (see $errFile)"
+      $firstErr = (Get-Content $errFile -EA SilentlyContinue | Where-Object { $_ -match '\S' } | Select-Object -First 1) -replace '\|','/'
+      Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, stderr=${errSize}B: $firstErr (see $errFile)"
     }
   } else {
     Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, no output within $($s.timeout)s"

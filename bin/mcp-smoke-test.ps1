@@ -8,6 +8,36 @@ $reportDir = Split-Path -Parent $reportFile
 if (-not (Test-Path $reportDir)) { New-Item -ItemType Directory -Path $reportDir -Force | Out-Null }
 $results = @()
 
+# A dead proxy in the parent shell makes every npx/uvx/npm probe die with
+# "error sending request for url (...)" before the package manager reaches the registry - and
+# makes `npm view` and `npx -y` hang until the timeout. That is an environment fault, not a
+# server fault, so drop the proxy for the probes when it cannot be reached. Only the probes are
+# affected; nothing is written back to the user's environment. Kept in step with full-audit.ps1,
+# which had the same blind spot. Verified 2026-11-02.
+$proxyOverride = $false
+$proxyToTest = if ($env:HTTPS_PROXY) { $env:HTTPS_PROXY } elseif ($env:HTTP_PROXY) { $env:HTTP_PROXY } else { $null }
+if ($proxyToTest) {
+  try {
+    $u = [System.Uri]$proxyToTest
+    $tcp = New-Object System.Net.Sockets.TcpClient
+    $connected = $tcp.ConnectAsync($u.Host, $u.Port).Wait(1500)
+    $tcp.Close()
+    if (-not $connected) {
+      $proxyOverride = $true
+      $results += "| _environment_ | WARN | proxy '$proxyToTest' unreachable - probes ran with it dropped |"
+    }
+  } catch {
+    $proxyOverride = $true
+    $results += "| _environment_ | WARN | proxy '$proxyToTest' unusable - probes ran with it dropped |"
+  }
+}
+if ($proxyOverride) {
+  $env:HTTP_PROXY = ''
+  $env:HTTPS_PROXY = ''
+  $env:ALL_PROXY = ''
+  $env:NO_PROXY = '*'
+}
+
 $servers = @(
   @{name="markitdown"; cmd="uvx"; args="markitdown-mcp@latest --help"; timeout=30},
   @{name="skillspector"; cmd="skillspector"; args="--help"; timeout=15},

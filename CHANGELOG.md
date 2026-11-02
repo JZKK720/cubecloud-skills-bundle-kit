@@ -111,6 +111,25 @@ All notable changes to the CubeCloud Skills Bundle.
   servers` — member enumeration, not a scalar. Fixed with `@(...).Count` in all three; the
   report now reads `12 servers`. This is the class of bug that makes a report untrustworthy
   even when every verdict is correct.
+- **The daemon probe measured its own teardown.** `full-audit` read `errSize` *after*
+  `Stop-Tree`, which kills scrapling's python child mid-write; anyio then flushed an
+  `Exception Group Traceback` into the already-redirected stderr file. `scrapling` therefore
+  reported `err=6047B` on **every** run while an identical probe without the tree-kill wrote
+  `0B` — so the audit was reporting itself. Log sizes are now sampled before reaping, and the
+  report prints the first stderr line, so the next reader does not have to hunt for dead logs
+  the way this pass had to. Result: `scrapling` reads `out=0B` (clean).
+- **`mcp-smoke-test.ps1` covered all 12 MCP servers and was not proxy-aware**, so it reported
+  `PASS=9 FAIL=3` while `full-audit` passed the same servers — `markitdown` and `rea` failed on
+  the dead proxy and `firecrawl` timed out. Given the same proxy detection as `full-audit`.
+  It covers 12 servers where `full-audit` probes 6, which is how it caught the next item.
+- **The `SkillOpt` fork mirror did not exist**, so the `skillopt` MCP server pointed at a
+  missing script (`can't open file '...\dev\forks\JZKK720\SkillOpt\plugins\copilot\skillopt\
+  mcp_server.py'`). `full-audit` never probed `skillopt`, so this was invisible to the
+  canonical audit. Cloned the mirror; the server now resolves.
+
+**End-to-end result: `mcp-smoke-test.ps1` PASS=12 FAIL=0** (every one of the 12 configured MCP
+servers), `full-audit` PASS=42 FAIL=0, with the single WARN being the accurate statement that
+the machine's proxy is unreachable.
 
 ## [1.9.19] - 2026-10-12
 
