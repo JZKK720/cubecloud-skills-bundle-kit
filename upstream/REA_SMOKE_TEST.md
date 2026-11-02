@@ -1,4 +1,4 @@
-# REA smoke test — 2026-10-12
+# REA smoke test — 2026-10-12, re-verified 2026-11-02
 
 Scope: verify the three REA pieces bundled in v1.9.18/v1.9.19 actually work on this machine, and
 record how to use them from VS Code Copilot Chat.
@@ -7,10 +7,17 @@ record how to use them from VS Code Copilot Chat.
 
 | Piece | Result | Evidence |
 |---|---|---|
-| `rea` CLI | **PASS** | `rea@6.4.0` — 100+ subcommands (native / JS-ASAR / Android APK / firmware / PE / EVM / browser) |
-| `rea` MCP server | **PASS** | stdio `initialize` → `serverInfo {name: rea, version: 6.4.0}`, protocol `2024-11-05`, capabilities: `completions, prompts, tools` |
-| `reverse-engineer-anything` skill | **installed** | `~/.agents/skills/reverse-engineer-anything/` (7 files), `SCAN_LOG.md` `pass (exit 0)`, `ref:valid` |
-| Functional analysis | **PASS** | `inspect-pe-resources notepad.exe` → evidence `ev_f13a3ffd…`, sha256 `468ffe12…`, `pe32-plus`, machine 34404, **39 directories / 31 resources / 4 icon groups** |
+| `rea` CLI | **PASS** | `rea@6.7.0` CLI, MCP server reports `6.8.0` — 229 MCP tools (native / JS-ASAR / Android APK / firmware / PE / EVM / browser) |
+| `rea` MCP server | **PASS** | stdio `initialize` → `serverInfo {name: rea, version: 6.8.0}, 229 tools`, protocol `2024-11-05`, capabilities: `completions, prompts, tools` |
+| `reverse-engineer-anything` skill | **installed** | `~/.agents/skills/reverse-engineer-anything/` (1 SKILL.md + 7 references), `SCAN_LOG.md` `pass (exit 0)`, `ref:valid` |
+| Functional analysis | **PASS** | `inspect_pe_resources notepad.exe` → evidence `ev_657bcac2…`, sha256 `468ffe12…`, `x86_64` — re-verified 2026-11-02 over MCP |
+
+Re-verified 2026-11-02 on `rea@6.8.0`: `initialize` returns `{name: rea, version: 6.8.0}` with
+**229 tools**, and a live `tools/call` of `inspect_pe_resources` on
+`C:\Windows\System32\notepad.exe` returned status `ok` in 24 ms with evidence
+`ev_657bcac233de63c3…` and sha256 `468ffe129c395abf…`. Both `npx.cmd` (the documented Windows
+form) and the plain `npx` used by `%APPDATA%\Code\User\mcp.json` reach the server, so VS Code
+spawns it correctly.
 
 The MCP handshake used `npx.cmd` (the `.cmd` shim is required on Windows when spawning from
 Python; `npx` without the extension is not an executable file and fails with `WinError 2`).
