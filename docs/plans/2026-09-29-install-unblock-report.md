@@ -12,7 +12,7 @@ Plan [001](../../plans/001-local-addon-sourcepaths.md) criteria all validated.
 | --- | --- |
 | Phase 4 install | `Installed: 226, Blocked: 31, Skipped (already present): 0` (of 257 manifest rows) |
 | Claude mirror parity | 226 = 226 (perfect) |
-| `skills._disabled/` | 14 folders on disk (1 upstream `caveman` + 13 Copilot-incompatible clean ports). The 2026-09-29 pass recorded 1; the other 13 were parked in later rounds. |
+| `~/.agents/skills/` | 338 dirs on this machine (272 manifest + 27 extension + 39 pre-manifest ports). `skills._disabled/` holds 1 (`caveman`); the 13 Copilot-incompatible clean ports recorded in v1.9.10 are no longer on disk here. |
 | Forks / archify shim / model pins(4 editors) / governance docs | all ✅ |
 | Known non-blocker | Defender exclusion not set (needs admin); `headroom` installed anyway |
 

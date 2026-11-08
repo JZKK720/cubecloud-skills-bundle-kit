@@ -11,7 +11,7 @@ function Add-Row($cat, $item, $verdict, $detail) {
 # === MCP JSON ===
 try {
   $mcp = Get-Content "$env:USERPROFILE\AppData\Roaming\Code\User\mcp.json" -Raw | ConvertFrom-Json
-  $sc = $mcp.servers.PSObject.Properties.Count
+  $sc = @($mcp.servers.PSObject.Properties).Count
   Add-Row "MCP" "mcp.json" "PASS" "Valid JSON, $sc servers"
   foreach ($p in $mcp.servers.PSObject.Properties) {
     Add-Row "MCP" "$($p.Name)" "PASS" "type=$($p.Value.type) cmd=$($p.Value.command) args=$($p.Value.args -join ',')"

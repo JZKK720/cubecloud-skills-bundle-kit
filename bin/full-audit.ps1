@@ -84,6 +84,28 @@ $mcpServers = @(
   @{name="graphify"; cmd="graphify-mcp"; args="--transport stdio"; timeout=15}
 )
 
+# Detect a dead proxy before probing daemons. A proxy that accepts no TCP connection makes
+# every npx/uvx launcher fail with "error sending request" - the server never runs, so the
+# probe would report a fault that has nothing to do with the bundle. Verified 2026-11-02:
+# markitdown dies in 18s behind a dead proxy and stays up indefinitely without one.
+$script:probeProxyOverride = $false
+$proxyToTest = if ($env:HTTPS_PROXY) { $env:HTTPS_PROXY } elseif ($env:HTTP_PROXY) { $env:HTTP_PROXY } else { $null }
+if ($proxyToTest) {
+  try {
+    $u = [System.Uri]$proxyToTest
+    $tcp = New-Object System.Net.Sockets.TcpClient
+    $connected = $tcp.ConnectAsync($u.Host, $u.Port).Wait(1500)
+    $tcp.Close()
+    if (-not $connected) {
+      $script:probeProxyOverride = $true
+      Add-Result "MCP" "proxy" "WARN" "'$proxyToTest' is unreachable - daemon probes run with the proxy dropped (environment fault, not a bundle fault)"
+    }
+  } catch {
+    $script:probeProxyOverride = $true
+    Add-Result "MCP" "proxy" "WARN" "'$proxyToTest' is unusable ($($_.Exception.Message)) - daemon probes run with the proxy dropped"
+  }
+}
+
 foreach ($s in $mcpServers) {
   $outFile = Join-Path $env:TEMP "audit_mcp_$($s.name)_$runId.log"
   $errFile = Join-Path $env:TEMP "audit_mcp_$($s.name)_${runId}_err.log"
@@ -102,19 +124,40 @@ foreach ($s in $mcpServers) {
   $psi.EnvironmentVariables["PATH"] = $env:PATH
   $psi.EnvironmentVariables["PYTHONUTF8"] = "1"
 
+  # A dead proxy in the parent shell makes every npx/uvx launcher die with
+  # "error sending request for url (...)" before the server is ever reached. That is an
+  # environment fault, not a bundle fault, so drop the proxy for the probe rather than
+  # reporting a WARN the reader cannot act on. Only the probe is affected - nothing is
+  # written back to the user's environment.
+  if ($script:probeProxyOverride) {
+    foreach ($k in @('HTTP_PROXY','HTTPS_PROXY','ALL_PROXY')) {
+      if ($psi.EnvironmentVariables.ContainsKey($k)) { $psi.EnvironmentVariables.Remove($k) | Out-Null }
+      $psi.EnvironmentVariables[$k] = ''
+    }
+  }
+
   $proc = [System.Diagnostics.Process]::Start($psi)
   $aliveBeforeTimeout = -not $proc.WaitForExit($s.timeout * 1000)
+
+  # Sample the log sizes BEFORE reaping. Stop-Tree kills the real server (e.g. scrapling's
+  # python child) mid-write, and anyio then flushes an "Exception Group Traceback" into the
+  # already-redirected stderr file. Measuring afterwards therefore reports the audit's own
+  # teardown as though it were the server's output - `scrapling` read 6047B on every run while
+  # an identical probe without the kill wrote 0B. Verified 2026-11-02.
+  $outSize = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
+  $errSize = if (Test-Path $errFile) { (Get-Item $errFile).Length } else { 0 }
+  $errHead = if ($errSize -gt 0) {
+    (Get-Content $errFile -EA SilentlyContinue | Where-Object { $_ -match '\S' } | Select-Object -First 1) -replace '\|','/'
+  } else { '' }
 
   # Always reap the whole tree: on timeout it stops the leak, and on a fast exit it
   # cleans up any launcher grandchild that outlived the shell.
   Stop-Tree -ProcessId $proc.Id
 
-  $outSize = if (Test-Path $outFile) { (Get-Item $outFile).Length } else { 0 }
-  $errSize = if (Test-Path $errFile) { (Get-Item $errFile).Length } else { 0 }
-
   if ($aliveBeforeTimeout) {
     # Server was still up when the timeout fired == it started and stayed up.
-    Add-Result "MCP" "$($s.name) daemon" "PASS" "Started OK, still up at $($s.timeout)s (out=${outSize}B, err=${errSize}B)"
+    $errNote = if ($errSize -gt 0) { ", err=${errSize}B: $errHead" } else { '' }
+    Add-Result "MCP" "$($s.name) daemon" "PASS" "Started OK, still up at $($s.timeout)s (out=${outSize}B$errNote)"
   } elseif ($outSize -gt 0) {
     Add-Result "MCP" "$($s.name) daemon" "PASS" "Exited early with output (out=${outSize}B, err=${errSize}B)"
   } elseif ($errSize -gt 0) {
@@ -128,8 +171,12 @@ foreach ($s in $mcpServers) {
       $pidHit = [regex]::Match($errText, 'PID\s+(\d+)')
       $who = if ($pidHit.Success) { "PID $($pidHit.Groups[1].Value)" } else { 'another process' }
       Add-Result "MCP" "$($s.name) daemon" "PASS" "Already running ($who holds the single-writer lock)"
+    } elseif ($errText -match 'error sending request|proxy|Could not connect|ECONNREFUSED') {
+      $proxyVal = if ($env:HTTPS_PROXY) { $env:HTTPS_PROXY } else { $env:HTTP_PROXY }
+      Add-Result "MCP" "$($s.name) daemon" "WARN" "Launcher could not reach the network (dead proxy '$proxyVal') - not a server fault; see $errFile"
     } else {
-      Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, stderr=${errSize}B (see $errFile)"
+      $firstErr = (Get-Content $errFile -EA SilentlyContinue | Where-Object { $_ -match '\S' } | Select-Object -First 1) -replace '\|','/'
+      Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, stderr=${errSize}B: $firstErr (see $errFile)"
     }
   } else {
     Add-Result "MCP" "$($s.name) daemon" "WARN" "Exited early, no output within $($s.timeout)s"
@@ -223,10 +270,27 @@ if ($missingSkillMd.Count -eq 0) {
 # ============ AUDIT 5: CLAUDE CODE MIRROR PARITY ============
 $agentsSkills = Get-ChildItem $skillsDir -Directory | Select-Object -ExpandProperty Name
 $claudeSkills = Get-ChildItem "$env:USERPROFILE\.claude\skills" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
-$notMirrored = $agentsSkills | Where-Object { $_ -notin $claudeSkills }
-$extraInClaude = $claudeSkills | Where-Object { $_ -notin $agentsSkills }
+# VS Code provisions these for the Azure/Entra/Foundry extensions and writes only to
+# ~/.agents/skills. They are absent from the Claude mirror by design, so asserting parity over
+# them produced a WARN that could never clear - which trains the reader to ignore the WARN row.
+#
+# The prefix alone is not enough: `airunway-aks-setup` and `python-appservice-deploy` match the
+# prefix BUT are real manifest rows that must be mirrored. A name is only extension-exempt when
+# it is not a manifest row, otherwise excluding it would mask a genuine mirroring gap.
+$extSkillPattern = '^(azure-|entra-|discover-azure|microsoft-foundry|python-appservice-deploy|airunway-aks-setup|appinsights-instrumentation)'
+$manifestCsv = Get-BundleRoot $PSScriptRoot
+$manifestNames = @()
+if ($manifestCsv) {
+  $manifestNames = Get-Content (Join-Path $manifestCsv 'setup\skills-list.csv') |
+    Where-Object { $_ -match '\S' -and $_ -notmatch '^\s*#' } |
+    ForEach-Object { ($_ -split '\|')[1].Trim() }
+}
+$mirrorExpected = @($agentsSkills | Where-Object { $_ -notmatch $extSkillPattern -or $manifestNames -contains $_ })
+$extSkills = @($agentsSkills | Where-Object { $mirrorExpected -notcontains $_ })
+$notMirrored = @($mirrorExpected | Where-Object { $_ -notin $claudeSkills })
+$extraInClaude = @($claudeSkills | Where-Object { $_ -notin $agentsSkills })
 if ($notMirrored.Count -eq 0) {
-  Add-Result "MIRROR" "Parity" "PASS" "All $($agentsSkills.Count) skills mirrored to Claude Code"
+  Add-Result "MIRROR" "Parity" "PASS" "All $($mirrorExpected.Count) mirrorable skills present in Claude Code ($($extSkills.Count) extension skills excluded by design)"
 } else {
   Add-Result "MIRROR" "Parity" "WARN" "Not mirrored: $($notMirrored -join ', ')"
 }

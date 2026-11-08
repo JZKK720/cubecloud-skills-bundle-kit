@@ -2,7 +2,7 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
-## [Unreleased] — 2026-10-28
+## [Unreleased] — 2026-11-02
 
 ### End-to-end upstream re-verification: 4 tool defects fixed, 76 skills brought current
 
@@ -112,9 +112,7 @@ installed. Each needs an operator-reviewed baseline before it can be tracked:
 `ce-setup` (HIGH `PE3`/`E2` in its own scripts) and `debug-openshell-cluster` (HIGH `PE3`/`MP3`).
 (`reverse-engineer-anything` was in this list and is now unblocked — see above.)
 
-## [Unreleased] — 2026-10-12
-
-### Audit baselines, `-NoPush`, REA smoke test
+### Audit baselines, `-NoPush`, REA smoke test (2026-10-12)
 
 - **Audit scripts now apply suppression baselines** (`Resolve-SkillBaseline` in
   `bin/lib/bundle-common.ps1`). They previously re-scanned with a bare `skillspector scan`, so
@@ -132,6 +130,114 @@ installed. Each needs an operator-reviewed baseline before it can be tracked:
   now 20 (adds `rea`).
 - **New:** `upstream/REA_SMOKE_TEST.md` — REA verified end-to-end (CLI `rea@6.4.0`, MCP handshake,
   and a real `inspect-pe-resources` run) plus how to drive REA from VS Code Copilot Chat.
+
+### Upstream fast-forward to v1.9.19 + manifest reconciliation
+
+- **Fast-forwarded `main` 29 commits to `origin/main` @ `9e707eb`** (v1.9.15 → v1.9.19). Tree was
+  clean and `HEAD` was a strict ancestor, so the merge was a fast-forward; a
+  `backup/pre-sync-<timestamp>` branch was created first. Incoming work: suppression baselines
+  applied by every audit script, `check-bundle-integrity.ps1`, atomic skill installs, `-NoPush`
+  release staging, REA integration, and the v1.9.15–v1.9.19 skill batches.
+- **Installed the 20 new manifest rows** (`install-missing-skills.ps1`): 17 installed,
+  2 gate-blocked, 1 already parked. Added on this machine: `laya`, `humanize`, `stop-slop`,
+  `unslop`, `deslop`, the mattpocock series (`grilling`, `grill-me`, `handoff`,
+  `writing-for-agents`, `wizard`, `retro`, `domain-modeling`, `codebase-design`), the NVIDIA
+  OpenShell series (`openshell-cli`, `generate-sandbox-policy`, `debug-inference`), and
+  `reverse-engineer-anything`.
+- **Two rows blocked by the SkillSpector hard gate, documented rather than dropped:**
+  `ce-setup` 80/100 HIGH (E2 env harvesting, EA2 autonomous decisions, AST4 subprocess, TT2
+  tainted flow, RP1 unpinned npx) and `debug-openshell-cluster` 63/100 HIGH (PE3 credential
+  access, MP3 memory manipulation, PE2 sudo/root, RA2 session persistence, RP1 untagged docker).
+- **`User/mcp.json` had drifted to a single gallery server.** Merged the 12-server bundle
+  template back in (12 present, verified by `verify-state.ps1` / `verify-global-bundle.ps1`).
+  The keyless template `firecrawl` entry was dropped in favour of the existing gallery
+  `firecrawl/firecrawl-mcp-server` entry, which already supplies `FIRECRAWL_API_KEY` — keeping
+  both would have launched the server twice.
+- **Refreshed the deployed helper + baselines**: `~/dev/bin/install-skill.ps1` was the pre-merge
+  copy (7.5 KB vs 12.1 KB) and `~/dev/baselines/` did not exist, so a helper invoked outside the
+  repo could not find a suppression baseline. Both now match the repo (31 baselines deployed).
+- **Corrected the on-disk/parked counters to measured reality.** `~/.agents/skills/` holds
+  **338** dirs = 272 manifest-installed + 27 VS Code extension skills + **39 pre-manifest hand
+  ports** that carry no manifest row (so nothing scans, refreshes, or removes them).
+  `skills._disabled/` holds **1** (`caveman`), not 14 — the 13 forensics/crucible entries from
+  v1.9.10 are no longer on disk. README gained §"Skills on disk that are not in the manifest"
+  listing all 39 so the state is visible instead of inferred.
+- **Removed a dead count pattern from `make-release.ps1`.** The
+  `**N** are bundle-installed` pair was duplicated in the `$pairs` array and matched nothing in
+  README, so it silently did nothing. `check-bundle-integrity.ps1` now probes 7 live patterns
+  instead of 8, and both files agree.
+- **Restored two missing CLIs** so the advertised set of 20 is actually on PATH: `rea` 6.7.0
+  (`npm i -g rea-agents`) and `git-wt` / `wt` 0.81.0 (`winget install max-sixty.worktrunk`).
+  Both were declared by `setup-global-skills.ps1` and the README badge but absent from PATH.
+- **Corrected the fork-mirror count to 41, verified against the installer.** The README and
+  SETUP_GUIDE claimed 55. `setup-global-skills.ps1` provisions 22 (`$forks`) + 8
+  (`$evaluationMirrors`) + 11 single-repo clones = **41**; 28 are present on this machine
+  because proxy-blocked clones are skipped rather than failed. Both documents now state the
+  provisioned number and the on-disk number separately, and the SETUP_GUIDE clone row lists the
+  actual 11 single-repo clones instead of a stale set that included repos the installer never
+  clones.
+- **`setup/skills-unmanaged.txt` + 4 new gate assertions.** The 39 unmanaged skills were
+  explained only in README prose, so drift was silent. `check-bundle-integrity.ps1` now asserts:
+  (a) every dir in `~/.agents/skills/` is a manifest row, extension skill, or allowlisted;
+  (b) no allowlist row is stale; (c) no duplicate allowlist entries; (d) the README's
+  per-disposition table matches the file. All four were verified by negative test — an
+  undocumented dir, a stale row, and a wrong README count each fail with exit 1.
+  Measured split: **22 `duplicate` / 9 `cli-owned` / 8 `hand-port`** (an earlier draft of this
+  block said 14/9/16, which is exactly the kind of guess the new assertion now catches).
+- **`verify-state.ps1` advertised `CLI CHECK (18)` against a README badge of 20.** It never
+  checked `git-wt` or `rea`, so their absence went unnoticed until this pass installed them.
+  It now checks all 20, and the shared PATH prelude in `bin/lib/bundle-common.ps1` globs the
+  versioned winget package dir so `git-wt` resolves in a fresh non-login shell.
+- **E2E audit pass: three environmental faults, each diagnosed and fixed at the source.**
+  The audit had been reporting 3 permanent WARNs; all three were real and none were bundle bugs.
+
+  1. **Dead `HTTP_PROXY` made the daemon probes lie.** `HTTP_PROXY=HTTPS_PROXY=http://127.0.0.1:7892`
+     is set in the parent shell but nothing listens there. Every `npx`/`uvx` launcher therefore
+     died with `error sending request for url (https://pypi.org/simple/...)` before reaching the
+     server — verified: markitdown exits in 18 s behind the dead proxy and stays up
+     indefinitely without it. `full-audit.ps1` now TCP-probes the configured proxy before the
+     daemon loop and drops it for the probes only (nothing is written back to the user's
+     environment), and labels the row as an environment fault rather than a bare
+     "exited early".
+  2. **`scrapling` was genuinely broken.** `scrapling[ai]` declares `mcp>=1.27.0` with **no upper
+     bound**, so it resolved `mcp 2.0.0`, which renamed `mcp.server.fastmcp` →
+     `mcp.server.mcpserver`; scrapling still imports the 1.x path and its MCP daemon died with
+     `ModuleNotFoundError: No module named 'mcp.server.fastmcp'`. Pinned `mcp<2` at install time
+     (a new `with = @(...)` field in `setup-global-skills.ps1`) and added the same re-pin to
+     `bin/safe-update-pass.ps1` — which is what re-broke it, since `uv tool upgrade --all`
+     happily crosses the major. Verified: `mcp 1.30.0`, `fastmcp OK`, daemon stays up.
+  3. **Mirror-parity WARN could never clear.** 27 Azure/Entra/Foundry skills are provisioned by
+     VS Code into `~/.agents/skills` only, so parity over them was permanent noise. Parity now
+     excludes them — but **only when they are not manifest rows**, because
+     `airunway-aks-setup` matches the extension prefix while being a real `local/*` row. That
+     distinction caught a genuine gap: it had been installed 2026-09-28 and never mirrored, so
+     it was repaired through the gated pipeline (`install-skill.ps1 -SourcePath`), which also
+     surfaced a frontmatter defect in it (`argument-hint` is not an allowed field).
+
+- **`PSObject.Properties.Count` returned `1 1 1 …` instead of a count.** In `full-audit`,
+  `fast-audit` and `final-audit` the MCP summary printed `Valid JSON, 1 1 1 1 1 1 1 1 1 1 1 1
+  servers` — member enumeration, not a scalar. Fixed with `@(...).Count` in all three; the
+  report now reads `12 servers`. This is the class of bug that makes a report untrustworthy
+  even when every verdict is correct.
+- **The daemon probe measured its own teardown.** `full-audit` read `errSize` *after*
+  `Stop-Tree`, which kills scrapling's python child mid-write; anyio then flushed an
+  `Exception Group Traceback` into the already-redirected stderr file. `scrapling` therefore
+  reported `err=6047B` on **every** run while an identical probe without the tree-kill wrote
+  `0B` — so the audit was reporting itself. Log sizes are now sampled before reaping, and the
+  report prints the first stderr line, so the next reader does not have to hunt for dead logs
+  the way this pass had to. Result: `scrapling` reads `out=0B` (clean).
+- **`mcp-smoke-test.ps1` covered all 12 MCP servers and was not proxy-aware**, so it reported
+  `PASS=9 FAIL=3` while `full-audit` passed the same servers — `markitdown` and `rea` failed on
+  the dead proxy and `firecrawl` timed out. Given the same proxy detection as `full-audit`.
+  It covers 12 servers where `full-audit` probes 6, which is how it caught the next item.
+- **The `SkillOpt` fork mirror did not exist**, so the `skillopt` MCP server pointed at a
+  missing script (`can't open file '...\dev\forks\JZKK720\SkillOpt\plugins\copilot\skillopt\
+  mcp_server.py'`). `full-audit` never probed `skillopt`, so this was invisible to the
+  canonical audit. Cloned the mirror; the server now resolves.
+
+**End-to-end result: `mcp-smoke-test.ps1` PASS=12 FAIL=0** (every one of the 12 configured MCP
+servers), `full-audit` PASS=42 FAIL=0, with the single WARN being the accurate statement that
+the machine's proxy is unreachable.
 
 ## [1.9.19] - 2026-10-12
 

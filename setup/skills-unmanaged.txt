@@ -1,0 +1,72 @@
+# Skills present in ~/.agents/skills/ that intentionally have NO skills-list.csv row.
+#
+# Format: <name>|<disposition>|<note>
+#   disposition: hand-port   - authored/vendored in upstream/, already gated when written
+#                duplicate   - superseded by a manifest-tracked skill that is installed
+#                cli-owned   - written by a CLI (gbrain/gstack/headroom/skillopt), not by the manifest
+#
+# Why this file exists: until 2026-11-02 the on-disk count (338) was explained only in
+# README prose, so nothing failed when a new orphan appeared. `check-bundle-integrity.ps1`
+# now asserts that every directory in ~/.agents/skills/ is either a manifest row, a
+# VS Code extension skill, or a row in THIS file. Adding a skill to the bundle without a
+# manifest row therefore fails the gate instead of silently skewing the documented count.
+#
+# Every row below was verified on 2026-11-02 by reading the installed SKILL.md
+# `metadata.source` + `metadata.source_skill`. `duplicate` rows were additionally verified
+# to have a manifest-tracked, currently-installed equivalent.
+
+# --- superpowers Copilot adaptations -------------------------------------------------
+# These are condensed, Copilot-side rewrites of obra/superpowers skills (74 vs 371 lines for
+# sp-tdd) whose originals ARE manifest-tracked and installed. They are kept because the
+# adaptation is the Copilot-usable form; they are not a second copy of the same file.
+sp-tdd|duplicate|test-driven-development (74 vs 371 lines)
+sp-debug|duplicate|systematic-debugging (81 vs 296 lines)
+sp-plan|duplicate|writing-plans (104 vs 174 lines)
+sp-execute|duplicate|executing-plans (99 vs 70 lines)
+sp-subagents|duplicate|subagent-driven-development (118 vs 418 lines)
+sp-request-review|duplicate|requesting-code-review (82 vs 103 lines)
+sp-receive-review|duplicate|receiving-code-review (86 vs 213 lines)
+sp-worktree|duplicate|using-git-worktrees (113 vs 202 lines)
+sp-finish-branch|duplicate|finishing-a-development-branch (129 vs 241 lines)
+sp-write-skill|duplicate|writing-skills (140 vs 689 lines)
+sp-skill-first|duplicate|using-superpowers (71 vs 62 lines)
+sp-parallel|duplicate|dispatching-parallel-agents (106 vs 185 lines)
+
+# --- unique, no manifest equivalent --------------------------------------------------
+# brainstorming and verification-before-completion are NOT manifest rows: brainstorming was
+# gate-blocked and re-shipped as the clean port `idea-to-design`; verification-before-completion
+# has no upstream row. These two are the only genuinely un-adopted originals in the set -
+# candidates for a future manifest row rather than deletion.
+sp-brainstorm|hand-port|brainstorming (upstream gate-blocked; idea-to-design is the clean port)
+sp-verify|hand-port|verification-before-completion (no manifest equivalent)
+
+# --- other superpowers / ECC adaptations ---------------------------------------------
+po-tdd|duplicate|test-driven-development (132 vs 371 lines)
+ecc-coding-standards|duplicate|coding-standards (131 vs 551 lines)
+ecc-skill-development-guide|duplicate|writing-skills (skill-authoring methodology)
+ecc-skill-scout|duplicate|self-learning (skill-discovery methodology)
+po-caveman|duplicate|caveman (caveman is manifest-tracked + parked; po-caveman is the active form)
+po-diagnose|duplicate|systematic-debugging (diagnosis methodology)
+po-grill-with-docs|duplicate|grilling (mattpocock grilling, manifest row)
+po-improve-codebase-architecture|duplicate|improve (module-depth refactor lens)
+po-write-a-skill|duplicate|writing-skills (SKILL.md authoring)
+po-to-prd|duplicate|create-rfc (artifact-authoring lens)
+
+# --- CLI-provisioned (written by a tool, never by the manifest) ----------------------
+gstack-review|hand-port|authored in this bundle (README documents it as a custom implementation)
+gstack-investigate|cli-owned|JZKK720/gstack
+gstack-retro|cli-owned|JZKK720/gstack (also overlaps manifest `retro`)
+gstack-qa|cli-owned|JZKK720/gstack (also overlaps `quality-gates`)
+gstack-plan-ceo-review|cli-owned|JZKK720/gstack
+gstack-plan-design-review|cli-owned|JZKK720/gstack
+gstack-plan-eng-review|cli-owned|JZKK720/gstack
+gbrain-eiirp|cli-owned|JZKK720/gbrain
+gbrain-skillify|cli-owned|JZKK720/gbrain
+headroom-workflow|cli-owned|JZKK720/headroom (the `headroom` CLI is on PATH; no skill row exists)
+
+# --- research / design / vendor ports ------------------------------------------------
+ar-autoresearch|hand-port|JZKK720/autoresearch (karpathy harness, see also karpathy-autoresearch)
+karpathy-autoresearch|hand-port|karpathy/autoresearch (repo-specific harness guidance)
+commit-archaeologist|hand-port|Shubhamsaboo/awesome-llm-apps (gate-blocked, survived on disk)
+scope-creep-detector|hand-port|Shubhamsaboo/awesome-llm-apps (gate-blocked, survived on disk)
+huashu-design|hand-port|alchaincyf/huashu-design (gate-blocked for sharp==0.34.5; kept from an earlier round)
