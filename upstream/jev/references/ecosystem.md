@@ -28,7 +28,7 @@ For benchmark context see [WindTunnel's separate harnesses](x-intake-2026-09-20.
 Use it for bounded macOS app or browser interactions in an existing Codex CUA
 runtime. Prepared typing values stay local; Jev chooses among allowed controls.
 Requires Codex plugin support, Node 22+, Python 3.10+ and a TypeSafe key. Follow
-its marketplace/setup instructions; installing our `jev-ui` skill does not
+its marketplace/setup instructions; installing our `jev-act` skill does not
 install this plugin. The author reports integration samples and offline tests,
 explicitly not a controlled speedup. Sensitive controls return to the host.
 
