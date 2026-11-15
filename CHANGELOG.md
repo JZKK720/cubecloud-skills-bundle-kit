@@ -2,7 +2,7 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
-## [Unreleased] — 2026-11-02
+## [1.9.20] - 2026-11-15
 
 ### Manifest: drop removed-upstream `jev-ui`/`jev-simulation`, add `jev-act` (2026-11-15)
 
