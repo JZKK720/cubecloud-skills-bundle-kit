@@ -1,8 +1,8 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 275 bundled skills (338 on disk), 20 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 274 bundled skills (337 on disk), 20 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
 
-[![Skills](https://img.shields.io/badge/skills-275%20bundled-2ea44f)](#what-you-get)
+[![Skills](https://img.shields.io/badge/skills-274%20bundled-2ea44f)](#what-you-get)
 [![CLIs](https://img.shields.io/badge/CLIs-20-blue)](#clis-installed)
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-12-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
@@ -22,7 +22,7 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **338** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **275** are declared by `skills-list.csv` (274 active + 1 disabled); 272 are actually installed here because two rows are currently gate-blocked (below). The other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. The remaining **39** are pre-manifest hand ports carried forward from earlier rounds (see §"Skills on disk that are not in the manifest"): 272 + 27 + 39 = 338. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference — `debug-openshell-cluster` is gate-blocked), and REA reverse-engineering (reverse-engineer-anything) |
+| 🧠 Skills on disk  | **337** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **274** are declared by `skills-list.csv` (273 active + 1 disabled); 271 are actually installed here because two rows are currently gate-blocked (below). The other **27** ship with VS Code's Azure / Entra / Foundry extensions and are already present on a normal install — the installer neither writes nor removes them. The remaining **39** are pre-manifest hand ports carried forward from earlier rounds (see §"Skills on disk that are not in the manifest"): 271 + 27 + 39 = 337. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, huashu-design, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference — `debug-openshell-cluster` is gate-blocked), and REA reverse-engineering (reverse-engineer-anything) |
 | 🅿️ Parked skills   | **1**   | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover it: the upstream-disabled `caveman`. The 13 Copilot-incompatible forensics/crucible entries recorded in v1.9.10 are no longer on disk on this machine — they were never re-installed by any later manifest round, and a `caveman` re-install is the only write to `skills._disabled/` since. Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **20**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`, `git-wt` (worktrunk), `rea`                                                                                                                                               |
 | 🔌 MCP servers     | **12**  | Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt, rea                                                                                                                                                                                  |
@@ -48,7 +48,7 @@ graph TB
         EXT["extensions · presets · bundles"]
     end
 
-    subgraph L2["LAYER 2 — Skills (275 bundled)"]
+    subgraph L2["LAYER 2 — Skills (274 bundled)"]
         direction LR
         METH["superpowers (12)"] --> COPILOT["VS Code Copilot Chat"]
         DSN["design systems (74)"] --> COPILOT
@@ -112,17 +112,17 @@ winget install Microsoft.VisualStudioCode
 
 ## What's included
 
-### Skills (275 bundled — 274 active + 1 disabled)
+### Skills (274 bundled — 273 active + 1 disabled)
 
-> **Why the README says 275 but the installer prints 338.** The installer ends with
+> **Why the README says 274 but the installer prints 337.** The installer ends with
 > `(Get-ChildItem ~/.agents/skills -Directory).Count`, which counts *everything* in that
 > folder — including the **27 skills VS Code installs itself** for the Azure, Entra, and
 > Foundry extensions, plus **39 pre-manifest hand ports** carried forward from earlier rounds.
 > Those are already on disk on any normal install and the bundle neither writes nor removes
 > them (README §"Azure & cloud" and §"Skills on disk that are not in the manifest" below).
-> Of the 275 manifest rows, 272 are installed and 1 (`caveman`) is parked, so two never
+> Of the 274 manifest rows, 271 are installed and 1 (`caveman`) is parked, so two never
 > reached disk because the gate blocked them (`ce-setup`, `debug-openshell-cluster`):
-> 272 + 27 + 39 = **338**. Both numbers are correct; they measure different sets.
+> 271 + 27 + 39 = **337**. Both numbers are correct; they measure different sets.
 
 A further **35 entries** are parked as comments **inside** `skills-list.csv` (not installed, not
 counted above) with a per-skill reason code — 10 gate-blocked, 5 curated-out or retired, and 20
@@ -449,7 +449,7 @@ cubecloud-skills-bundle-kit/          # git clone target — run installers from
 ├── setup/                            # the one-command installer + config
 │   ├── setup-global-skills.ps1       # master installer (run this)
 │   ├── install-skill.ps1             # security-gated skill install helper
-│   ├── skills-list.csv               # manifest of 275 entries (274 active + 1 disabled)
+│   ├── skills-list.csv               # manifest of 274 entries (273 active + 1 disabled)
 │   ├── mcp.json.template             # 12 MCP server config
 │   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
 │   └── SETUP_GUIDE.md                # detailed guide
@@ -995,8 +995,7 @@ a timeout is not a failure: ~122 s is the MCP smoke test, and the dominant cost 
 1. **`jev-skill` family** (wuyoscar/jev-skill, MIT, 324★) — Jev returns **typed decisions**
    (`choice` / `noul` / `score`) over a caller-supplied `state`, `questions` and `criteria`. It
    does not browse, execute tools or generate prose; the host agent still plans, acts and
-   verifies. Six skills: `jev` (router), `jev-triage`, `jev-documents`, `jev-eval`, `jev-ui`,
-   `jev-simulation`.
+   verifies. Five skills: `jev` (router), `jev-triage`, `jev-documents`, `jev-eval`, `jev-act`.
 
    **Five install directly from upstream and pass the gate cleanly. The general `jev` router is
    HARD-BLOCKED upstream** — exit 1, risk 80/100, `DO NOT INSTALL`. Exact cause: the

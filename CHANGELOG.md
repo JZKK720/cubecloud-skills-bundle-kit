@@ -4,6 +4,16 @@ All notable changes to the CubeCloud Skills Bundle.
 
 ## [Unreleased] — 2026-11-02
 
+### Manifest: drop removed-upstream `jev-ui`/`jev-simulation`, add `jev-act` (2026-11-15)
+
+- **`setup/skills-list.csv`**: `jev-ui` and `jev-simulation` were removed from `wuyoscar/jev-skill`
+  upstream (HEAD now ships `jev`, `jev-act`, `jev-documents`, `jev-eval`, `jev-triage`), so their
+  manifest rows had no installable source and always fell through as "source missing". Dropped both
+  and added `jev-act` (current upstream companion; SkillSpector `--no-llm` exit 0 / LOW, no baseline
+  needed). Manifest **275 → 274** (273 active + 1 disabled); reconciled every count across
+  `README.md`, `AGENTS.md` and `setup/SETUP_GUIDE.md` (on-disk 338 → 337, installed 272 → 271) so
+  `bin/check-bundle-integrity.ps1` stays green.
+
 ### Audit baselines, `-NoPush`, REA smoke test (2026-10-12)
 
 - **Audit scripts now apply suppression baselines** (`Resolve-SkillBaseline` in

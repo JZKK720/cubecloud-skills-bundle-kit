@@ -422,11 +422,11 @@ local/diagram-design|diagram-design||upstream/diagram-design
 # Jev returns typed decisions - choice / noul (independent yes-no) / score - over a
 # caller-supplied state, questions and criteria. It does NOT browse, execute tools
 # or generate prose; the host agent still plans, acts and verifies. Collection
-# covers bulk triage, document evidence, evaluation, UI control and simulation.
+# covers bulk triage, document evidence, evaluation and action selection.
 # Fork mirror: ~/dev/forks/JZKK720/jev-skill/
 #
-# GATE SPLIT (2026-09-21). Five of the six skills PASS SkillSpector --no-llm cleanly
-# and install directly from upstream. The sixth, the general `jev` skill, is
+# GATE SPLIT (2026-09-21). Four of the five skills PASS SkillSpector --no-llm cleanly
+# and install directly from upstream. The fifth, the general `jev` skill, is
 # HARD-BLOCKED (exit 1, risk 80/100, DO NOT INSTALL) and is installed as a local
 # prose-only port instead:
 #
@@ -470,8 +470,7 @@ local/laya|laya||upstream/laya
 JZKK720/jev-skill|jev-triage|skills/jev-triage|
 JZKK720/jev-skill|jev-documents|skills/jev-documents|
 JZKK720/jev-skill|jev-eval|skills/jev-eval|
-JZKK720/jev-skill|jev-ui|skills/jev-ui|
-JZKK720/jev-skill|jev-simulation|skills/jev-simulation|
+JZKK720/jev-skill|jev-act|skills/jev-act|
 # --- claudex (formerly crucible; chaseai-yt, MIT, 1.2k★): cross-model adversarial plan hardening ---
 # UPSTREAM RENAME (2026-09-06, commit a027430 "rebrand: crucible -> claudex-loop"):
 #   skills/crucible  ->  skills/claudex-loop   (legacy /crucible trigger kept in its description)
