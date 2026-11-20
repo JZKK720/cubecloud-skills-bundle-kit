@@ -35,8 +35,13 @@ foreach ($c in $clis) {
 }
 
 # === SKILLS SPEC VALIDATION (skills-ref) ===
+# Hidden directories under ~/.agents/skills are NOT skills. A `.backup-*` staging folder was
+# being counted as one, which produced a permanent SKILL.md FAIL and a permanent MIRROR WARN
+# that could never clear. Count every directory so the counters stay comparable to README,
+# but only validate the visible ones.
 $skillsDir = "$env:USERPROFILE\.agents\skills"
-$skillDirs = Get-ChildItem $skillsDir -Directory
+$allSkillDirs = Get-ChildItem $skillsDir -Directory -Force
+$skillDirs = $allSkillDirs | Where-Object { -not $_.Name.StartsWith('.') }
 $validN = 0; $advN = 0
 $advList = @()
 foreach ($sd in $skillDirs) {
@@ -52,7 +57,7 @@ foreach ($sd in $skillDirs) {
     $advList += "$($sd.Name): $($firstIssue.Trim())"
   }
 }
-Add-Row "SKILLS-REF" "Summary" "INFO" "Valid: $validN, Advisory: $advN (out of $($skillDirs.Count))"
+Add-Row "SKILLS-REF" "Summary" "INFO" "Valid: $validN, Advisory: $advN (out of $($skillDirs.Count) skills; $($allSkillDirs.Count) directories on disk)"
 if ($advN -gt 0 -and $advN -le 10) {
   foreach ($a in $advList) { Add-Row "SKILLS-REF" $a.Split(':')[0] "ADVISORY" ($a.Split(':',2)[1].Trim()) }
 }
@@ -77,11 +82,19 @@ if ($missingDesc.Count -eq 0) { Add-Row "SKILL-FILE" "description field" "PASS" 
 else { Add-Row "SKILL-FILE" "description field" "FAIL" "Missing: $($missingDesc -join ', ')" }
 
 # === CLAUDE MIRROR PARITY ===
+# VS Code provisions Azure/Entra/Foundry extension skills into ~/.agents/skills only, so they
+# can never be mirrored; a name is exempt only when it is NOT a manifest row (airunway-aks-setup
+# and python-appservice-deploy match the prefix but are real rows that must be mirrored).
+# Same rule as full-audit.ps1, kept in sync deliberately - the two audits must agree.
 $agentsSkills = $skillDirs.Name
+$manifestNames = @(Get-Content (Join-Path (Get-BundleRoot $PSScriptRoot) 'setup\skills-list.csv') |
+  Where-Object { $_ -match '\S' -and $_ -notmatch '^\s*#' } | ForEach-Object { ($_ -split '\|')[1].Trim() })
+$extSkillPattern = '^(azure-|entra-|discover-azure|microsoft-foundry|python-appservice-deploy|airunway-aks-setup|appinsights-instrumentation)'
+$mirrorExpected = @($agentsSkills | Where-Object { $_ -notmatch $extSkillPattern -or $manifestNames -contains $_ })
 $claudeSkills = (Get-ChildItem "$env:USERPROFILE\.claude\skills" -Directory -ErrorAction SilentlyContinue).Name
-$notMirrored = $agentsSkills | Where-Object { $_ -notin $claudeSkills }
+$notMirrored = @($mirrorExpected | Where-Object { $_ -notin $claudeSkills })
 if ($notMirrored.Count -eq 0) {
-  Add-Row "MIRROR" "Parity" "PASS" "All $($agentsSkills.Count) skills mirrored to Claude Code"
+  Add-Row "MIRROR" "Parity" "PASS" "All $($mirrorExpected.Count) mirrorable skills present in Claude Code ($($agentsSkills.Count - $mirrorExpected.Count) extension skills excluded by design)"
 } else {
   Add-Row "MIRROR" "Parity" "WARN" "Not mirrored: $($notMirrored -join ', ')"
 }

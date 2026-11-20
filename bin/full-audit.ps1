@@ -217,8 +217,11 @@ foreach ($c in $clis) {
 }
 
 # ============ AUDIT 3: SKILLS SPEC VALIDATION ============
+# Hidden directories under ~/.agents/skills are staging/backup folders, not skills. They used
+# to be validated as skills, producing a permanent SKILL.md FAIL and MIRROR WARN.
 $skillsDir = "$env:USERPROFILE\.agents\skills"
-$skillDirs = Get-ChildItem $skillsDir -Directory
+$allSkillDirs = Get-ChildItem $skillsDir -Directory -Force
+$skillDirs = $allSkillDirs | Where-Object { -not $_.Name.StartsWith('.') }
 $validCount = 0
 $advisoryCount = 0
 $failCount = 0
@@ -268,7 +271,7 @@ if ($missingSkillMd.Count -eq 0) {
 }
 
 # ============ AUDIT 5: CLAUDE CODE MIRROR PARITY ============
-$agentsSkills = Get-ChildItem $skillsDir -Directory | Select-Object -ExpandProperty Name
+$agentsSkills = Get-ChildItem $skillsDir -Directory -Force | Where-Object { -not $_.Name.StartsWith('.') } | Select-Object -ExpandProperty Name
 $claudeSkills = Get-ChildItem "$env:USERPROFILE\.claude\skills" -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 # VS Code provisions these for the Azure/Entra/Foundry extensions and writes only to
 # ~/.agents/skills. They are absent from the Claude mirror by design, so asserting parity over
@@ -393,6 +396,107 @@ foreach ($s in $sampleSkills) {
   } else {
     Add-Result "SKILLSPECTOR" $s "WARN" "Scan exit $exitCode"
   }
+}
+
+# ============ AUDIT 8: SKILLEVALUATOR ADVISORY (never blocking) ============
+# SkillSpector answers "is it safe". SkillEvaluator answers "is it good" and "will the harness
+# load it" - questions the gate does not ask. It is ADVISORY by design: `tier1` reports
+# "Security Scan: INCOMPLETE" on skills SkillSpector passes cleanly, so it cannot be a gate.
+# Quality scoring is keyless, so it always runs when the CLI is present. Similarity (Tier 2)
+# needs an embedding provider key and Tier 3 needs Docker + a model, so neither is attempted.
+if (Get-Command skillevaluator -ErrorAction SilentlyContinue) {
+  $seOut = "$env:USERPROFILE\dev\upstream\skillevaluator"
+  if (-not (Test-Path $seOut)) { New-Item -ItemType Directory -Force -Path $seOut | Out-Null }
+  $gradeRows = @()
+  $graded = 0; $avg = 0
+  foreach ($sd in $skillDirs) {
+    $safe = ($sd.Name -replace '[^A-Za-z0-9_.-]', '_')
+    $skillOut = Join-Path $seOut $safe
+    New-Item -ItemType Directory -Force -Path $skillOut | Out-Null
+    & skillevaluator quality-check $sd.FullName -o $skillOut -r json > $null 2>&1
+    $qj = Join-Path $skillOut 'skillevaluator-quality.json'
+    if (Test-Path $qj) {
+      try {
+        $d = Get-Content $qj -Raw | ConvertFrom-Json
+        $qs = $d.quality_summary
+        if (-not $qs -and $d.results -and $d.results.Count -gt 0) { $qs = $d.results[0].quality }
+        if ($qs) { $gradeRows += [pscustomobject]@{ Name = $sd.Name; Grade = [string]$qs.grade; Score = [double]$qs.overall_score } }
+      } catch { }
+    }
+  }
+  $graded = $gradeRows.Count
+  if ($graded -gt 0) {
+    $avg = ($gradeRows | Measure-Object -Property Score -Average).Average
+    $dist = ($gradeRows | Group-Object Grade | Sort-Object Name | ForEach-Object { "$($_.Name):$($_.Count)" }) -join ' '
+    Add-Result "SKEVAL-ADVISORY" "quality" "INFO" "$graded skills scored, avg $([math]::Round($avg,1))/100 ($dist)"
+    # A skill graded F is a real authoring problem, but it is not a security or load failure.
+    $fails = @($gradeRows | Where-Object { $_.Grade -eq 'F' })
+    if ($fails.Count -gt 0) {
+      Add-Result "SKEVAL-ADVISORY" "grade F" "INFO" "$($fails.Count) skill(s) graded F: $(($fails | ForEach-Object { $_.Name }) -join ', ')"
+    }
+  } else {
+    Add-Result "SKEVAL-ADVISORY" "quality" "INFO" "no quality reports produced"
+  }
+
+  # Tier 2 (duplicate detection) needs an embedding provider. Ollama is checked because it is
+  # local and keyless; a missing provider is reported as INFO, never as a FAIL, because the
+  # collection being "unchecked" is not the same as it being clean.
+  $ollamaUp = $false
+  try { $null = Invoke-RestMethod 'http://localhost:11434/api/tags' -TimeoutSec 4; $ollamaUp = $true } catch { }
+  if ($ollamaUp) {
+    # Reaching Ollama is NOT enough: skillspector's embedding client only runs when the provider
+    # env vars are set. Without them the run reports `incomplete` and zero findings, which a
+    # naive parser reads as "no duplicates" — a false clean. Set them for this call only.
+    $savedEnv = @{}
+    foreach ($v in @('SKILL_EVAL_EMBEDDING_PROVIDER','SKILL_EVAL_LLM_API_KEY','SKILL_EVAL_EMBEDDING_BASE_URL','SKILL_EVAL_LLM_BASE_URL')) {
+      $savedEnv[$v] = [Environment]::GetEnvironmentVariable($v)
+    }
+    $env:SKILL_EVAL_EMBEDDING_PROVIDER = 'openai-compatible'
+    $env:SKILL_EVAL_LLM_API_KEY        = 'ollama-local'
+    $env:SKILL_EVAL_EMBEDDING_BASE_URL = 'http://localhost:11434/v1'
+    $env:SKILL_EVAL_LLM_BASE_URL       = 'http://localhost:11434/v1'
+
+    $t2Out = "$env:USERPROFILE\dev\upstream\skillevaluator-tier2"
+    if (-not (Test-Path $t2Out)) { New-Item -ItemType Directory -Force -Path $t2Out | Out-Null }
+    Remove-Item (Join-Path $t2Out 'skillevaluator-similarity.json') -Force -ErrorAction SilentlyContinue
+    & skillevaluator similarity-check $skillsDir --type skill --threshold 0.85 `
+        --model 'nomic-embed-text:latest' -o $t2Out -r json > $null 2>&1
+    $t2j = Join-Path $t2Out 'skillevaluator-similarity.json'
+    if (Test-Path $t2j) {
+      try {
+        $d2 = Get-Content $t2j -Raw | ConvertFrom-Json
+        # NEVER report a count from an incomplete/failed run: that is a false clean.
+        if ($d2.overall_status -ne 'passed' -and $d2.overall_status -ne 'failed') {
+          $why = ''
+          if ($d2.results -and $d2.results.Count -gt 0 -and $d2.results[0].legacy) {
+            $why = (@($d2.results[0].legacy.errors) | ForEach-Object { ($_ | Out-String).Trim() } | Select-Object -First 1)
+          }
+          $why = ($why -replace '\s+', ' ')
+          if ($why.Length -gt 150) { $why = $why.Substring(0, 150) + '...' }
+          Add-Result "SKEVAL-ADVISORY" "tier2 duplicates" "INFO" "run $($d2.overall_status) - no trustworthy count ($why)"
+        } else {
+          $sev2 = $d2.finding_counts.unique_by_severity
+          $pairs2 = @()
+          if ($d2.results -and $d2.results.Count -gt 0 -and $d2.results[0].legacy) {
+            $pairs2 = @($d2.results[0].legacy.errors | ForEach-Object { ($_ | Out-String).Trim() } | Where-Object { $_ -match 'SIMILARITY' })
+          }
+          Add-Result "SKEVAL-ADVISORY" "tier2 duplicates" "INFO" "$($pairs2.Count) pair(s) above 0.85 (critical=$($sev2.critical) high=$($sev2.high)); see docs/plans/2026-11-20-skill-duplicates.md"
+          $crit = @($pairs2 | Where-Object { $_ -match 'CRITICAL' })
+          foreach ($c in $crit) { Add-Result "SKEVAL-ADVISORY" "exact duplicate" "INFO" $c }
+        }
+      } catch {
+        Add-Result "SKEVAL-ADVISORY" "tier2 duplicates" "INFO" "report unreadable: $($_.Exception.Message)"
+      }
+    } else {
+      Add-Result "SKEVAL-ADVISORY" "tier2 duplicates" "INFO" "similarity run produced no report"
+    }
+
+    foreach ($v in $savedEnv.Keys) { [Environment]::SetEnvironmentVariable($v, $savedEnv[$v]) }
+  } else {
+    Add-Result "SKEVAL-ADVISORY" "tier2 duplicates" "INFO" "skipped - no embedding provider (start Ollama, or set SKILL_EVAL_EMBEDDING_PROVIDER + SKILL_EVAL_LLM_API_KEY)"
+  }
+} else {
+  Add-Result "SKEVAL-ADVISORY" "quality" "INFO" "skillevaluator not on PATH (optional advisory; install with: uv tool install skillevaluator)"
 }
 
 # ============ WRITE REPORT ============
