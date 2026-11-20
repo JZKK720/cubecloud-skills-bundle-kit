@@ -1,6 +1,6 @@
 # 🧊 CubeCloud Skills Bundle
 
-> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 287 bundled skills (333 on disk), 21 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
+> One-command setup for a full **VS Code Copilot Chat** agent-skills stack on Windows — 287 bundled skills (332 on disk), 21 CLIs, 12 MCP servers, and a 74-site design-system library, all security-gated.
 
 [![Skills](https://img.shields.io/badge/skills-287%20bundled-2ea44f)](#what-you-get)
 [![CLIs](https://img.shields.io/badge/CLIs-21-blue)](#clis-installed)
@@ -22,8 +22,8 @@ VS Code Copilot Chat gets dramatically more powerful when you give it **skills**
 
 |                    | Count   | What                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧠 Skills on disk  | **332** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **287** are bundle-installed from `skills-list.csv` (286 active + 1 disabled), of which **284** are actually present (2 rows — `ce-setup` and `debug-openshell-cluster` — are gate-blocked, see the blocked-skills table); the other **49** are not in the manifest and the installer neither writes nor removes them: 27 Azure / Entra / Foundry extension skills, plus the 22 declared in [`setup/skills-unmanaged.txt`](setup/skills-unmanaged.txt) — 10 GCP extension skills (bigquery, cloud-run, cloud-sql, firebase, gcloud, gke-basics, gke-networking, gke-security, google-cloud-recipe-onboarding, google-cloud-solution-architecture), `agent-platform-deploy`, `media-use`, the 7 `hyperframes-*` workflow skills the router pulls on demand, `gstack-review`, `ce-compound` and `verification-before-completion`. 283 + 49 = 332, plus the 3 parked dirs. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference — `debug-openshell-cluster` is gate-blocked), local FFmpeg video/audio editing (`ffmpeg-skill`, 42 tools), the Elephant & Goldfish spec-first workflow (`egm-lite`/`egm-draft`/`egm-resolve`/`egm-drift-report`), strategic SEO (`seo-plan`/`seo-competitor-pages`/`seo-hreflang`), and REA reverse-engineering (reverse-engineer-anything, installed under a reviewed suppression baseline — see `baselines/`) |
-| 🅿️ Parked skills   | **3**   | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: `caveman` and `build-mcp` (manifest rows flagged `disabled`) and `unlazy`. Earlier releases also parked 12 research-integrity forensics skills and the retired `crucible` snapshot; those are not present on this install. Parked, not deleted — reversible by a directory move, see v1.9.10 |
+| 🧠 Skills on disk  | **332** | In `~/.agents/skills/`, so Copilot discovers them without configuration. **287** are bundle-installed from `skills-list.csv` (**285 active + 2 disabled**), of which **283 active rows are actually present** (2 rows — `ce-setup` and `debug-openshell-cluster` — are gate-blocked, see the blocked-skills table); the other **49** are not in the manifest and the installer neither writes nor removes them: 27 Azure / Entra / Foundry extension skills, plus the 22 declared in [`setup/skills-unmanaged.txt`](setup/skills-unmanaged.txt) — 12 extension skills (the ten GCP skills bigquery, cloud-run, cloud-sql, firebase, gcloud, gke-basics, gke-networking, gke-security, google-cloud-recipe-onboarding, google-cloud-solution-architecture, plus `agent-platform-deploy` and `media-use`), the 7 `hyperframes-*` workflow skills the router pulls on demand, `gstack-review`, `ce-compound` and `verification-before-completion`. 283 + 49 = 332, plus the 3 parked dirs. Covers superpowers methodology, ui-skills, agent-skills, ECC agent engineering, Azure patterns, design systems, code review, debugging, archify diagrams, jev typed-decision skills + the local laya decision model, the impeccable design-methodology series, the writing-quality / anti-AI-slop suite (humanizer, no-ai-slop, stop-slop, humanize, unslop, deslop), the mattpocock engineering/productivity series (grilling, grill-me, handoff, writing-for-agents, wizard, retro, domain-modeling, codebase-design), the NVIDIA OpenShell sandbox-security series (openshell-cli, generate-sandbox-policy, debug-inference — `debug-openshell-cluster` is gate-blocked), local FFmpeg video/audio editing (`ffmpeg-skill`, 42 tools), the Elephant & Goldfish spec-first workflow (`egm-lite`/`egm-draft`/`egm-resolve`/`egm-drift-report`), strategic SEO (`seo-plan`/`seo-competitor-pages`/`seo-hreflang`), and REA reverse-engineering (reverse-engineer-anything, installed under a reviewed suppression baseline — see `baselines/`) |
+| 🅿️ Parked skills   | **3**   | In `~/.agents/skills._disabled/` (SKILL.md → SKILL.md.disabled), so Copilot does not discover them: `caveman` (disabled upstream) and `build-mcp` (2026-11-20 Tier 2 duplicate at **0.970** vs `mcp-builder`) — both are manifest rows flagged `disabled` — plus `unlazy`, which has no manifest row. Earlier releases also parked 12 research-integrity forensics skills and the retired `crucible` snapshot; those are not present on this install. Parked, not deleted — reversible by a directory move, see v1.9.10 |
 | 🔧 CLIs            | **21**  | On PATH: `skillspector`, `skills-ref`, `specify`, `agent-reach`, `graphify`, `markitdown`, `gbrain`, `scrapling`, `uipro`, `firecrawl`, `skillopt-eval`, `headroom`, `loop`, `watch-skill`, `wigolo`, `ocr`, `semantica`, `witr`, `git-wt` (worktrunk), `rea`, `skillevaluator` (optional advisory — quality/harness/overlap checks; `skillspector` remains the only blocking gate) |
 | 🔌 MCP servers     | **12**  | All 12 verified on this machine: `bin/mcp-smoke-test.ps1` performs a real JSON-RPC handshake (`initialize` + `tools/list`) per server, not a `--help` probe. Configured in VS Code `mcp.json`: markitdown, skillspector, firecrawl, scrapling, gbrain, graphify, headroom, loop-engineering, watch-skill, wigolo, skillopt, rea |
 | 📚 Fork mirrors    | **41**  | Read-only backups under `~/dev/forks/JZKK720/` (1.76 GB on disk). The installer provisions **41** (verified against `setup-global-skills.ps1`: 22 in `$forks`, 8 in `$evaluationMirrors`, 11 single-repo clones); **27** are present on this machine because a proxy-blocked clone is skipped rather than failed. Covers Gskills, ECC, agent-skills, agentskills, archify, awesome-design-md, book-to-skill, caveman, EverOS, firecrawl, gbrain, graphify, hallmark, huashu-design, improve, last30days-skill, llm_wiki, loop-engineering, markitdown, oz-skills, ponytail, Scrapling, semantica, SkillOpt, spec-kit, superpowers, taste-skill, witr |
@@ -122,7 +122,7 @@ User PATH, so if you ever install Node user-scoped only, the machine entry will 
 Claude-Code-only keys (`argument-hint`, `disable-model-invocation`, `user-invocable`, `version`,
 `tags`, `tools`, …) under `metadata:` inside `Install-SkillTree`, because `skills-ref validate`
 allows only `name`/`description`/`license`/`compatibility`/`metadata`/`allowed-tools` at top
-level. 66 of 333 skills shipped the rejected form before this existed. It reads and writes through
+level. 66 of 332 skills shipped the rejected form before this existed. It reads and writes through
 an explicit UTF-8 codec — `Get-Content`/`Set-Content` round-trip through the console code page on
 this host and silently mangle non-ASCII characters (a section sign became U+9225 in 2026-11-19).
 
@@ -150,18 +150,22 @@ threshold — no network egress, no provider key. Latest run: **4 pairs, 0 exact
 > CLI rather than this manifest. Those are already on disk on any normal install and the bundle
 > neither writes nor removes them (README §"Azure & cloud" and §"Skills on disk that are not in
 > the manifest" below).
-> Of the 285 active manifest rows, 283 are installed and 2 are parked (`caveman`, `build-mcp`),
-> and two never reached disk because the gate blocked them (`ce-setup`,
-> `debug-openshell-cluster`): 283 + 27 + 22 = **332**. Both numbers are correct; they measure
-> different sets. Dot-directories under `~/.agents/skills` are staging folders and are excluded
-> by every audit.
+> Of the 285 active manifest rows, **283 are installed** and two never reached disk because the
+> gate blocked them (`ce-setup`, `debug-openshell-cluster`): 283 + 27 + 22 = **332**. Both numbers
+> are correct; they measure different sets. Dot-directories under `~/.agents/skills` are staging
+> folders and are excluded by every audit.
+>
+> The **2 disabled** rows are a *different* set from the 285 active ones and are not installed:
+> `caveman` (deliberately disabled upstream) and `build-mcp` (parked 2026-11-20 after Tier 2
+> duplicate detection scored it **0.970** against `mcp-builder` — keep one, not both).
+> `unlazy` is parked in the same folder but has no manifest row at all.
 
 A further **35 entries** are parked as comments **inside** `skills-list.csv` (not installed, not
 counted above) with a per-skill reason code — 10 gate-blocked, 5 curated-out or retired, and 20
 blocked for a second reason recorded inline. See the blocked-skills table.
 
 Two manifest rows blocked on this machine are documented in §"Blocked by SkillSpector" below,
-and the 39 installed skills that carry no manifest row are listed in
+and the 22 installed skills that carry no manifest row are listed in
 §"Skills on disk that are not in the manifest".
 
 **Superpowers methodology (12 skills)** from [obra/superpowers](https://github.com/obra/superpowers):
@@ -209,7 +213,7 @@ Custom implementations maintained in this setup are `agent-reach` and `gstack-re
 
 - **gstack-review** — pre-landing PR review with structural-issue checklist + 8 specialist lenses (security, testing, maintainability, performance, data-migration, api-contract, red-team). Adapted from [garrytan/gstack](https://github.com/garrytan/gstack) (MIT).
 - **design-md-library** — indexes the 74 DESIGN.md files in the awesome-design-md fork mirror so agents can self-serve "make it look like Stripe" requests
-- **idea-to-design** — clean port of obra/superpowers `brainstorming` (upstream blocked by SkillSpector for tool parameter abuse in `stop-server.sh`). Methodology only: collaborative design dialogue, hard gate before implementation, spec self-review, user review gate. No browser server, no scripts.
+- **idea-to-design** — clean port of obra/superpowers `brainstorming`, made when upstream was blocked by SkillSpector for tool parameter abuse in `stop-server.sh`. Methodology only: collaborative design dialogue, hard gate before implementation, spec self-review, user review gate. No browser server, no scripts. **Upstream later re-gated clean and `brainstorming` is now a manifest row in its own right** (2026-11-19, under a reviewed baseline) — both are kept because they do different jobs: `brainstorming` runs the dialogue, `idea-to-design` refines a direction already chosen.
 - **webapp-testing** — clean port of JZKK720/oz-skills `webapp-testing` (upstream blocked by SkillSpector for `shell=True` tool parameter abuse in `scripts/with_server.py`). Methodology only: reconnaissance-then-action pattern, static vs dynamic decision tree. No bundled scripts; agent writes native Playwright or uses browser MCP tools.
 - **archify** — clean port of [tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT, v2.17). Upstream is blocked by SkillSpector (`HIGH MP3`), so the port keeps the authoring contract, type router, invariant list, Mermaid conversion rules and the validate → deliver → visual-check sequence, and drops the renderer/schemas/examples. Gates 0/100 SAFE. **Methodology only** — the upstream CLI lives in the fork mirror; the SKILL.md says so explicitly rather than implying an unrun validation passed.
 
@@ -265,15 +269,39 @@ Four of 22 — the rest are bound to firstmate's own supervisor daemon and `bin/
 
 Two independent implementations kept as complements. The bundle's `write-concisely` covers density and `brand-voice` covers deriving a voice from source material, but neither de-slopped *existing* prose.
 
+**FFmpeg video/audio editing (1 active)** — [kajisho5/ffmpeg-skill](https://github.com/kajisho5/ffmpeg-skill) (MIT):
+
+- **ffmpeg-skill** — 42 documented FFmpeg operations run **locally**: cutting, concatenation, transcoding, codec/bitrate selection, extracting audio, subtitles, thumbnails, and GIF/WebM export. No cloud upload, no API key. Vendored at `upstream/ffmpeg-skill/` so the tool recipes stay pinned even if upstream moves.
+
+**Elephant & Goldfish spec-first workflow (4 active)** from [google/elephant-goldfish-model](https://github.com/google/elephant-goldfish-model) (Apache-2.0):
+
+- `egm-lite` — the whole spec → draft → resolve loop in one pass, for a single change
+- `egm-draft` — writes the long-lived spec from intent, before any code exists
+- `egm-resolve` — reconciles spec drift against what was actually built
+- `egm-drift-report` — audits an existing codebase *against* its spec and reports divergence
+
+They fill a gap the bundle did not cover: `spec-driven-development` teaches the workflow, but nothing wrote or reconciled the spec artifact itself.
+
+**Strategic SEO (3 active)** from [AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo):
+
+- `seo-plan` — channel/query strategy before content is written
+- `seo-competitor-pages` — competitive page-level gap analysis
+- `seo-hreflang` — internationalisation and hreflang correctness
+
+Deliberately scoped to *strategy*: the bundle already carries `seo-aeo-audit` (oz-skills) for auditing pages that exist.
+
 **Disabled by default:**
 
-- **caveman** — token compression, opt-in only
+- **caveman** — token compression, opt-in only (disabled upstream)
+- **build-mcp** — parked 2026-11-20. Tier 2 duplicate detection scored it **0.970** against
+  `mcp-builder` (oz-skills), which the bundle already ships and which carries the same job. Keeping
+  both meant Copilot had to choose between two near-identical descriptions. See
+  [docs/plans/2026-11-20-skill-duplicates.md](docs/plans/2026-11-20-skill-duplicates.md).
 
 **Blocked by SkillSpector (not installed — by design):**
 
-| Skill                      | Reason                                                                        | Clean port?                             |
+| Skill                      | Reason                                                                        | Resolution                              |
 | -------------------------- | ----------------------------------------------------------------------------- | --------------------------------------- |
-| brainstorming              | Tool parameter abuse in `stop-server.sh`                                      | **Yes** → `idea-to-design`              |
 | last30days                 | Info stealer (reads browser cookies)                                          | No — use `agent-reach`                  |
 | ui-ux-pro-max              | Prompt extraction + unsafe defaults                                           | No — use `hallmark` + `taste-skill`     |
 | anysearch                  | Vulnerable `requests==2.20` (8 CVEs)                                          | No                                      |
@@ -281,6 +309,12 @@ Two independent implementations kept as complements. The bundle's `write-concise
 | archify (tt-a1i)           | HIGH MP3 — memory manipulation (re-classified from YR4)                       | **Yes** → `archify` (clean port)        |
 | diagram-design (upstream)  | HIGH AR2 — anti-refusal statement                                             | **Yes** → `diagram-design` (port)       |
 | jev (wuyoscar/jev-skill)   | HIGH E2 env-var harvesting in scripts/jev.py, plus the executable-scripts flag | **Yes** -> jev (prose-only port) |
+
+> **`brainstorming` moved off this table on 2026-11-19.** It was blocked on tool parameter abuse
+> in `stop-server.sh` and had been replaced by the clean port `idea-to-design`. Upstream's current
+> revision no longer ships that script, so it re-gated clean and is now a **manifest row installed
+> under a reviewed baseline** (`baselines/brainstorming.baseline.yaml`). `idea-to-design` was kept —
+> they are different skills (one runs a design dialogue, the other refines a chosen direction).
 
 **Blocked on this machine (2026-11-02 install pass)** — rows that remain in the manifest because
 their upstreams still install cleanly elsewhere, documented rather than commented out:
@@ -304,7 +338,7 @@ their upstreams still install cleanly elsewhere, documented rather than commente
 
 **Blocked on this install (verified 2026-10-28, after the full upstream sync):** these two
 manifest rows are the only ones whose source resolves but which the gate refuses to install.
-They are counted in the 287 manifest rows but are **not** part of the 333 on disk.
+They are counted in the 287 manifest rows but are **not** part of the 332 on disk.
 
 | Skill | Source | Blocking findings |
 | --- | --- | --- |
@@ -439,6 +473,8 @@ adopted as a manifest row, delete its row in the same change.
 | `ocr`           | npm    | AI-powered code review CLI — `ocr review`, `scan`, `delegate`. Deterministic + agent hybrid architecture (alibaba/open-code-review, Apache-2.0). Battle-tested at Alibaba's scale.                                                                                                                     |
 | `witr`          | binary | "Why is this running?" — Go process ancestry investigator (v0.3.3). Installed from GitHub releases (no Go toolchain needed).                                                                                                                                                                           |
 | `git-wt`        | winget | Worktrunk (v0.80.0) — git worktree management for parallel AI agents (`wt switch -c -x <agent> <branch>`). Installed as `git-wt` to avoid the Windows Terminal `wt` alias conflict; also installs `wt` alias.                                                                                           |
+| `rea`           | npm    | Reverse-engineering CLI for agents — `npx rea-agents`. Ships the `reverse-engineer-anything` skill family and drives the `rea` MCP server (**263 tools**). Requires Node 22.x≥22.23.4 / 24.x≥24.22.1 / 26.12.1+; on an older runtime its only symptom is a silent 180 s probe timeout. |
+| `skillevaluator` | uv    | **Optional advisory** — NVIDIA SkillEvaluator quality/harness/overlap scoring. Reports `INCOMPLETE` on its own security check for skills the gate passes, so it is **never** a blocking gate. Drives `bin/skillevaluator-advisory.ps1` and, with a local Ollama embedding model, `bin/skillevaluator-tier2.ps1`. |
 
 ### MCP servers
 
@@ -455,6 +491,7 @@ Configured in VS Code User `mcp.json`:
 - **watch-skill** — video analysis, transcription, OCR, THE LOOP verification (`watch-skill serve`)
 - **wigolo** — local-first web search, fetch, crawl, research (`npx wigolo`)
 - **skillopt** — SkillOpt research engine: validation-gated skill optimization via MCP tools `skillopt_list_configs`, `skillopt_train`, `skillopt_eval` (microsoft/SkillOpt, MIT). Shells out to the repo's `scripts/train.py` / `eval_only.py` — requires the SkillOpt fork mirror.
+- **rea** — reverse engineering with agents (`npx rea-agents`, morluto/rea, MIT). **263 tools.** Needs Node 22.x≥22.23.4 / 24.x≥24.22.1 / 26.12.1+; no PATH pin is carried because the machine-wide Node already clears the floor (verified 2026-11-20).
 
 ### OpenCodeReview (AI code review)
 
@@ -499,6 +536,58 @@ skillspector scan --no-llm <dir>
 
 Full verdict history is in [`upstream/SCAN_LOG.md`](upstream/SCAN_LOG.md).
 
+### Four gates, run together
+
+`skillspector` is the only gate that can **block an install**. The other three prove the *shipped
+state* is coherent, and they are all cheap enough to run after any change:
+
+| Gate | Command | Passing result |
+| --- | --- | --- |
+| Security (install-time) | `skillspector scan --no-llm <dir>` | exit 0 |
+| Full audit (8 phases) | `bin/full-audit.ps1` | `PASS 47 · FAIL 0 · WARN 0 · ADVISORY 0` |
+| Counter integrity | `bin/check-bundle-integrity.ps1` | `PASS 18 · FAIL 0` |
+| Live machine state | `bin/verify-state.ps1` | `RESULT: OK` |
+
+`bin/full-audit.ps1` is parameter-less and self-contained. Its 8 phases are: MCP config + 6 daemon
+liveness probes → 10 CLI version probes → `skills-ref validate` per skill → SKILL.md frontmatter
+check → `~/.claude/skills` mirror parity → disabled/docs/forks existence → SkillSpector re-scan →
+**SkillEvaluator advisory + Tier 2 duplicate detection**. WARN and ADVISORY are counted
+separately and never unioned.
+
+### Reviewed suppressions, not silent ones
+
+A skill that the gate blocks on a rule you have deliberately accepted is installed with an
+**explicit baseline** rather than a blanket exception. `setup/install-skill.ps1` resolves one in
+this order: `-BaselinePath` → `<repoRoot>\baselines\<name>.baseline.yaml` →
+`~/dev/baselines/<name>.baseline.yaml` → `$env:SKILL_BASELINES_DIR\<name>.baseline.yaml`, and the
+scan-log row records `baseline:<file>|none` for traceability. **36 baselines** ship in
+[`baselines/`](baselines) and are deployed to `~/dev/baselines/` by installer phase 1b.
+Verified end-to-end: `diagram-design` exits 1 without its baseline and 0 with it.
+
+> **Fingerprints are content-bound.** If upstream changes a byte in a suppressed file, its
+> fingerprint stops matching and the findings come back. Prefer rule-level entries
+> (`id`/`path`/`reason`), which survive content changes. This is exactly how `hallmark`'s 15
+> fingerprints came to suppress nothing after a sync — see
+> [`DEPRECATIONS.md`](DEPRECATIONS.md).
+
+### Advisory layer (never blocking)
+
+- **SkillEvaluator** — `bin/skillevaluator-advisory.ps1` scores every skill for quality, harness
+  completeness and overlap. It is *complementary* to SkillSpector, not a replacement: SkillEvaluator
+  *consumes* a security scan, and its own tier-1 reports `Security Scan: INCOMPLETE` on skills the
+  gate passes cleanly. Measured **avg 87.6/100 (A:96 · B:223 · C:13)**.
+- **Tier 2 duplicate detection** — `bin/skillevaluator-tier2.ps1` embeds all skills with your local
+  Ollama (`nomic-embed-text`) and flags pairs above a threshold. Local-only, no key, no egress. A
+  run that does **not** report `complete` returns zero findings, which must never be read as
+  "clean" — the script sets the provider env vars and refuses to report a count otherwise.
+
+### Deprecation ledger
+
+[`DEPRECATIONS.md`](DEPRECATIONS.md) is the single record of what was retired, parked or
+deprecated and why — 11 sections covering disk state, the `-Refresh` defect, MCP wiring, the
+Node floor and the stdin probe defect. Nothing is deleted; skills are **parked** by renaming
+`SKILL.md` → `SKILL.md.disabled` so the change is reversible by a directory move.
+
 ## Repository layout
 
 ```text
@@ -507,20 +596,36 @@ cubecloud-skills-bundle-kit/          # git clone target — run installers from
 │   ├── setup-global-skills.ps1       # master installer (run this)
 │   ├── install-skill.ps1             # security-gated skill install helper
 │   ├── skills-list.csv               # manifest of 287 entries (285 active + 2 disabled)
+│   ├── skills-unmanaged.txt          # 22 allowlisted on-disk skills that have no manifest row
 │   ├── mcp.json.template             # 12 MCP server config
 │   ├── skillspector-ollama-models.yaml  # token-budget metadata for local Ollama scans
 │   └── SETUP_GUIDE.md                # detailed guide
-├── bin/                              # 28 audit / fix / install helper scripts
-├── upstream/                         # governance docs (SCAN_LOG, audits) + 53 hand-authored port skills
-├── docs/  plans/                     # design notes and integration plans
+├── bin/                              # 32 helper scripts (30 .ps1 + 2 .py): audit / verify / fix / install
+│   ├── full-audit.ps1                # canonical 8-phase audit → ~/dev/upstream/AUDIT_REPORT.md
+│   ├── fast-audit.ps1                # same result matrix, daemon probes skipped
+│   ├── check-bundle-integrity.ps1    # counter/manifest/allowlist partition gate
+│   ├── verify-state.ps1              # 21 CLIs + Node floor + MCP presence → RESULT: OK
+│   ├── mcp-smoke-test.ps1            # real JSON-RPC handshake per server (via .py probe)
+│   ├── skillevaluator-advisory.ps1   # keyless quality scoring (advisory, never a gate)
+│   ├── skillevaluator-tier2.ps1      # local-Ollama duplicate detection
+│   ├── repair-skill-frontmatter.ps1  # nest Claude-only keys under metadata:, UTF-8 safe
+│   └── make-release.ps1              # stamp CHANGELOG once + guarded tag/publish
+├── upstream/                         # 62 vendored sources for local/* manifest rows + governance docs
+│   └── SCAN_LOG.md                   # SkillSpector verdict history
+├── baselines/                        # 36 reviewed suppression baselines (skillspector --baseline)
+├── docs/plans/                       # dated evaluation, adoption and deprecation reports
+├── plans/                            # numbered fix plans (001 = local/* source-path, closed)
+├── DEPRECATIONS.md                   # the retirement/deprecation ledger (11 sections)
 ├── Update-Skills.ps1                 # thin CSV-driven wrapper (legacy)
 ├── AGENTS.md  CHANGELOG.md  LICENSE
 └── README.md
 
 # At runtime the installer ALSO creates (outside the repo):
 ~/dev/bin/install-skill.ps1           # deployed helper copy
+~/dev/baselines/*.baseline.yaml       # suppression baselines (phase 1b)
 ~/dev/upstream/SCAN_LOG.md            # security scan log
-~/dev/forks/JZKK720/                  # 29 read-only fork mirrors (gitignored, re-cloned)
+~/dev/upstream/AUDIT_REPORT.md        # full-audit output
+~/dev/forks/JZKK720/                  # 27 read-only fork mirrors present (gitignored, re-cloned)
 ```
 
 **Path convention:** run installer commands from the **repo root** (`setup\setup-global-skills.ps1`),
@@ -639,6 +744,57 @@ levels). The method is `system_one()` — not `ask()`.
 | recall      | Needs Claude Code hooks                                                    | Claude Code only; not for VS Code Copilot.                                                                                                                  |
 
 ## Changelog
+
+### v1.9.21 (2026-11-20)
+
+**Single Node install, and the release gate that finally caught itself.**
+
+- **Removed the duplicate user-scoped Node.** Two installs coexisted: machine-wide **26.13.1**
+  (`C:\Program Files\nodejs`, winning on PATH) and a leftover user-scoped package. `winget uninstall
+  --id OpenJS.NodeJS --scope user` removed it cleanly — **113 MB reclaimed**, and `winget list` now
+  shows a single package. Verified nothing referenced it *before* deleting, and after: `node` still
+  26.13.1, `rea` still handshakes (`MCP_OK rea tools=263`), all 21 CLIs resolve, all four gates pass.
+- **Fixed a defect in `bin/make-release.ps1` that a dry run caught.** PowerShell's `-replace` is
+  global, so stamping the version would have rewritten **all 9** `[Unreleased]` headers to
+  `[1.9.21]` — silently destroying the pending history. It now stamps **once by index**, extracts
+  the release body with an ATX-anchored regex, and aborts if the body would exceed 400 lines.
+- Totals: manifest **287** (285 active + 2 disabled), on disk **332**, parked **3**, CLIs **21**,
+  MCP **12**, forks **27** present of 41 provisioned.
+
+### v1.9.20 (2026-11-15)
+
+- **Manifest follows upstream:** `jev-ui` and `jev-simulation` were removed from
+  `wuyoscar/jev-skill` upstream (HEAD now ships `jev`, `jev-act`, `jev-documents`, `jev-eval`,
+  `jev-triage`), so both rows were dropped and **`jev-act` added** in their place.
+
+### v1.9.19 (2026-10-12)
+
+**Pipeline hardening: baseline wiring, count reconciliation, CI integrity gate.**
+
+- **Suppression baselines are now applied by the gate.** `skillspector scan` alone re-blocked any
+  reviewed skill on every install. `setup/install-skill.ps1` now resolves a baseline
+  (`-BaselinePath` → repo `baselines/` → `~/dev/baselines/` → `$env:SKILL_BASELINES_DIR`) and passes
+  `--baseline`; installer phase 1b deploys them. Verified: `diagram-design` exits **1** without its
+  baseline and **0** with it.
+- **`bin/check-bundle-integrity.ps1` added** — asserts every count-bearing claim in README,
+  AGENTS.md and `SETUP_GUIDE.md` against the manifest, and every count regex in `make-release.ps1`
+  against the README it is supposed to rewrite (a 0-match regex is a silent no-op).
+- Release command: `bin/make-release.ps1 -Version 1.9.19 -BundledCount 275 -OnDiskCount 302`; it
+  fails closed unless the tree is clean, on `main`, and the manifest matches `-BundledCount`.
+
+### v1.9.18 (2026-10-11)
+
+**REA integration — reverse engineering with agents** ([morluto/rea](https://github.com/morluto/rea),
+MIT). Added as a skill, a CLI (`rea`) and the 12th MCP server. The `rea` server refuses to start on
+old Node, and its only symptom is a silent probe timeout — which is why `bin/verify-state.ps1`
+asserts the `rea-agents` Node floor rather than just `node --version`.
+
+### v1.9.17 (2026-10-08)
+
+**GitHub trending deep-research: 12 new skills + the worktrunk CLI.** Scraped
+`github.com/trending` (weekly + monthly) via firecrawl, cross-checked against the then-262-skill
+manifest, and deep-dived each candidate's README before adopting. `git-wt` (worktrunk) was installed
+under that name to avoid the Windows Terminal `wt` alias conflict.
 
 ### v1.9.16 (2026-10-05)
 

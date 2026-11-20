@@ -195,3 +195,42 @@ handshakes on the plain inherited PATH (`MCP_OK rea tools=263`), and **all 21 CL
 every npx-based one responding. 113 MB reclaimed. Nothing referenced the removed directory — its
 path was absent from `setup/mcp.json.template`, the live `mcp.json` and the Copilot CLI
 `mcp-config.json` before deletion.
+
+## 11. Closed: the MCP probe graded a healthy server as `WARN` because of stdin
+
+Not a retirement, but it belongs here because it explains a WARN row a reader will otherwise
+keep re-discovering.
+
+**Symptom.** `bin/full-audit.ps1` phase 1 intermittently graded 5 of 6 daemon probes
+`WARN … Exited early, no output within 15–25s` — `markitdown`, `skillspector`, `firecrawl`,
+`scrapling`, `graphify` — while `bin/mcp-smoke-test.ps1` reported **PASS 12 / FAIL 0** on the same
+machine, minutes apart. The obvious suspects (a dead `HTTP_PROXY`, a broken `uvx`/`npx` launcher,
+npm registry outage) were each ruled out: no proxy variable was set in a fresh process and
+`fetch('https://registry.npmjs.org/-/ping')` returned **200**.
+
+**Root cause.** The probe builds a `System.Diagnostics.ProcessStartInfo` and starts
+`cmd /c "<cmd> > out 2> err"` **without** setting `RedirectStandardInput`. The server therefore
+inherits the *audit's* stdin. A stdio MCP server reads stdin, and **stdin EOF means "the client
+has gone away"**, so it shuts down — cleanly, with `rc=0`. Whenever the audit itself is launched
+with a redirected stdin — under a pipeline, a task runner, a CI shell, or Copilot's own shell,
+where `[Console]::IsInputRedirected` is `True` — every server exited in ~5 s and was graded as a
+failure to start.
+
+**Evidence.** Isolated with a two-way probe of the same command:
+
+| stdin handed to `skillspector mcp` | Result |
+| --- | --- |
+| `subprocess.DEVNULL` (EOF immediately) | **EXITED** `rc=0` after **4.7 s** |
+| open pipe (blocks, like a TTY) | **STILL ALIVE** at 12 s |
+
+**Fix.** One line: `$psi.RedirectStandardInput = $true`. An open pipe that is never written to
+blocks reads exactly as VS Code's stdin does, so the probe no longer depends on how the audit was
+invoked. Verified afterwards: `skillspector`, `graphify` and `scrapling` each **alive at 15–20 s**,
+and real JSON-RPC handshakes answer in seconds — markitdown 5.8 s, skillspector 5.1 s,
+firecrawl 3.0 s (28 tools), scrapling 1.6 s (13 tools), graphify 1.5 s (10 tools).
+
+**Lesson worth keeping.** A probe that measures "did it stay up" must control *every* stream the
+server reads. Both prior MCP-probe bugs in this bundle were stream-grading mistakes — grading
+stderr instead of stdout, and now omitting stdin. `bin/mcp-smoke-test.ps1` was right both times
+because it performs a real `initialize` + `tools/list` exchange; a liveness probe that only waits
+is the weaker instrument.

@@ -2,6 +2,42 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [Unreleased] — 2026-11-20 (README brought to v1.9.21 truth, audit stdin defect fixed)
+
+- **Fixed a real defect in `bin/full-audit.ps1` phase 1.** The MCP liveness probe started each
+  daemon with `System.Diagnostics.Process` and never set `RedirectStandardInput`, so the server
+  inherited whatever stdin the *audit* had. A stdio MCP server treats stdin EOF as "client went
+  away" and exits immediately — and any run whose stdin is already redirected (`[Console]::IsInputRedirected`
+  is `True` under a pipeline, a task runner, or Copilot's shell) therefore saw **five servers exit
+  early** and graded them `WARN … Exited early, no output`. Reproduced and isolated: `skillspector mcp`
+  with `stdin=DEVNULL` exits **rc=0 in 4.7 s**; with a blocking stdin it is still alive at 12 s.
+  Setting `RedirectStandardInput = $true` makes the probe deterministic — verified alive at 15–20 s
+  for `skillspector`, `graphify` and `scrapling` afterwards, and the authoritative
+  `bin/mcp-smoke-test.ps1` real-handshake run reports **PASS 12 / FAIL 0**
+  (markitdown 5.8 s, skillspector 5.1 s, firecrawl 3.0 s / 28 tools, scrapling 1.6 s / 13 tools,
+  graphify 1.5 s / 10 tools). The WARNs were never a bundle fault and never a config fault.
+- **README audited against the shipped tree and corrected** — it had drifted from v1.9.16 to
+  v1.9.21 while the counters moved. Fixed: stale `333` on-disk claims (now **332**) in the tagline,
+  the blocked-skills note and the frontmatter paragraph; the "What you get" row said
+  **286 active + 1 disabled / 284 present** (real: **285 + 2 / 283**); `brainstorming` was still
+  listed as gate-blocked in two places although it has been a manifest row with a reviewed baseline
+  since 2026-11-19; the CLIs table listed **19 of 21** (`rea` and `skillevaluator` were missing
+  rows) while advertising 21; the MCP bullet list listed **11 of 12** (`rea` missing); the repo
+  layout claimed 28 helper scripts, 53 port skills and 29 fork mirrors (real: **32**, **62**, **27**),
+  and omitted `baselines/`, `DEPRECATIONS.md`, `skills-unmanaged.txt` and every script added since.
+- **Added the five missing release notes** (v1.9.17–v1.9.21) to the README changelog, which had
+  stopped at v1.9.16.
+- **Documented the 9 newly adopted skills as families** rather than only naming them in a table:
+  `ffmpeg-skill` (kajisho5, MIT, 42 local FFmpeg operations), the 4 EGM spec-first skills
+  (`egm-lite`/`egm-draft`/`egm-resolve`/`egm-drift-report`), and the 3 seo strategy skills
+  (`seo-plan`/`seo-competitor-pages`/`seo-hreflang`). `build-mcp` is now explained in the
+  Disabled section (parked at 0.970 Tier 2 similarity to `mcp-builder`).
+- **`AGENTS.md` and `setup/SETUP_GUIDE.md` corrected to match**: AGENTS said `333 on disk`,
+  `20 CLIs`, `55 fork mirrors`, "7 inline phases" and "2 20 CLIs · 3 clone 55 forks"; SETUP_GUIDE
+  said `20 CLI tools` in two places and listed only 19 (`git-wt` and `skillevaluator` missing).
+- Gates after the edits: `full-audit` **PASS 47 · FAIL 0 · WARN 0 · ADVISORY 0** (down from
+  42/0/**5**/0 before the stdin fix) and `check-bundle-integrity` **PASS 18 · FAIL 0 · WARN 0**.
+
 ## [1.9.21] - 2026-11-20
 
 - **Removed the duplicate user-scoped Node.** The bundle carried two Node installs: the machine-wide

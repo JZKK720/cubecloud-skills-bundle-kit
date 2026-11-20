@@ -3,8 +3,9 @@
 ## What this repo is
 
 A Windows PowerShell toolkit (no application code — **scripts are the product**) that installs a
-global VS Code Copilot Chat stack: 287 bundle skills (333 on disk incl. 27 Azure/Entra/Foundry
-extension skills), 20 CLIs, 12 MCP servers, 55 fork mirrors, 74 DESIGN.md files — all gated by
+global VS Code Copilot Chat stack: 287 bundle skills (285 active + 2 disabled; 332 on disk incl.
+27 Azure/Entra/Foundry extension skills), 21 CLIs, 12 MCP servers, 41 fork mirrors provisioned
+(27 present on this machine), 74 DESIGN.md files — all gated by
 NVIDIA SkillSpector. The source of truth for every count is [README.md](README.md) (badges +
 "What you get" table); [setup/SETUP_GUIDE.md](setup/SETUP_GUIDE.md) documents phases and
 verification; [CHANGELOG.md](CHANGELOG.md) records dated fixes. Link, don't duplicate.
@@ -16,17 +17,20 @@ verification; [CHANGELOG.md](CHANGELOG.md) records dated fixes. Link, don't dupl
 | `setup/setup-global-skills.ps1` | Global installer (phases 0–7) — see "Installer surface" below |
 | `setup/skills-list.csv` | **Pipe-delimited** manifest: `repo\|name\|skillRelPath\|disabled[\|localSourcePath]`; `local/*` rows point at vendored clean-ports under `upstream/` |
 | `bin/*.ps1` | Audit/repair/verify scripts; shared prelude in `bin/lib/bundle-common.ps1` (PATH prepend + `PYTHONUTF8=1`, repo-root discovery, MCP template cross-check), emit Markdown reports into `~/dev/upstream/` (`AUDIT_REPORT.md`, `MCP_SMOKE_TEST.md`) or console PASS/MISS/FAIL lines |
-| `upstream/` | Vendored skill sources for `local/*` manifest rows — mix of methodology-only clean ports (`archify`, `webapp-testing`, `idea-to-design`) and adapted copies (`agent-reach`) |
+| `upstream/` | Vendored skill sources for `local/*` manifest rows (62 dirs) — mix of methodology-only clean ports (`archify`, `webapp-testing`, `idea-to-design`, `jev`) and adapted copies (`agent-reach`, `ffmpeg-skill`, `egm-*`, `seo-*`) |
+| `baselines/` | 36 reviewed suppression baselines passed to `skillspector scan --baseline`; deployed to `~/dev/baselines/` by installer phase 1b |
+| `DEPRECATIONS.md` | The retirement/deprecation ledger — what was parked or deprecated and why (11 sections) |
 | `docs/plans/` | Dated evaluation/plan reports |
 | `plans/001-local-addon-sourcepaths.md` | **Closed P1 fix (DONE)** — see "Closed: plan 001" below |
 
 ## Full verification routine (run this, in order)
 
 Use `bin/full-audit.ps1` — the canonical, **parameter-less** audit. It is self-contained
-(no sub-script calls), runs 7 inline phases, and writes `~/dev/upstream/AUDIT_REPORT.md`:
+(no sub-script calls), runs **8** inline phases, and writes `~/dev/upstream/AUDIT_REPORT.md`:
 MCP `mcp.json` + 6 daemon liveness probes → 10 CLI version probes → `skills-ref validate`
 per skill → SKILL.md frontmatter check → `~/.claude/skills` mirror parity → disabled/docs/forks
-existence → SkillSpector re-scan. Final line: `PASS: N | FAIL: N | WARN: N | ADVISORY: N`.
+existence → SkillSpector re-scan → **SkillEvaluator advisory + Tier 2 duplicate detection**.
+Final line: `PASS: N | FAIL: N | WARN: N | ADVISORY: N`.
 WARN and ADVISORY are counted separately — report both, never a unioned count.
 
 The two WARN rows that were permanent until 2026-11-02 now clear, and both were real:
@@ -89,7 +93,7 @@ declare full verification complete while this plan is open; run its drift-check
 (MCP + model pins for Code-Insiders/Cursor/VSCodium), `-IncludeArchifyCli` (opt-in 86-byte
 `~/.local/bin/archify.cmd` shim; needs fork mirrors — incompatible with `-SkipForks`, warns and
 continues). Phases: 0 prereqs (uv/bun) · 0b PATH+PYTHONUTF8 persist · 0c dir skeleton ·
-1 SkillSpector+skills-ref · 1b helper + suppression baselines to `~/dev/` · 2 20 CLIs · 3 clone 55 forks ·
+1 SkillSpector+skills-ref · 1b helper + suppression baselines to `~/dev/` · 2 21 CLIs · 3 clone 41 forks ·
 3b archify shim · 4 install 287 manifest skills (security-gated) · 5 write 12 MCP servers to
 `User/mcp.json` · 5b Copilot utility model pins · 5c SkillOpt-Sleep nightly task · 6 governance
 docs · 7 audit.

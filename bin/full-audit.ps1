@@ -124,6 +124,18 @@ foreach ($s in $mcpServers) {
   $psi.EnvironmentVariables["PATH"] = $env:PATH
   $psi.EnvironmentVariables["PYTHONUTF8"] = "1"
 
+  # A stdio MCP server treats stdin EOF as "client went away" and exits immediately.
+  # `cmd /c "..."` inherits whatever stdin the audit process has; when the audit is run
+  # from a pipeline, a task runner or Copilot's shell - i.e. anything where
+  # [Console]::IsInputRedirected is True - that stdin is already at EOF, so every server
+  # exited in ~5s with rc=0 and no output, and was graded WARN "exited early".
+  # Verified 2026-11-20: `skillspector mcp` with stdin=DEVNULL exits rc=0 in 4.7s, with a
+  # blocking stdin it is still alive at 12s; the real JSON-RPC handshake answers in 5.1s.
+  # Redirect stdin so the server blocks on an open pipe - never written to, so reads block -
+  # exactly as it does in VS Code, whatever the caller's stdin happens to be. That makes the
+  # probe deterministic instead of dependent on how the audit itself was launched.
+  $psi.RedirectStandardInput = $true
+
   # A dead proxy in the parent shell makes every npx/uvx launcher die with
   # "error sending request for url (...)" before the server is ever reached. That is an
   # environment fault, not a bundle fault, so drop the proxy for the probe rather than

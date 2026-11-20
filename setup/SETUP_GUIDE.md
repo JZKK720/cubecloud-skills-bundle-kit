@@ -28,7 +28,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-global-skills.ps1 -I
 | 0c    | Create directory skeleton (~/.agents/skills, ~/.claude/skills, ~/dev/)                                                                                                                                                                                                                                                       | instant |
 | 1     | Install SkillSpector (security scanner) + skills-ref (spec validator)                                                                                                                                                                                                                                                        | ~2 min  |
 | 1b    | Copy install-skill.ps1 helper + SkillSpector suppression baselines to ~/dev/                                                                                                                                                                                                                                                | instant |
-| 2     | Install 20 CLI tools (uv tool + npm + bun + release binary)                                                                                                                                                                                                                                                                  | ~5 min  |
+| 2     | Install 21 CLI tools (uv tool + npm + bun + release binary)                                                                                                                                                                                                                                                                  | ~5 min  |
 | 3     | Clone 41 fork mirrors (22 JZKK720 mirrors + 8 evaluation mirrors + 11 single-repo clones: awesome-design-md, microsoft/SkillOpt, alibaba/open-code-review, EveryInc/compound-engineering-plugin, Shubhamsaboo/awesome-llm-apps, agentskills, tt-a1i/archify, virgiliojr94/book-to-skill, alchaincyf/huashu-design, semantica-agi/semantica, pranshuparmar/witr) (skip with -SkipForks) | ~2 min  |
 | 3b    | **Opt-in** (`-IncludeArchifyCli`): write `~/.local/bin/archify.cmd` shim for the archify CLI. Runs `archify doctor` first; skips with a warning if the mirror is absent | instant |
 | 4     | Install 287 manifest entries (285 active + 2 disabled) through the security-gated pipeline; combined with extension/CLI-provisioned skills this yields 332 dirs in `~/.agents/skills/` (plus 3 parked in `skills._disabled/`)                                                                          | ~5 min  |
@@ -76,13 +76,14 @@ winget install Microsoft.VisualStudioCode
 - `chat.utilitySmallModel = ollama-models/ornith:9b-q8_0`
 - `chat.byokUtilityModelDefault = mainAgent` (BYOK fallback when a utility flow needs a default)
 
-**20 CLI tools** (on permanent user PATH):
+**21 CLI tools** (on permanent user PATH):
 
-- skillspector, skills-ref, specify, skillopt-eval, agent-reach, graphify, markitdown, scrapling, semantica (via uv)
+- skillspector, skills-ref, specify, skillopt-eval, agent-reach, graphify, markitdown, scrapling, semantica, skillevaluator (via uv)
 - uipro, firecrawl, loop, wigolo, ocr, **rea** (via npm)
 - gbrain (via bun)
 - headroom, watch-skill (via uv; watch-skill from GitHub source)
 - witr (via GitHub release binary — Go binary, no Go toolchain needed)
+- git-wt (worktrunk, via winget — installed under its own name to avoid the `wt` alias conflict)
 
 **287 manifest entries (285 active + 2 disabled) + extension/CLI-provisioned and hand-ported skills = 332 dirs in `~/.agents/skills/`** (discovered by VS Code Copilot without configuration)
 
