@@ -745,6 +745,53 @@ levels). The method is `system_one()` — not `ask()`.
 
 ## Changelog
 
+### v1.9.22 (2026-11-20)
+
+**README brought to truth, and a real MCP-probe defect fixed.**
+
+The v1.9.21 release shipped while the documentation still described an earlier state, so this
+release contains only documentation and audit-tooling corrections — no skills, CLIs or MCP servers
+changed.
+
+- **Fixed a genuine defect in `bin/full-audit.ps1` phase 1.** The MCP liveness probe started each
+  daemon without `RedirectStandardInput`, so a stdio server inherited whatever stdin the *audit*
+  had. A stdio MCP server treats stdin EOF as "the client went away" and exits — cleanly, `rc=0` —
+  so any run whose stdin was already redirected (a pipeline, a task runner, Copilot's shell, where
+  `[Console]::IsInputRedirected` is `True`) saw **5 of 6 daemons exit early** and graded them
+  `WARN … Exited early, no output`. Ruled out the usual suspects first: no proxy variable set, and
+  the npm registry answered `200`. Isolated the cause by running the same command with two
+  different stdins — `skillspector mcp` with stdin at EOF **exits `rc=0` in 4.7 s**, with a blocking
+  stdin it is **still alive at 12 s**. One line fixes it: `$psi.RedirectStandardInput = $true`.
+  Verified afterwards alive at 15–20 s, and real JSON-RPC handshakes answer in 1.5–5.8 s.
+  This is the third MCP-probe stream bug; the durable lesson is recorded in
+  [`DEPRECATIONS.md`](DEPRECATIONS.md) §11 — a probe that asks "did it stay up" must control every
+  stream the server reads.
+- **README counters corrected** (each measured, not assumed): on-disk `333` → **332** in three
+  places; "What you get" said **286 active + 1 disabled / 284 present** → real **285 + 2 / 283**;
+  repo layout said 28 scripts / 53 port skills / 29 forks → real **32 / 62 / 27**, and
+  `baselines/`, `DEPRECATIONS.md` and `skills-unmanaged.txt` were missing from the tree entirely.
+- **Two skills were advertised but never documented:** the CLIs table listed **19 of the 21** it
+  claimed (`rea` and `skillevaluator` had no row) and the MCP list showed **11 of 12** (`rea`
+  missing). Both now complete — `check-bundle-integrity.ps1` already enforced the *count*, which is
+  why the gap survived; it now cannot, because every advertised name is checked against
+  `verify-state.ps1`.
+- **`brainstorming` was still listed as gate-blocked** in two places although it has been a manifest
+  row under a reviewed baseline since 2026-11-19. Moved off the blocked table with the reason
+  recorded, and the 9 skills adopted in v1.9.19–v1.9.21 (`ffmpeg-skill`, the 4 EGM spec-first
+  skills, the 3 seo strategy skills) now have real family entries instead of a table-only mention.
+- **`build-mcp` explained** in the Disabled section: parked at **0.970** Tier 2 similarity to
+  `mcp-builder`.
+- **New "Four gates" table** so a reader can see that `skillspector` is the only gate that *blocks*
+  while the other three prove the shipped state is coherent, plus sections on reviewed
+  suppressions and the advisory layer (SkillEvaluator, Tier 2).
+- **`AGENTS.md` and `setup/SETUP_GUIDE.md` corrected** to match: AGENTS said `333 on disk`,
+  `20 CLIs`, `55 fork mirrors` and "7 inline phases"; SETUP_GUIDE said `20 CLI tools` twice and
+  listed only 19.
+
+Gates on the released tree: `full-audit` **PASS 47 · FAIL 0 · WARN 0 · ADVISORY 0**,
+`check-bundle-integrity` **PASS 18 · FAIL 0**, `verify-state` **RESULT: OK**,
+`mcp-smoke-test` **PASS 12 · FAIL 0**.
+
 ### v1.9.21 (2026-11-20)
 
 **Single Node install, and the release gate that finally caught itself.**
