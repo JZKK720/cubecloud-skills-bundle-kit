@@ -4,69 +4,55 @@
 #   disposition: hand-port   - authored/vendored in upstream/, already gated when written
 #                duplicate   - superseded by a manifest-tracked skill that is installed
 #                cli-owned   - written by a CLI (gbrain/gstack/headroom/skillopt), not by the manifest
+#                extension   - provisioned by a VS Code extension / CLI, never by this bundle
 #
-# Why this file exists: until 2026-11-02 the on-disk count (338) was explained only in
-# README prose, so nothing failed when a new orphan appeared. `check-bundle-integrity.ps1`
-# now asserts that every directory in ~/.agents/skills/ is either a manifest row, a
-# VS Code extension skill, or a row in THIS file. Adding a skill to the bundle without a
-# manifest row therefore fails the gate instead of silently skewing the documented count.
+# Why this file exists: until 2026-11-02 the on-disk count was explained only in README prose,
+# so nothing failed when a new orphan appeared. `check-bundle-integrity.ps1` now asserts that
+# every directory in ~/.agents/skills/ is either a manifest row, a VS Code extension skill, or a
+# row in THIS file. Adding a skill to the bundle without a manifest row fails the gate instead of
+# silently skewing the documented count.
 #
-# Every row below was verified on 2026-11-02 by reading the installed SKILL.md
-# `metadata.source` + `metadata.source_skill`. `duplicate` rows were additionally verified
-# to have a manifest-tracked, currently-installed equivalent.
+# AUDIT 2026-11-19: this file claimed 39 skills. **38 were no longer on disk** - the whole
+# `sp-*` and `po-*` Copilot-adaptation set, the six `gstack-*`, both `gbrain-*`,
+# `headroom-workflow`, the three research ports and `huashu-design` had all been cleared, but the
+# allowlist was never pruned, so the gate reported 38 permanent "stale allowlist entry" FAILs.
+# Two entries also became wrong for a different reason: `sp-brainstorm` and `sp-verify` were
+# hand-ports BECAUSE `brainstorming` was gate-blocked and `verification-before-completion` had no
+# row. On 2026-11-19 `brainstorming` was adopted under a reviewed baseline and
+# `verification-before-completion` was confirmed installed and tracked in the README - so both are
+# now real skills and must NOT be allowlisted here.
+#
+# RULE: a row here must correspond to a directory that actually exists. When a skill is removed
+# or adopted as a manifest row, delete its row here in the same change.
 
-# --- superpowers Copilot adaptations -------------------------------------------------
-# These are condensed, Copilot-side rewrites of obra/superpowers skills (74 vs 371 lines for
-# sp-tdd) whose originals ARE manifest-tracked and installed. They are kept because the
-# adaptation is the Copilot-usable form; they are not a second copy of the same file.
-sp-tdd|duplicate|test-driven-development (74 vs 371 lines)
-sp-debug|duplicate|systematic-debugging (81 vs 296 lines)
-sp-plan|duplicate|writing-plans (104 vs 174 lines)
-sp-execute|duplicate|executing-plans (99 vs 70 lines)
-sp-subagents|duplicate|subagent-driven-development (118 vs 418 lines)
-sp-request-review|duplicate|requesting-code-review (82 vs 103 lines)
-sp-receive-review|duplicate|receiving-code-review (86 vs 213 lines)
-sp-worktree|duplicate|using-git-worktrees (113 vs 202 lines)
-sp-finish-branch|duplicate|finishing-a-development-branch (129 vs 241 lines)
-sp-write-skill|duplicate|writing-skills (140 vs 689 lines)
-sp-skill-first|duplicate|using-superpowers (71 vs 62 lines)
-sp-parallel|duplicate|dispatching-parallel-agents (106 vs 185 lines)
+# --- the one surviving hand-authored adaptation --------------------------------------
+gstack-review|hand-port|authored in this bundle (README documents it as a custom implementation; no manifest row)
+# --- GCP extension skills (VS Code Google Cloud extensions) ---------------------------
+# Provisioned by the Google Cloud / GKE / BigQuery extensions, never by this bundle. Listed
+# explicitly rather than by prefix so a new GCP skill stays an intentional decision.
+bigquery-basics|extension|Google Cloud extension
+cloud-run-basics|extension|Google Cloud extension
+cloud-sql-basics|extension|Google Cloud extension
+firebase-basics|extension|Firebase extension
+gcloud|extension|Google Cloud extension
+gke-basics|extension|GKE extension
+gke-networking|extension|GKE extension
+gke-security|extension|GKE extension
+google-cloud-recipe-onboarding|extension|Google Cloud extension
+google-cloud-solution-architecture|extension|Google Cloud extension
 
-# --- unique, no manifest equivalent --------------------------------------------------
-# brainstorming and verification-before-completion are NOT manifest rows: brainstorming was
-# gate-blocked and re-shipped as the clean port `idea-to-design`; verification-before-completion
-# has no upstream row. These two are the only genuinely un-adopted originals in the set -
-# candidates for a future manifest row rather than deletion.
-sp-brainstorm|hand-port|brainstorming (upstream gate-blocked; idea-to-design is the clean port)
-sp-verify|hand-port|verification-before-completion (no manifest equivalent)
-
-# --- other superpowers / ECC adaptations ---------------------------------------------
-po-tdd|duplicate|test-driven-development (132 vs 371 lines)
-ecc-coding-standards|duplicate|coding-standards (131 vs 551 lines)
-ecc-skill-development-guide|duplicate|writing-skills (skill-authoring methodology)
-ecc-skill-scout|duplicate|self-learning (skill-discovery methodology)
-po-caveman|duplicate|caveman (caveman is manifest-tracked + parked; po-caveman is the active form)
-po-diagnose|duplicate|systematic-debugging (diagnosis methodology)
-po-grill-with-docs|duplicate|grilling (mattpocock grilling, manifest row)
-po-improve-codebase-architecture|duplicate|improve (module-depth refactor lens)
-po-write-a-skill|duplicate|writing-skills (SKILL.md authoring)
-po-to-prd|duplicate|create-rfc (artifact-authoring lens)
-
-# --- CLI-provisioned (written by a tool, never by the manifest) ----------------------
-gstack-review|hand-port|authored in this bundle (README documents it as a custom implementation)
-gstack-investigate|cli-owned|JZKK720/gstack
-gstack-retro|cli-owned|JZKK720/gstack (also overlaps manifest `retro`)
-gstack-qa|cli-owned|JZKK720/gstack (also overlaps `quality-gates`)
-gstack-plan-ceo-review|cli-owned|JZKK720/gstack
-gstack-plan-design-review|cli-owned|JZKK720/gstack
-gstack-plan-eng-review|cli-owned|JZKK720/gstack
-gbrain-eiirp|cli-owned|JZKK720/gbrain
-gbrain-skillify|cli-owned|JZKK720/gbrain
-headroom-workflow|cli-owned|JZKK720/headroom (the `headroom` CLI is on PATH; no skill row exists)
-
-# --- research / design / vendor ports ------------------------------------------------
-ar-autoresearch|hand-port|JZKK720/autoresearch (karpathy harness, see also karpathy-autoresearch)
-karpathy-autoresearch|hand-port|karpathy/autoresearch (repo-specific harness guidance)
-commit-archaeologist|hand-port|Shubhamsaboo/awesome-llm-apps (gate-blocked, survived on disk)
-scope-creep-detector|hand-port|Shubhamsaboo/awesome-llm-apps (gate-blocked, survived on disk)
-huashu-design|hand-port|alchaincyf/huashu-design (gate-blocked for sharp==0.34.5; kept from an earlier round)
+# --- hyperframes / media skills ------------------------------------------------------
+# `hyperframes` itself is a manifest row (the router). These seven are the per-workflow skills
+# the router pulls on demand via `npx hyperframes skills update <workflow>`, and `media-use`
+# arrives with the media toolchain. Neither path is the manifest.
+hyperframes-animation|cli-owned|npx hyperframes skills update
+hyperframes-audio|cli-owned|npx hyperframes skills update
+hyperframes-cli|cli-owned|npx hyperframes skills update
+hyperframes-core|cli-owned|npx hyperframes skills update
+hyperframes-creative|cli-owned|npx hyperframes skills update
+hyperframes-keyframes|cli-owned|npx hyperframes skills update
+hyperframes-registry|cli-owned|npx hyperframes skills update
+media-use|extension|arrives with the media toolchain
+agent-platform-deploy|extension|Vertex AI / Agent Platform extension (Google Cloud)
+ce-compound|duplicate|gate-blocked upstream (HIGH E4 + HIGH RA1); ce-compound-refresh is the tracked row
+verification-before-completion|hand-port|obra/superpowers v7 skill, installed outside the manifest (no row yet)

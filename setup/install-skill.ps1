@@ -81,8 +81,90 @@ function Die($msg)          { Write-Fail $msg; exit 1 }
 # either the previous complete install or the new complete install - never a half-copied skill.
 # A rename within the same parent directory is atomic on Windows, so an interrupted copy can no
 # longer leave a broken install (the failure mode of 'Remove-Item $dest; Copy-Item').
-function Install-SkillTree([string]$Source, [string]$Dest, [switch]$ParkDisabled) {
-  $parent = Split-Path $Dest -Parent
+# Claude-Code-only keys that `skills-ref validate` rejects at top level. Nested under
+# `metadata:` so the value survives for Claude Code while the frontmatter stays spec-valid.
+$script:ClaudeOnlyFrontmatterKeys = @(
+  'argument-hint', 'disable-model-invocation', 'user-invocable', 'user_invocable',
+  'version', 'origin', 'tools', 'tags', 'triggers', 'mutating', 'writes_pages', 'writes_to',
+  'hooks', 'allowed_tools', 'license_url', 'model'
+)
+
+function Repair-SkillFrontmatter([string]$SkillMdPath, [string]$ExpectedName) {
+  try {
+    # Read and write with an EXPLICIT UTF-8 codec. Get-Content/Set-Content round-trip through
+    # the console code page on this host, which silently corrupts every non-ASCII character in a
+    # skill: in 2026-11-19 a section sign became U+9225 and a right-arrow became U+922B this way.
+    # [IO.File] with UTF8Encoding does not round-trip through the code page.
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    $raw  = [System.IO.File]::ReadAllText($SkillMdPath, $utf8)
+    $lines = $raw -split "\r?\n"
+    if (-not $lines -or $lines[0].TrimEnd() -ne '---') { return }
+
+    $end = -1; $seen = 0
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+      if ($lines[$i].TrimEnd() -eq '---') { $seen++; if ($seen -eq 2) { $end = $i; break } }
+    }
+    if ($end -lt 0) { return }
+
+    $moved = @(); $keep = @(); $i = 0
+    while ($i -lt $end) {
+      $hit = $null
+      foreach ($k in $script:ClaudeOnlyFrontmatterKeys) {
+        if ($lines[$i] -match "^$([regex]::Escape($k)):") { $hit = $k; break }
+      }
+      if ($hit) {
+        $block = @($lines[$i] -replace "^$([regex]::Escape($hit)):", "  $hit`:")
+        $i++
+        while ($i -lt $end -and $lines[$i] -match '^\s+\S') { $block += "  $($lines[$i])"; $i++ }
+        $moved += $block
+      } else { $keep += $lines[$i]; $i++ }
+    }
+    if ($moved.Count -eq 0) { return }
+
+    $metaIdx = -1
+    for ($k = 0; $k -lt $keep.Count; $k++) { if ($keep[$k] -match '^metadata:') { $metaIdx = $k; break } }
+    if ($metaIdx -ge 0) {
+      $j = $metaIdx + 1
+      while ($j -lt $keep.Count -and $keep[$j] -match '^\s+\S') { $j++ }
+      $keep = @($keep[0..($j-1)]) + $moved + @($keep[$j..($keep.Count-1)])
+    } else {
+      $keep = $keep + @('metadata:') + $moved
+    }
+
+    # A nested key can now appear twice (e.g. upstream already had version under metadata).
+    # Compare whole indented lines, not `indent+key`: `opencode/slash` contains a `/` that a
+    # key-only regex truncates, and re-keying on it corrupted the block (observed 2026-11-19).
+    $final = @(); $seenLines = @{}
+    $inMeta = $false
+    foreach ($l in $keep) {
+      if ($l -match '^metadata:') { $inMeta = $true }
+      elseif ($l -match '^\S') { $inMeta = $false }
+      if ($inMeta -and $l -match '^\s+\S') {
+        $norm = $l.Trim()
+        if ($seenLines.ContainsKey($norm)) { continue }
+        $seenLines[$norm] = $true
+      }
+      $final += $l
+    }
+
+    # `skills-ref` also requires the frontmatter name to equal the skill FOLDER name, and
+    # upstream sometimes ships a different one (e.g. taste-skill -> design-taste-frontend).
+    if ($ExpectedName) {
+      for ($k = 0; $k -lt $final.Count; $k++) {
+        if ($final[$k] -match '^name:\s*(.+?)\s*$') {
+          if ($Matches[1] -ne $ExpectedName) { $final[$k] = "name: $ExpectedName" }
+          break
+        }
+      }
+    }
+
+    [System.IO.File]::WriteAllText($SkillMdPath, (($final + $lines[$end..($lines.Count - 1)]) -join "`n"), $utf8)
+  } catch {
+    Write-Warn "frontmatter normalisation skipped for $SkillMdPath ($($_.Exception.Message))"
+  }
+}
+
+function Install-SkillTree([string]$Source, [string]$Dest, [switch]$ParkDisabled) {  $parent = Split-Path $Dest -Parent
   if ($parent) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
   $token   = [System.Guid]::NewGuid().ToString('N').Substring(0, 8)
   $staging = "$Dest.__staging_$token"
@@ -91,6 +173,15 @@ function Install-SkillTree([string]$Source, [string]$Dest, [switch]$ParkDisabled
   if (Test-Path $staging) { Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue }
   New-Item -ItemType Directory -Force -Path $staging | Out-Null
   Copy-Item -Path "$Source\*" -Destination $staging -Recurse -Force
+  # Normalise Claude-Code-only frontmatter keys before the tree lands.
+  # `skills-ref validate` allows only name/description/license/compatibility/metadata/
+  # allowed-tools, so a skill shipping `argument-hint`, `version`, `tags`, `tools` or
+  # `disable-model-invocation` at top level fails validation on every install. 66 of 333
+  # installed skills were in that state (measured 2026-11-19). Nest them under `metadata:`
+  # instead of dropping them: the values stay available to Claude Code, and Copilot ignores
+  # the block. Doing it here (not as a one-off repair) means a refresh cannot reintroduce it.
+  $stagedSkillMd = Join-Path $staging 'SKILL.md'
+  if ((Test-Path $stagedSkillMd) -and -not $ParkDisabled) { Repair-SkillFrontmatter $stagedSkillMd (Split-Path $Dest -Leaf) }
   if ($ParkDisabled) {
     $sf = Join-Path $staging 'SKILL.md'
     if (Test-Path $sf) { Rename-Item $sf 'SKILL.md.disabled' -Force }

@@ -238,6 +238,21 @@ catch {
   Write-OK "skills-ref installed"
 }
 
+# Install skillevaluator (OPTIONAL advisory, NOT a gate)
+# skillspector above stays the only blocking gate: it is the one scanner whose verdict is an
+# exit code and it needs no model key or Docker. skillevaluator CONSUMES skillspector and adds
+# what the bundle otherwise lacks - a graded quality score, harness compatibility, semantic
+# overlap, and PII/license/Unicode checks. Do not gate on it: its Tier 1 security check reports
+# INCOMPLETE when the nested SkillSpector run does not finish in-process, so it cannot answer
+# the one question a gate must answer. See docs/plans/2026-11-19-upstream-skill-adoption-eval.md.
+try { $null = & skillevaluator --version 2>&1; Write-OK "skillevaluator: $(skillevaluator --version 2>&1)" }
+catch {
+  Write-Host "  Installing skillevaluator (advisory)..." -NoNewline
+  cmd /c "uv tool install --python 3.13 skillevaluator >nul 2>nul"
+  $env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
+  Write-OK "skillevaluator installed (advisory; skillspector remains the gate)"
+}
+
 # ============================================================
 # PHASE 1b: INSTALL HELPER SCRIPT
 # ============================================================
@@ -307,6 +322,10 @@ $pyTools = @(
   # Pin below 2 until upstream widens/fixes the import.
   @{name = "scrapling[ai]"; pkg = "scrapling[ai]"; py = "3.13"; with = @("mcp<2") },
   @{name = "headroom-ai[proxy]"; pkg = "headroom-ai[proxy]"; py = "3.12" },
+  # skillevaluator (NVIDIA/SkillEvaluator, Apache-2.0): OPTIONAL advisory evaluator, not a
+  # gate - see the comment in Phase 1. Adds quality scoring, harness compatibility and
+  # semantic overlap on top of the skillspector scan the bundle already runs.
+  @{name = "skillevaluator"; pkg = "skillevaluator"; py = "3.13" },
   @{name = "watch-skill"; pkg = "git+https://github.com/oxbshw/watch-skill.git"; py = "3.13" },
   # semantica (semantica-agi/semantica, MIT): Python knowledge-graph library.
   # Ships 17 plugin skills at plugins/skills/*/SKILL.md. Requires Python 3.10+.
@@ -468,6 +487,17 @@ if (-not $SkipForks) {
   $skilloptTarget = Join-Path $dest "SkillOpt"
   if (-not (Test-Path $skilloptTarget)) {
     cmd /c "git clone --depth 1 https://github.com/microsoft/SkillOpt.git `"$skilloptTarget`" >nul 2>nul"
+  }
+  # VERIFY the clone. The command above hides all output, so a failed clone used to look like
+  # success and the failure only surfaced later as a 20 s MCP probe timeout ("can't open file").
+  # This exact class of silent failure has bitten this repo before (see AGENTS.md).
+  $skilloptServer = Join-Path $skilloptTarget "plugins\copilot\skillopt\mcp_server.py"
+  if (Test-Path $skilloptServer) {
+    Write-OK "SkillOpt mirror present (mcp_server.py found)"
+  } else {
+    Write-Warn "SkillOpt clone did not produce plugins\copilot\skillopt\mcp_server.py at $skilloptTarget"
+    Write-Warn "  The skillopt MCP server will fail at runtime. Re-run, or clone manually:"
+    Write-Warn "  git clone --depth 1 https://github.com/microsoft/SkillOpt.git `"$skilloptTarget`""
   }
   # Non-JZKK720 fork mirror: alibaba/open-code-review (Apache-2.0). The `ocr` CLI
   # is installed via npm, but the repo ships 2 portable SKILL.md files at

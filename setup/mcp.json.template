@@ -68,12 +68,12 @@
         "PYTHONUTF8": "1"
       }
         },
-        "rea": {
-          "type": "stdio",
-          "command": "npx",
-          "args": ["-y", "rea-agents@latest", "mcp"],
-          "env": {}
-        }
+                  "rea": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "rea-agents@latest", "mcp"],
+            "env": {}
+          }
       },
       "inputs": []
 }

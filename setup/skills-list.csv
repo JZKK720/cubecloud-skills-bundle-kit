@@ -590,7 +590,11 @@ JZKK720/context-engineering-kit|analyse-problem|skills/analyse-problem|
 JZKK720/context-engineering-kit|analyze-issue|skills/analyze-issue|
 JZKK720/context-engineering-kit|apply-anthropic-skill-best-practices|skills/apply-anthropic-skill-best-practices|
 JZKK720/context-engineering-kit|attach-review-to-pr|skills/attach-review-to-pr|
-JZKK720/context-engineering-kit|build-mcp|skills/build-mcp|
+# PARKED 2026-11-20: 1-file strict subset of mcp-builder (Tier 2 similarity 0.970, identical
+# section structure, 13900 vs 9227 bytes of SKILL.md plus 5 reference files). Copilot must not
+# see both. Files live in ~/.agents/skills._disabled/build-mcp/ (SKILL.md.disabled); reverse with
+# a directory move + rename. See docs/plans/2026-11-20-skill-duplicates.md.
+JZKK720/context-engineering-kit|build-mcp|skills/build-mcp|true
 JZKK720/context-engineering-kit|cause-and-effect|skills/cause-and-effect|
 JZKK720/context-engineering-kit|critique|skills/critique|
 JZKK720/context-engineering-kit|do-and-judge|skills/do-and-judge|
@@ -1021,3 +1025,57 @@ NVIDIA/OpenShell|debug-openshell-cluster|skills/debug-openshell-cluster|
 # reverse-engineer-anything is the agent-facing skill; the other two are REA-repo-internal
 # (changelog/tool-design) and not useful outside the REA codebase.
 morluto/rea|reverse-engineer-anything|.agents/skills/reverse-engineer-anything|
+
+# =============================================================================
+# v1.9.21 additions (2026-11-19): upstream-HEAD refresh + 9 new gate-clean skills
+# Verified against upstream HEAD on 2026-11-19 by syncing all 26 fork mirrors
+# (in/sync-fork-upstreams.ps1) and re-gating every skill upstream added since
+# the last sweep. Per-skill SkillSpector results and the rejected candidates are
+# recorded in docs/plans/2026-11-19-upstream-skill-adoption-eval.md.
+# =============================================================================
+
+# --- ffmpeg-skill (kajisho5/ffmpeg-skill, MIT, 8.1k stars) — local video/audio editing ---
+# 42 FFmpeg tools with a machine-readable contract, plus an optional MCP server. No cloud,
+# no API keys; stdlib Python only. Installed from a VENDORED payload (upstream/ffmpeg-skill)
+# built from the repo's own skills/ payload, NOT from the repo root: a root-level scan reads
+# the maintainer's docs, fuzz seeds and demo GIFs, and flags a CRITICAL YARA hit on
+# docs/demos/lower_third_hindi.gif together with 544 MEDIUM findings in tests/ and .github/.
+# The payload-only copy scores LOW. Needs FFmpeg 6.1+ and Python 3.10+ (both present).
+# Suppression baseline: baselines/ffmpeg-skill.baseline.yaml (fingerprints + 10 narrow rules;
+# verified 141 suppressed, 0 remaining, exit 0).
+local/ffmpeg-skill|ffmpeg-skill||upstream/ffmpeg-skill
+
+# --- superpowers brainstorming (obra/superpowers, MIT, v7.0.2) ---
+# Newly added upstream in v7. The bundle previously shipped only idea-to-design, a hand-authored
+# clean port that STRIPS the visual-companion server because upstream's stop-server.sh was
+# SkillSpector-blocked. That upstream block no longer reproduces: verified 2026-11-19, the script
+# refuses to signal any PID it cannot prove belongs to the session (per-start instance id,
+# fail-closed stale_pid) and executes no caller-supplied command. Adopting the real skill gives
+# the visual companion the port had to drop; idea-to-design stays as the no-script fallback.
+# Suppression baseline: baselines/brainstorming.baseline.yaml (6 findings, all reviewed).
+local/brainstorming|brainstorming||upstream/brainstorming
+
+# --- Elephant & Goldfish Model (google/elephant-goldfish-model, Apache-2.0, 21k stars) ---
+# Spec-first agent workflow (brainstorm -> draft -> review -> resolve -> drift). Vendored as
+# local/* ports because the repo ships 8 skills plus a 10-file agents/ tree; only these four are
+# self-contained. egm-bootstrap is gate-BLOCKED upstream (HIGH AE1 x4, exit 1) and the three that
+# spawn harness-specific subagents (egm-brainstorm, egm-review, egm-review-loop) are excluded —
+# they hard-require invoke_subagent/Agent/spawn_agent plus a repo-level agents/ tree.
+# All four adopted ports pass: exit 0 (egm-lite 7/100 LOW, egm-draft 30/100 MEDIUM).
+local/egm-lite|egm-lite||upstream/egm-lite
+local/egm-draft|egm-draft||upstream/egm-draft
+local/egm-resolve|egm-resolve||upstream/egm-resolve
+local/egm-drift-report|egm-drift-report||upstream/egm-drift-report
+
+# --- claude-seo (AgriciDaniel/claude-seo, MIT, 30k stars) — strategy skills only ---
+# Upstream ships 29 skills + 11 paid-API extensions + 20 agents. Only three are self-contained:
+# they carry their own references, never mention  or scripts/, and reference
+# no sibling skill. The other 26 call "/scripts/claude-seo" run <tool>.py
+# and would install as dead prose without the plugin's Python launcher; 4 of those also FAIL the
+# gate (seo-agentic 67, seo-cluster 77, seo-google 62, seo-image-gen 59 — all HIGH, exit 1).
+# Verified: seo-plan / seo-competitor-pages / seo-hreflang all exit 0, 0 findings.
+local/seo-plan|seo-plan||upstream/seo-plan
+local/seo-competitor-pages|seo-competitor-pages||upstream/seo-competitor-pages
+local/seo-hreflang|seo-hreflang||upstream/seo-hreflang
+
+
