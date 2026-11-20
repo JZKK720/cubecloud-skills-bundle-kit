@@ -94,9 +94,15 @@ $cl = [System.IO.File]::ReadAllText($clPath)
 $stamp = "## [$Version] - $(Get-Date -Format 'yyyy-MM-dd')"
 if ($cl -notmatch '(?m)^## \[Unreleased\]') { Die 'no [Unreleased] block found in CHANGELOG.md' }
 if ($cl.Contains("## [$Version]")) { Die "CHANGELOG already has a [$Version] section" }
-if ($DryRun) { Write-Host "  [dry-run] would replace '## [Unreleased] - ...' with '$stamp'" -ForegroundColor DarkCyan }
+# Stamp ONLY the FIRST [Unreleased] header. This CHANGELOG uses one [Unreleased] block per
+# unreleased change set (nine of them at v1.9.21), and PowerShell's -replace is global: a plain
+# `-replace '(?m)^## \[Unreleased\]...'` rewrites every header to the same version, destroying the
+# release history. Replace exactly once by index.
+$mFirst = [regex]::Match($cl, '(?m)^## \[Unreleased\][^\r\n]*')
+if (-not $mFirst.Success) { Die 'no [Unreleased] header matched' }
+$clNew = $cl.Substring(0, $mFirst.Index) + $stamp + $cl.Substring($mFirst.Index + $mFirst.Length)
+if ($DryRun) { Write-Host "  [dry-run] would replace the FIRST '## [Unreleased] - ...' with '$stamp' (1 of $(([regex]::Matches($cl,'(?m)^## \[Unreleased\]')).Count) blocks)" -ForegroundColor DarkCyan }
 else {
-    $clNew = $cl -replace '(?m)^## \[Unreleased\][^\r\n]*', $stamp
     [System.IO.File]::WriteAllText($clPath, $clNew, (New-Object System.Text.UTF8Encoding($false)))
     Ok "stamped [$Version]"
 }
@@ -142,13 +148,21 @@ if ($DryRun) {
 }
 else {
     $clNow = [System.IO.File]::ReadAllText($clPath)
-    $s = $clNow.IndexOf("## [$Version]")
+    # Anchor on the stamped header. `IndexOf("## [$Version]")` would also match a reference to
+    # the version inside an older section body; match the ATX header at line start instead.
+    $s = -1
+    $hm = [regex]::Match($clNow, "(?m)^## \[" + [regex]::Escape($Version) + "\]")
+    if ($hm.Success) { $s = $hm.Index }
     if ($s -lt 0) { Die "stamped [$Version] section not found in CHANGELOG" }
     $after = $clNow.Substring($s + 10)
     $m = [regex]::Match($after, '(?m)^## \[')
     $e = if ($m.Success) { $m.Index } else { -1 }
     $releaseBody = if ($e -gt 0) { $clNow.Substring($s, $e).TrimEnd() } else { $clNow.Substring($s).TrimEnd() }
     if (-not $releaseBody) { Die 'could not extract release notes from CHANGELOG' }
+    # Guard: a release body spanning thousands of lines means the section boundary was missed.
+    $bodyLines = ($releaseBody -split "`n").Count
+    if ($bodyLines -gt 400) { Die "release body is $bodyLines lines - section boundary looks wrong (refusing to publish)" }
+    Write-Host "  release body: $bodyLines lines" -ForegroundColor DarkCyan
 }
 
 # --- 5. commit ---
