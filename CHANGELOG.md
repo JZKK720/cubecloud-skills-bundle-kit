@@ -309,6 +309,17 @@ Full analysis, per-repo gate evidence and the rejected candidates:
   skills), verified byte-identical against `HEAD`; this change introduces no new failure.
 
 ## [Unreleased] — 2026-11-02
+## [1.9.20] - 2026-11-15
+
+### Manifest: drop removed-upstream `jev-ui`/`jev-simulation`, add `jev-act` (2026-11-15)
+
+- **`setup/skills-list.csv`**: `jev-ui` and `jev-simulation` were removed from `wuyoscar/jev-skill`
+  upstream (HEAD now ships `jev`, `jev-act`, `jev-documents`, `jev-eval`, `jev-triage`), so their
+  manifest rows had no installable source and always fell through as "source missing". Dropped both
+  and added `jev-act` (current upstream companion; SkillSpector `--no-llm` exit 0 / LOW, no baseline
+  needed). Manifest **275 → 274** (273 active + 1 disabled); reconciled every count across
+  `README.md`, `AGENTS.md` and `setup/SETUP_GUIDE.md` (on-disk 338 → 337, installed 272 → 271) so
+  `bin/check-bundle-integrity.ps1` stays green.
 
 ### End-to-end upstream re-verification: 4 tool defects fixed, 76 skills brought current
 

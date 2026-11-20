@@ -7,7 +7,7 @@
 [![MCP servers](https://img.shields.io/badge/MCP%20servers-12-purple)](#mcp-servers)
 [![Security gate](https://img.shields.io/badge/security%20gate-SkillSpector-green)](#security-model)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](#prerequisites)
-[![Version](https://img.shields.io/badge/version-1.9.19-orange)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.9.20-orange)](#changelog)
 [![License](https://img.shields.io/badge/license-MIT-success)](LICENSE)
 
 ---
@@ -150,8 +150,8 @@ threshold — no network egress, no provider key. Latest run: **4 pairs, 0 exact
 > CLI rather than this manifest. Those are already on disk on any normal install and the bundle
 > neither writes nor removes them (README §"Azure & cloud" and §"Skills on disk that are not in
 > the manifest" below).
-> Of the 284 active manifest rows that resolve to a source, 283 are installed and 1 (`caveman`)
-> is parked, so two never reached disk because the gate blocked them (`ce-setup`,
+> Of the 285 active manifest rows, 283 are installed and 2 are parked (`caveman`, `build-mcp`),
+> and two never reached disk because the gate blocked them (`ce-setup`,
 > `debug-openshell-cluster`): 283 + 27 + 22 = **332**. Both numbers are correct; they measure
 > different sets. Dot-directories under `~/.agents/skills` are staging folders and are excluded
 > by every audit.
@@ -1052,8 +1052,7 @@ a timeout is not a failure: ~122 s is the MCP smoke test, and the dominant cost 
 1. **`jev-skill` family** (wuyoscar/jev-skill, MIT, 324★) — Jev returns **typed decisions**
    (`choice` / `noul` / `score`) over a caller-supplied `state`, `questions` and `criteria`. It
    does not browse, execute tools or generate prose; the host agent still plans, acts and
-   verifies. Six skills: `jev` (router), `jev-triage`, `jev-documents`, `jev-eval`, `jev-ui`,
-   `jev-simulation`.
+   verifies. Five skills: `jev` (router), `jev-triage`, `jev-documents`, `jev-eval`, `jev-act`.
 
    **Five install directly from upstream and pass the gate cleanly. The general `jev` router is
    HARD-BLOCKED upstream** — exit 1, risk 80/100, `DO NOT INSTALL`. Exact cause: the

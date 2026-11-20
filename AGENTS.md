@@ -59,11 +59,12 @@ exits non-zero when a bundle server is absent (it previously never failed).
 
 A session is only "done" when the numbers reconcile. Check all four:
 1. `bin/full-audit.ps1` → report the PASS/FAIL/WARN/ADVISORY line explicitly.
-2. `(Get-ChildItem ~/.agents/skills -Directory).Count` vs README badge (324 on disk / 278 bundled).
-3. `~/.agents/skills._disabled/` count vs README (2 folders on disk: upstream-disabled `caveman`
-   + `unlazy`; the 12 research-integrity forensics ports and the retired `crucible` snapshot that
-   earlier releases parked are NOT present on this install - verify, don't assume).
-4. Manifest row count in `setup/skills-list.csv` (278: regex `^[a-zA-Z][^|#]*\|`) vs README "278".
+2. `(Get-ChildItem ~/.agents/skills -Directory).Count` vs README badge (332 on disk / 287 bundled).
+3. `~/.agents/skills._disabled/` count vs README (3 folders on disk: upstream-disabled `caveman`,
+   `unlazy`, and `build-mcp` parked 2026-11-20 as a Tier 2 exact duplicate of `mcp-builder`; the
+   12 research-integrity forensics ports and the retired `crucible` snapshot that earlier releases
+   parked are NOT present on this install - verify, don't assume).
+4. Manifest row count in `setup/skills-list.csv` (287: regex `^[a-zA-Z][^|#]*\|`) vs README `287`.
    Comment/blank lines do not count. If numbers diverge, fix counters inline **and the truth**.
 
 ## Post-merge workflow

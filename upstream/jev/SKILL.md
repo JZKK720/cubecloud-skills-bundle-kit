@@ -38,8 +38,7 @@ Use natural language to describe the task; these are modes, not extra installed 
 | Label or prioritize many records | `jev-triage` if installed |
 | Locate, extract or verify evidence in documents/code | `jev-documents` if installed |
 | Judge outputs, code changes or authorized safety tests | `jev-eval` if installed |
-| Choose an action in a real browser/desktop | `jev-ui` if installed |
-| Choose an action inside an authored world | `jev-simulation` if installed |
+| Choose an action in a browser, desktop or authored world | `jev-act` if installed |
 
 If a focused skill is not installed, use the relevant recipe from this skill's
 reference library or explain the missing specialized workflow; do not assume
