@@ -2,7 +2,7 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
-## [Unreleased] — 2026-11-20 (README brought to v1.9.21 truth, audit stdin defect fixed)
+## [1.9.22] - 2026-11-20
 
 - **Fixed a real defect in `bin/full-audit.ps1` phase 1.** The MCP liveness probe started each
   daemon with `System.Diagnostics.Process` and never set `RedirectStandardInput`, so the server
