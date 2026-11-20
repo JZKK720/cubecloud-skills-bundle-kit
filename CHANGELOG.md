@@ -2,7 +2,7 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
-## [Unreleased] — 2026-11-20 (single Node install)
+## [1.9.21] - 2026-11-20
 
 - **Removed the duplicate user-scoped Node.** The bundle carried two Node installs: the machine-wide
   **26.13.1** (`C:\Program Files\nodejs`, winning on PATH) and a leftover user-scoped 26.8.1 package
