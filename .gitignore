@@ -7,6 +7,9 @@ forks/
 # transient logs from tools are not.
 upstream/*.log
 
+# skillevaluator writes tier1/json/html reports into the CWD when run without -o.
+reports/
+
 # OS noise
 Thumbs.db
 desktop.ini

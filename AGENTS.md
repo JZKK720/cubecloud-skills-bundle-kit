@@ -3,7 +3,7 @@
 ## What this repo is
 
 A Windows PowerShell toolkit (no application code — **scripts are the product**) that installs a
-global VS Code Copilot Chat stack: 278 bundle skills (324 on disk incl. 27 Azure/Entra/Foundry
+global VS Code Copilot Chat stack: 287 bundle skills (333 on disk incl. 27 Azure/Entra/Foundry
 extension skills), 20 CLIs, 12 MCP servers, 55 fork mirrors, 74 DESIGN.md files — all gated by
 NVIDIA SkillSpector. The source of truth for every count is [README.md](README.md) (badges +
 "What you get" table); [setup/SETUP_GUIDE.md](setup/SETUP_GUIDE.md) documents phases and
@@ -89,7 +89,7 @@ declare full verification complete while this plan is open; run its drift-check
 `~/.local/bin/archify.cmd` shim; needs fork mirrors — incompatible with `-SkipForks`, warns and
 continues). Phases: 0 prereqs (uv/bun) · 0b PATH+PYTHONUTF8 persist · 0c dir skeleton ·
 1 SkillSpector+skills-ref · 1b helper + suppression baselines to `~/dev/` · 2 20 CLIs · 3 clone 55 forks ·
-3b archify shim · 4 install 278 manifest skills (security-gated) · 5 write 12 MCP servers to
+3b archify shim · 4 install 287 manifest skills (security-gated) · 5 write 12 MCP servers to
 `User/mcp.json` · 5b Copilot utility model pins · 5c SkillOpt-Sleep nightly task · 6 governance
 docs · 7 audit.
 
@@ -140,3 +140,4 @@ directory actually appears afterward — `>nul 2>nul` hides every error.
 ## Large install batches (10+ skills)
 
 When installing 10+ skills in one session, start each batch in its own sub-process invocation so a single skill failure doesn't orphan the rest. If the batch exceeds ~20 skills, suggest a fresh chat or `/compact` to avoid context exhaustion mid-batch.
+

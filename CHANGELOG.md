@@ -2,6 +2,312 @@
 
 All notable changes to the CubeCloud Skills Bundle.
 
+## [Unreleased] — 2026-11-20 (single Node install)
+
+- **Removed the duplicate user-scoped Node.** The bundle carried two Node installs: the machine-wide
+  **26.13.1** (`C:\Program Files\nodejs`, winning on PATH) and a leftover user-scoped 26.8.1 package
+  whose files had been patched to 26.12.1. `winget uninstall --id OpenJS.NodeJS --scope user`
+  removed it cleanly — package directory and User PATH entry both gone, **113 MB reclaimed**, and
+  `winget list` now shows a single Node package (`OpenJS.NodeJS.LTS 26.13.1`).
+  Verified before deleting that nothing referenced it: its path was absent from
+  `setup/mcp.json.template`, the live `mcp.json` and the Copilot CLI `mcp-config.json` (the template
+  pin had already been retired earlier the same day). Verified after: `node` still **26.13.1**,
+  `rea` still handshakes on the plain inherited PATH (**`MCP_OK rea tools=263`**), all **21 CLIs**
+  resolve, and all four gates pass — `full-audit` 47/0/0/0, `integrity` 18/0, `verify-state` OK,
+  `mcp-smoke` 12/0.
+
+## [Unreleased] — 2026-11-20 (Node 26.13.1 machine-wide, workaround retired)
+
+Closes the last open item. All four gates pass together:
+`full-audit` **PASS 47 · FAIL 0 · WARN 0 · ADVISORY 0**, `check-bundle-integrity`
+**PASS 18 · FAIL 0**, `verify-state` **RESULT: OK**, `mcp-smoke-test` **PASS 12 · FAIL 0**.
+
+- **Node.js is now 26.13.1 machine-wide** — `node` on PATH, `C:\Program Files\nodejs\node.exe` and
+  the MSI registration all agree (they were 24.18.0 / 24.18.0 / a stale 26.8.1 record). That clears
+  the `rea-agents` floor (22.x>=22.23.4 / 24.x>=24.22.1 / 26.12.1+).
+- **Retired the PATH workaround instead of leaving it behind.** `setup/mcp.json.template` pinned a
+  user-scoped directory (`…node-v26.8.1-win-x64`, files 26.12.1) in the `rea` server's `env.PATH`.
+  With the machine-wide upgrade that pin pointed at an *older* build than PATH resolves, so it was
+  removed from both the template and the live `mcp.json`. Verified after removal:
+  `MCP_OK rea tools=255` on the plain inherited PATH, and `mcp-smoke-test` **12/12**.
+- **`bin/verify-state.ps1` now reports the Node the server will actually see.** It still honours a
+  template pin if one is ever reintroduced, but with no pin it asserts the resolved `node` against
+  the floor and says so: `PASS node v26.13.1 meets the rea-agents floor (no PATH pin needed)`.
+  Its old wording ("below the rea floor, but rea has its own pinned PATH") became false today.
+
+## [Unreleased] — 2026-11-20 (the three open items)
+
+Closes the three items left open. All four gates pass together:
+`full-audit` **PASS 47 · FAIL 0 · WARN 0 · ADVISORY 0**, `check-bundle-integrity`
+**PASS 18 · FAIL 0**, `verify-state` **RESULT: OK**, `mcp-smoke-test` **PASS 12 · FAIL 0**.
+
+- **All five stale installs repaired, fully synced, and gate-clean.** These were not
+  stale-fingerprint cases — the *upstream content itself* tripped the gate, and every finding was a
+  false positive on defensive prose. Each was read, baselined and reinstalled:
+  `taste-skill` **1631/1631 files** (43 fps + 2 rules), `subagent-driven-development` 15/15,
+  `writing-skills` 10/10, `ce-explain` 11/11, `security-and-hardening` 2/2 — all **exit 0**.
+  The sharpest example: `security-and-hardening`'s `SSRF1` HIGH is the skill *explaining* that
+  `169.254.169.254` is the #1 SSRF target and that its range check covers it.
+- **`build-mcp` parked — the one genuine exact duplicate.** Tier 2 scored it **0.970** against
+  `mcp-builder`; it is 1 file against 6, with a byte-identical section structure. Parked to
+  `skills._disabled/build-mcp/` and its manifest row set `disabled=true`, following the bundle's
+  park-never-delete rule. Counters: on disk **333 → 332**, parked **2 → 3**.
+- **Tier 2 similarity implemented, with a local keyless provider.** `ollama` already served
+  `nomic-embed-text` (768-dim) on this machine, so the check runs with **no API key and no network
+  egress**. Added [`bin/skillevaluator-tier2.ps1`](bin/skillevaluator-tier2.ps1) and wired it into
+  `AUDIT 8`. Result: **4 pairs above 0.85, critical 0** — and two of the four are false positives
+  (sequential workflow phases, nested phase files), documented as such in
+  [docs/plans/2026-11-20-skill-duplicates.md](docs/plans/2026-11-20-skill-duplicates.md).
+- **A false-clean bug in my own audit, found and fixed.** `AUDIT 8` first reported
+  **"0 pair(s)"** while the collection visibly had duplicates. Root cause: reaching Ollama is not
+  enough — SkillEvaluator only embeds when `SKILL_EVAL_EMBEDDING_PROVIDER` and
+  `SKILL_EVAL_LLM_API_KEY` are set, and without them the run ends `incomplete` with zero findings,
+  which the parser read as "clean". The audit now sets the provider env vars for the call (and
+  restores them), and **refuses to report any count from a non-`complete` run** — printing
+  `run incomplete - no trustworthy count (<reason>)` instead. A gate must never turn "could not
+  measure" into "nothing found".
+- **Frontmatter repair is now a reusable script and part of the installer.**
+  [`bin/repair-skill-frontmatter.ps1`](bin/repair-skill-frontmatter.ps1) nests Claude-only keys
+  under `metadata:` **and** aligns the frontmatter `name:` to the folder name (upstream ships
+  `taste-skill` as `name: design-taste-frontend`). `install-skill.ps1` now passes the destination
+  folder name into `Repair-SkillFrontmatter`, extends the key list (`hooks`, `allowed_tools`,
+  `license_url`, `model`) and writes through an explicit UTF-8 codec only. Result:
+  **333 → 332 skills, 332/332 `skills-ref` valid, 0 corrupted.**
+- **Machine-wide `node` still resolves 24.18.0 — now with proof and a named fix.** Measured: PATH
+  is Machine-then-User, with the machine entry at offset **555** and the user-scoped 26.12.1 at
+  **2128**, so the machine entry always wins. This session cannot fix it: HKLM writes are denied,
+  `C:\Program Files\nodejs` cannot be renamed, and `whoami /groups` shows Administrators as
+  *"Group used for deny only"* — no in-session elevation exists. Recorded in DEPRECATIONS §10 with
+  both remedies (elevated `winget install --scope machine`, or removing the SYSTEM PATH entry).
+  Nothing depends on it: `rea` is already pinned to 26.12.1 via the template's `env.PATH`, and
+  `MCP_OK rea tools=255` verifies that.
+
+## [Unreleased] — 2026-11-19 (hallmark restored, Node pinned for rea, SkillEvaluator implemented)
+
+Closes the three items left open by the previous pass. All four verifications now pass:
+`full-audit` **PASS 46 · FAIL 0 · WARN 0 · ADVISORY 0**, `check-bundle-integrity`
+**PASS 18 · FAIL 0**, `mcp-smoke-test` **PASS 12 · FAIL 0**, `verify-state` **RESULT: OK**.
+
+- **`hallmark` restored to upstream HEAD.** Mirror already tracked `Nutlope/hallmark@04977e1`
+  byte-for-byte; the installed copy is now **187/187 files identical** to it (verified by
+  per-file SHA256), with only the normalized frontmatter differing. Gate: **34 suppressed,
+  1 remaining, severity LOW, exit 0**.
+- **A UTF-8 corruption I introduced is fixed, and the cause removed.** `Repair-SkillFrontmatter`
+  used `Get-Content`/`Set-Content`, which round-trip through the console code page on this host and
+  silently re-encode non-ASCII text (a section sign became U+9225, a right-arrow U+922B) in
+  `hallmark` and `ce-simplify-code`. Both files were restored from their mirrors and the function
+  now reads and writes through an explicit `UTF8Encoding($false)` via `[IO.File]`, so no non-ASCII
+  character can be mangled again.
+  Audited all 333 skills for cp1252 round-trip markers: **2 were affected, both repaired, 0 now**.
+- **Node.js was pinned for the `rea` MCP server before the machine-wide upgrade.** The Machine PATH
+  entry `C:\Program Files\nodejs` (then 24.18.0) precedes the User PATH on Windows, so the
+  user-scoped Node was shadowed. `winget install OpenJS.NodeJS --scope user` created a user-scoped
+  install, whose directory was replaced with **26.12.1** (downloaded from nodejs.org and
+  SHA256-verified against the published `SHASUMS256.txt`), and the template pinned that directory
+  in the `rea` server own `env.PATH`. **That workaround is now retired** — Node was raised to
+  **26.13.1** machine-wide on 2026-11-20 and the pin was removed; verified `MCP_OK rea tools=255`.
+- **`SkillEvaluator` implemented as a real, used capability.** It was installed but never invoked.
+  Added [`bin/skillevaluator-advisory.ps1`](bin/skillevaluator-advisory.ps1) and an
+  `AUDIT 8` phase in `bin/full-audit.ps1`. Measured across all 333 skills:
+  **avg 87.6/100 — A:97, B:223, C:13, zero D or F.** Keyless, so it always runs; Tier 2
+  (similarity) needs an embedding provider key and Tier 3 needs Docker plus a model, so neither is
+  attempted. It stays **advisory**: `tier1`'s security check reports `INCOMPLETE` on skills
+  SkillSpector passes cleanly, so it cannot be the gate.
+- **Two more MCP probes were measuring the wrong thing** (found while verifying the above):
+  `loop-engineering` spawned `%APPDATA%\npm\loop-mcp-server.cmd`, which does not exist — the
+  template launches `npx -y @cobusgreyling/loop-mcp-server@1.0.0`. And the `rea` probe ignored the
+  template's pinned `env.PATH`. Both probes now use `mcp-handshake-probe.py` against the real
+  launch command, honouring any pinned `env`. Result: **PASS 12 / FAIL 0** (was 10/2).
+- **`azure-app-onboard`'s three nested phase files had no frontmatter at all** (a pre-existing
+  upstream defect, files dated 2026-11-03). They are internal phases, not standalone skills, so
+  they now carry `name`/`description`/`metadata: {internal: true, phase_of: azure-app-onboard}`
+  rather than being registered as separate skills.
+
+## [Unreleased] — 2026-11-19 (verification cleanup)
+
+### Four real defects found by running the gates instead of reading them
+
+Starting point: `check-bundle-integrity` **FAIL 59**, audit `ADVISORY 66`, one `SKILLSPECTOR` FAIL.
+End: **integrity `PASS=18 FAIL=0 WARN=0`**, audit **`PASS: 46 | FAIL: 0 | WARN: 0 | ADVISORY: 0`**.
+
+- **`setup/skills-unmanaged.txt` declared 39 skills; 38 did not exist.** The whole `sp-*` and
+  `po-*` Copilot-adaptation set, six `gstack-*`, both `gbrain-*`, `headroom-workflow`, three
+  research ports and `huashu-design` had been cleared from disk, but the allowlist was never
+  pruned — so the gate emitted 38 permanent `stale allowlist entry` FAILs that no change could
+  ever clear. Two rows were also wrong for a different reason: `sp-brainstorm` and `sp-verify`
+  existed *because* `brainstorming` was gate-blocked and `verification-before-completion` had no
+  row, and `brainstorming` is now a manifest row. Rewrote the file to 22 rows that all exist, and
+  taught it a new `extension` disposition for the GCP skills.
+- **The checker never recognised the GCP or hyperframes skills as extension-provisioned.** Its
+  prefix list covered only Azure/Entra/Foundry, while the README documented 10 GCP + 8
+  hyperframes/media skills as arriving from an extension or CLI. Those 21 directories therefore
+  reported as `undocumented skill`. Declared them in `skills-unmanaged.txt` (explicitly, not by
+  prefix, so a new GCP skill stays an intentional decision).
+- **66 of 333 skills failed `skills-ref validate` on Claude-Code-only frontmatter keys** —
+  `argument-hint` (44), `disable-model-invocation` (11), `user-invocable`/`user_invocable` (8),
+  `version` (2), `origin`, `tools`. All are rejected at top level but accepted under `metadata:`,
+  so they were nested rather than dropped (the values stay available to Claude Code; Copilot
+  ignores the block). **331 → 333 valid.** The installer now does this itself via a new
+  `Repair-SkillFrontmatter` step inside `Install-SkillTree`, so a refresh cannot reintroduce it.
+- **The committed `hallmark` baseline suppressed nothing.** Fingerprints bind to file content, and
+  the upstream sync had rewritten the files, so all 15 silently stopped matching — the audit
+  reported `do_not_install (baseline stale)`. Re-baselined after reviewing every finding: 20
+  fingerprints + 6 narrow rules (35 suppressed, 0 remaining, exit 0). The findings were all false
+  positives on defensive prose — the `SSRF1` hit is *the SSRF defence itself*, and the `PE3` hit
+  is a Wikimedia photo-credit line.
+- **14 installs were stale in a way `-Refresh` cannot fix.** `-Refresh` rewrites `SKILL.md` only,
+  so auxiliary files never update. `hallmark` was 107 files against a 187-file mirror and
+  `taste-skill` was **1 file against 1631**. Reinstalled the 12 whose sources resolve; 7 went
+  clean, **5 are now hard-blocked by upstream changes** (`taste-skill`, `subagent-driven-development`,
+  `writing-skills`, `ce-debug`, `ce-explain`, `security-and-hardening`) — the installer preserves
+  the existing copy on a block, so nothing was lost, but those five stay stale or need review.
+  **This is an open defect in `install-missing-skills.ps1 -Refresh`, not a one-off.**
+
+## [Unreleased] — 2026-11-19 (tools/MCP verification)
+
+### All 12 MCP servers now actually work; two silent failures found and fixed
+
+- **The 12 bundle servers were never in VS Code's `mcp.json`.** The template declared them, the
+  Copilot CLI had 5, and VS Code had **none** (only a user-installed `TalkToFigma`). Every skill
+  that tells the agent to call markitdown/firecrawl/scrapling/gbrain/graphify/headroom/wigolo/
+  skillopt/rea as an *MCP tool* was pointing at a server that did not exist. Merged the template
+  into `~/.config/Code/User/mcp.json` (backup kept); `verify-state.ps1` now reports
+  `PASS all 12 bundle MCP servers present` and the audit's `MCP | bundle servers` row went
+  FAIL → PASS.
+- **The `skillopt` MCP server was missing its file, not its PATH.** `mcp.json.template` runs
+  `python .../dev/forks/JZKK720/SkillOpt/plugins/copilot/skillopt/mcp_server.py`, but that clone
+  was absent — the installer's clone is wrapped in `>nul 2>nul`, so the failure was invisible and
+  only appeared as a 20 s probe timeout (`can't open file`). Cloned `microsoft/SkillOpt` (8 MB;
+  fork mirrors 26 → **27**, 1.82 GB) and added a post-clone existence assertion to the installer
+  plus a path check to `verify-state.ps1`, so this class of silent failure cannot recur.
+- **`rea` needs Node ≥ 24.22.1, and this machine has 24.18.0.** Diagnosed by handshake, not
+  guesswork: `REA requires Node.js 22.x (>=22.23.4), 24.x (>=24.22.1), 26.12.1+; this process runs
+  Node.js 24.18.0`. `verify-state.ps1` now asserts the Node floor, and the README states it.
+  **The upgrade itself is outstanding** — `winget install OpenJS.NodeJS` needs an elevation
+  prompt that cannot be answered from this session.
+- **The smoke test was measuring itself, twice.** `<server> --help` is not a valid liveness probe
+  for a stdio MCP server: it blocks on stdin, so `markitdown` and `rea` could only ever time out.
+  Replaced both with `bin/mcp-handshake-probe.py`, which sends a real `initialize` +
+  `tools/list`. Then the grading had to be fixed too: the probe reports `MCP_FAIL:<cause>` on
+  **stdout**, and the old check inspected **stderr**, so a failed handshake scored **PASS**.
+  Both are fixed; `markitdown` now passes with `tools=1`, and `rea` fails with its actual reason
+  instead of "timed out".
+- **Verified before concluding anything was unused:** all **21 CLIs launch** (`--version`, or
+  `--help` for the two argparse-only ones). **10 of 12 MCP servers handshake clean**; the other
+  two are the Node floor (`rea`) and `headroom`, which needs a provider key and is not part of
+  the keyless set.
+
+## [Unreleased] — 2026-11-19 (review)
+
+### Usage audit: 4.2% of skills ever invoked, and the deprecation history is now written down
+
+Full analysis and reproducible method:
+[docs/plans/2026-11-19-bundle-usage-and-deprecation-review.md](docs/plans/2026-11-19-bundle-usage-and-deprecation-review.md).
+
+- **Measured real usage from 39 sessions (2026-07-29 → 2026-11-19, 34,216 tool calls).** 256
+  recorded `skill.invoked_ref` events cover **14 distinct skills of 333 on disk (4.2%)**:
+  `using-superpowers` 208, `systematic-debugging` 15, `verification-before-completion` 7,
+  `brainstorming` 5, then ten skills with ≤4. The 333 `description:` fields cost **115,496
+  characters ≈ 28,874 tokens** of always-on routing surface. Read honestly, this proves the
+  description budget is never rotated — not that the long tail is worthless: the corpus is
+  dominated by four product repos, so a GTM, SEO or Azure skill could not have fired.
+- **CLI usage is real but uneven.** Strict command-start counts: `skillspector` 39, `wigolo` 24,
+  `agent-reach` 13, `scrapling` 12, `rea` 12, `firecrawl` 7, `loop` 7, `graphify` 5,
+  `markitdown` 5, `ocr` 5, `skillevaluator` 4 (in the ~2 h since install), `skills-ref` 3,
+  `skillopt-eval` 1, `watch-skill` 1. **Zero** for `specify`, `uipro`, `gbrain`, `headroom`,
+  `semantica`, `witr`, `git-wt` — but `gbrain` and `headroom` are MCP-first, so zero shell
+  invocations is not proof of disuse.
+- **The measurement is confounded, and that is the finding.** The template declares 12 MCP
+  servers; the live VS Code `mcp.json` contains **none** of them (only a user-installed
+  `TalkToFigma`). Any "unused" verdict on an MCP-first tool is measuring a misconfiguration. Fix
+  the wiring before acting on any retirement.
+- **`DEPRECATIONS.md` added.** Every removal, rename, park and block was scattered across
+  manifest comments, CHANGELOG sections and two README tables — answering "what did we
+  deprecate?" took a 30-command dig. It is now one ledger, linked from the README, with the rule
+  that retirement means parking, never deletion.
+- **Open candidates recorded, nothing removed:** `idea-to-design` (genuinely superseded by the
+  `brainstorming` adopted above — near-verbatim description, 0 uses vs. 5), `ce-commit` (subset of
+  `ce-commit-push-pr`), `security-scan` (partial overlap with `security-review`) and `semantica`
+  (365 MB, 0 uses, not MCP-wired). **Two names from my first pass are withdrawn on inspection:**
+  `agent-self-evaluation` vs `eval-harness` and `planning-and-task-breakdown` vs `writing-plans`
+  are different jobs, not duplicates — the comparison is in `DEPRECATIONS.md` §6.
+- **Disk: ~330 MB reclaimed, nothing of the bundle touched.** `uv cache prune` freed 321 MB
+  (8555 files, safe by construction — it only drops unreferenced entries; all 21 CLIs re-verified
+  after), 81 MB of orphaned `skill_install_*` temp clones from earlier scans and 54 empty
+  `omnigent-skill-bundle-*` stubs were removed, and `git gc` across all 27 mirrors recovered a
+  further 30 MB. Fork mirrors stay at **1.76 GB** (0.94 GB of it `.git`) because
+  `sync-fork-upstreams.ps1` and `-Refresh` depend on them; deleting every `.git` is the one big
+  reclaimable block (~0.94 GB) and is recorded as a decision, not done. `rembg` (677 MB) is a
+  **personal** uv tool with zero bundle references — flagged for you to remove, not removed.
+
+## [Unreleased] — 2026-11-19
+
+### Upstream-HEAD refresh + 9 gate-clean adoptions from a 13-repo sweep
+
+Full analysis, per-repo gate evidence and the rejected candidates:
+[docs/plans/2026-11-19-upstream-skill-adoption-eval.md](docs/plans/2026-11-19-upstream-skill-adoption-eval.md).
+
+- **Every fork mirror was behind upstream: 21 of 26 synced.** `bin/sync-fork-upstreams.ps1`
+  reported `Synced: 21, Already-up-to-date/skipped: 5, Failed: 0`; `graphify` was skipped
+  deliberately (upstream default branch moved `v4` → `v8`) and `caveman` is an expected fork
+  divergence. `bin/install-missing-skills.ps1 -Refresh` then refreshed **64** installed skills
+  from the synced mirrors.
+- **Two permanent audit WARN/FAIL rows were real and are fixed.** `bin/fast-audit.ps1` and
+  `bin/full-audit.ps1` both enumerated `~/.agents/skills` with `-Directory` and no `-Force`, so a
+  stray `.backup-2026-10-31` staging folder was treated as a skill: it has no `SKILL.md`
+  (permanent `SKILL-FILE FAIL`) and can never be mirrored to Claude (permanent `MIRROR WARN`).
+  Both audits now skip dot-directories when validating skills while still reporting the raw
+  on-disk directory count, and `fast-audit` gained `full-audit`'s extension-skill exemption (with
+  the "prefix is not enough — `airunway-aks-setup` is a real manifest row" rule) so the two
+  audits can no longer disagree. The stray folder was moved to `~/dev/upstream/backups/`.
+  `airunway-aks-setup` was installed but never mirrored; reinstalling from its vendored source
+  restored the `~/.claude/skills` copy. Net: `FAIL=1 WARN=1` → `FAIL=0 WARN=0`.
+- **`ffmpeg-skill` adopted (kajisho5/ffmpeg-skill, MIT, 8.1k★).** 42 local FFmpeg tools with a
+  machine-readable contract; stdlib Python only, no cloud, no API keys. It is vendored as a
+  **payload-only** copy under `upstream/ffmpeg-skill`: scanning from the repo root hits a
+  CRITICAL YARA `php_webshell_known` on `docs/demos/lower_third_hindi.gif` plus 160 HIGH / 544
+  MEDIUM findings inside `tests/`, `.github/` and the fuzz seeds. The payload scores LOW and
+  installs under `baselines/ffmpeg-skill.baseline.yaml` (90 fingerprints + 10 narrow rules;
+  verified 141 suppressed / 0 remaining / exit 0).
+- **superpowers `brainstorming` adopted, replacing a port that existed only to dodge a scanner
+  block that no longer reproduces.** The bundle had to hand-port this skill to `idea-to-design`
+  because upstream's `scripts/stop-server.sh` was SkillSpector-blocked. Re-gated on 2026-11-19 it
+  is a reviewed, fail-closed script (refuses to signal any PID it cannot prove belongs to the
+  session) and the remaining findings are six static over-fires, baselined in
+  `baselines/brainstorming.baseline.yaml`. The real skill restores the visual companion the port
+  had to drop; `idea-to-design` stays as the no-script fallback.
+- **Elephant & Goldfish Model adopted (google/elephant-goldfish-model, Apache-2.0, 21k★), 4 of 8
+  skills.** `egm-lite` (7/100 LOW), `egm-draft` (30/100 MEDIUM), `egm-resolve` and
+  `egm-drift-report` all pass the gate. `egm-bootstrap` is hard-blocked (HIGH AE1 ×4, exit 1) and
+  the other three hard-require harness-specific subagent tools plus a repo-level `agents/` tree,
+  so shipping them alone would produce prose that cannot run.
+- **claude-seo adopted (AgriciDaniel/claude-seo, MIT, 30.7k★), 3 of 29 skills.** `seo-plan`,
+  `seo-competitor-pages` and `seo-hreflang` are the only self-contained ones: they carry their
+  own references and never reference `${CLAUDE_PLUGIN_ROOT}` or `scripts/`. The other 26 call a
+  Python launcher that only exists inside the upstream plugin (and 4 of those also fail the gate:
+  `seo-agentic` 67, `seo-cluster` 77, `seo-google` 62, `seo-image-gen` 59 — all HIGH).
+- **`skillevaluator` added as an optional advisory CLI, not a gate.** Answered the "do we still
+  need SkillEvaluator when we have SkillSpector?" question with measurements: SkillSpector is the
+  scanner the gate needs (blocking exit code, no model key, no Docker), while SkillEvaluator
+  *consumes* it and adds what the bundle lacked — a graded quality score, harness compatibility,
+  semantic-overlap dedup and PII/license/Unicode checks. It is **not** promoted to the gate: on
+  this machine `tier1` reports `Security Scan: INCOMPLETE` (the nested SkillSpector run never
+  completes in-process) even on skills SkillSpector passes cleanly, and Tier 3 needs a healthy
+  Docker daemon and an LLM key. Its own upstream skill stays uninstalled (exit 1, 2 HIGH AE1).
+  `bin/verify-state.ps1` now checks for it alongside the other 20 CLIs.
+- **Rejected after gating, with reasons recorded:** `rust-anything` (exit 0 but needs
+  `cargo install` — parked, not disproven), `kitesurf` (its only skill is repo-maintenance),
+  `astryx` (needs the Astryx CLI and duplicates `design-md-library`/`baseline-ui`), `sherlock`,
+  `awesome-mcp-servers` and `paper-orchestra` (no `SKILL.md` at all), `ag-ui` (23 skills that all
+  maintain the AG-UI SDKs), `video-shotcraft` (HIGH P2 ×3, unpinned `npx remotion`, overlaps
+  `hyperframes`), `cloudflare/security-audit-skill` (exit 1, 12 findings — false positives on a
+  defensive guide, but making it installable is an operator baselining decision, not an
+  evaluation result).
+- **Counters:** manifest **278 → 287** (286 active + 1 disabled); `~/.agents/skills` **325 → 333**;
+  CLIs **20 → 21**. `bin/check-bundle-integrity.ps1` goes `FAIL=68` → `FAIL=59` — the 59 remaining
+  are pre-existing `setup/skills-unmanaged.txt` drift (38 stale allowlist entries, 21 unmanaged
+  skills), verified byte-identical against `HEAD`; this change introduces no new failure.
+
 ## [Unreleased] — 2026-11-02
 
 ### End-to-end upstream re-verification: 4 tool defects fixed, 76 skills brought current
