@@ -1,71 +1,72 @@
-﻿# SkillSpector baseline - findings listed here are suppressed on future scans.
-# Drift-tolerant rules scoped per (rule_id, file) - operator-accepted static-only
-# over-fire on doc phrasing for this vendored skill. Fingerprints retained as
-# exact-suppression backup. See NVIDIA SkillSpector docs/SUPPRESSION.md.
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
 version: 2
 scanner_version: 2.12.0
 rules:
-  - id: "AE1"
-    file: "SKILL.md"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - id: "AS1"
-    file: "examples/CLAUDE_MD_TESTING.md"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - id: "AS3"
-    file: "examples/CLAUDE_MD_TESTING.md"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - id: "AS3"
-    file: "SKILL.md"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - id: "RA1"
-    file: "anthropic-best-practices.md"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - id: "RA1"
-    file: "SKILL.md"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - id: "RA1"
-    file: "testing-skills-with-subagents.md"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+- id: AS1
+  path: "references/*.md"
+  reason: "reviewed: this skill TEACHES how agent config files work; nothing reads or modifies one at runtime"
+- id: AS3
+  path: "references/*.md"
+  reason: "reviewed: lists its own guidance sections and subagent roles so a reader can navigate"
+- id: RA1
+  path: "SKILL.md"
+  reason: "reviewed: writing skills is this skill's subject matter; it writes no file itself"
+- id: RA1
+  path: "references/*.md"
+  reason: "reviewed: writing skills is this skill's subject matter; it writes no file itself"
 fingerprints:
-  - hash: sha256:03ee5b9206b790411e9b13a374bfbe548bf4a1e378f3ea87362b381bb8e903bf
-    rule_id: "AS3"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:361c37fa2342cd7f1fe7f23a36d9d1390fb6bea09209333d5f30fe1ecf6b82c5
-    rule_id: "AE1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:3bb8c352c210acc42fcb062716095911a2ddfa2c2e13430150284e8298e38aed
-    rule_id: "AS3"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:4a82a836d1e9f490bf284481b2505ae2a363367618429168d278bf24a6095086
-    rule_id: "AS1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:5296f103fc040cb60aa53dce7c5203d6f35d9dac81cc47170643696d89984032
-    rule_id: "AS3"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:816ac1b44d95511ddff57773e127651c333ec42f888ae313d9a40e0c5084ea8e
-    rule_id: "RA1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:864daf7aa96e564918f393028c04951021dddf534b1044b79d825a0728adcefd
-    rule_id: "AS3"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:89bbc02f0194c240d4ef23c88f7a7fca508b8e000bf201e7376c4bfa7710cb16
-    rule_id: "AS3"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:9a171a7889211c9edb73af1cb7ee803ef11dff3a15ceb156aecd2c66b23089f5
-    rule_id: "AS3"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:a236ff6114de9223a1b6fb8d94be4399c863736560364f5ab17ac5d18f55e08a
-    rule_id: "AS1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:b9a9a1889ac2b10ac81bbaa3e0d2c56a5780240c363af688113e9da082ff39ff
-    rule_id: "AE1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:be76aa3b8ee8ba0091b45db5ceb2fe4088a26078a5f1429d11667e608c128e95
-    rule_id: "RA1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:d3d1df715fa69a79750b2e473493c486f496d697ec663eb03cf4b3890ebb121a
-    rule_id: "RA1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
-  - hash: sha256:e0242b8e6d5f63893af756be8d28c64a88a6e3c8699a64f411a6f3aa3f7bba64
-    rule_id: "RA1"
-    reason: "Operator-accepted: skill passed Specter on other dev machines; static-only scan over-fires on doc phrasing"
+- hash: sha256:b8b67790d7bab0fc5a33d92d9bb6113ba309db563c546c2fc6892d9a1af07eb9
+  rule_id: RA1
+  file: SKILL.md
+  reason: 'reviewed: writing skills is the subject matter; this skill writes nothing itself'
+- hash: sha256:772b0b788d95a9ba8512e504a423fa942b66aadeb4a70ef6d907a09dc5ed679d
+  rule_id: RA1
+  file: SKILL.md
+  reason: 'reviewed: writing skills is the subject matter; this skill writes nothing itself'
+- hash: sha256:7619fb285ac265782ffb0394ef22d9c0d361c72e354d712783c0405951cb7027
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 reports the analyser could not fully inspect a referenced artifact; every path named is a plain .md inside this skill'
+- hash: sha256:2370c993d9520f2c8ded2d3362d1a8a84e325b22f3bd5bd7d9776d620a97cca6
+  rule_id: AS1
+  file: references/CLAUDE_MD_TESTING.md
+  reason: 'reviewed: TEACHES how agent config files work; reads nothing at runtime'
+- hash: sha256:f3ce8f6613c13006e7d6fc51d74402ca558c403bcb41e6bfeca9f754f45e6482
+  rule_id: AS1
+  file: references/CLAUDE_MD_TESTING.md
+  reason: 'reviewed: TEACHES how agent config files work; reads nothing at runtime'
+- hash: sha256:a617b99c4aec1dbc5ed2d1f02adf4fbdff985411864de6e1bbf43260128db8f3
+  rule_id: RA1
+  file: references/anthropic-best-practices.md
+  reason: 'reviewed: writing skills is the subject matter; this skill writes nothing itself'
+- hash: sha256:b2077d874701413a3ed1b37b73c3b6740c5b36a7be9c775c8d3427fc39c6ee8c
+  rule_id: RA1
+  file: references/testing-skills-with-subagents.md
+  reason: 'reviewed: writing skills is the subject matter; this skill writes nothing itself'
+- hash: sha256:a137858abdfef709812763c5997791cc5d063ff4103a9ef828d6db1d13fceb5f
+  rule_id: AS3
+  file: SKILL.md
+  reason: 'reviewed: lists its own guidance sections'
+- hash: sha256:9973d27a36fefd0915d18f15a19afd59a9d6423a8b039e11d95ac4a0e69572a5
+  rule_id: AS3
+  file: references/CLAUDE_MD_TESTING.md
+  reason: 'reviewed: lists its own guidance sections'
+- hash: sha256:2a9f383ac428c2baef59155afc29ffb6f9c857d9faad0d3377fb477e0ceb626d
+  rule_id: AS3
+  file: references/CLAUDE_MD_TESTING.md
+  reason: 'reviewed: lists its own guidance sections'
+- hash: sha256:e04e6cf8c64177c882f31b2afae1e3156b2f2f629beff16fcb44cebcb2029d05
+  rule_id: AS3
+  file: references/CLAUDE_MD_TESTING.md
+  reason: 'reviewed: lists its own guidance sections'
+- hash: sha256:efbf2966ac1944a2e4e33442df0dbf28abd9267d9a50752e16aafbd6b71a47cb
+  rule_id: AS3
+  file: references/CLAUDE_MD_TESTING.md
+  reason: 'reviewed: lists its own guidance sections'
+- hash: sha256:9d8bba7611d300b2a8f5ec60d7d3c70a1b300f3c04d4e5face3e00fdd6c191f2
+  rule_id: AS3
+  file: references/discovery.md
+  reason: 'reviewed: lists its own guidance sections'
+
+

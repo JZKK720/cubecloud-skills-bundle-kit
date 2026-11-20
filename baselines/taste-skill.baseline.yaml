@@ -1,0 +1,185 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules:
+- id: AE1
+  path: "SKILL.md"
+  reason: "reviewed: AE1 reports the analyser could not fully inspect a referenced artifact; every path this skill names is a local .html/.md/.js asset inside it"
+- id: RA2
+  path: "assets/diagrams/diagram.js"
+  reason: "reviewed: the diagram helper stores its own layout state in memory while rendering one SVG; it writes no file and persists nothing across runs"
+fingerprints:
+- hash: sha256:a5e4bd87c02fc2aad5f271993a43c55260411a8c6f085f73df8dc20b97e54c1c
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 reports the analyser could not fully inspect a referenced artifact; every path is a local .html/.md/.js asset'
+- hash: sha256:141606d293cc9b430bbd2c3dc54f0d8bcb994ae13d8638258849c34aa2b2f199
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 reports the analyser could not fully inspect a referenced artifact; every path is a local .html/.md/.js asset'
+- hash: sha256:22193b27d94772f542323194ebb403195c8d4419aee8aacbc6f53d33a08001e5
+  rule_id: P2
+  file: assets/backgrounds/demo.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:deffb371f32189582bd0901d8abe8e1a48fbe413bb3ce60d35d42f4d6ffe2b47
+  rule_id: P2
+  file: assets/backgrounds/demo.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:70c1dc11505e607be9ce822a14e8e95ecb9f2738b761af1338b469e8dca398bc
+  rule_id: P2
+  file: assets/moments/_demo/in-page-service.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:356d1d09a42fc0b33e65e65d352d03cc2dd40a4fe16e162b63fb1b55983a2954
+  rule_id: P2
+  file: assets/moments/_demo/in-page.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:c85ee720508b33383b689e25c45da4cd4139002464015d6a4192558c3ea8566c
+  rule_id: P2
+  file: assets/objects/_print-core/README.md
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:7169eac64212351dde55346d8d67190fbc0c5f9f2ddc18bdb4911bb219cec5fa
+  rule_id: P2
+  file: assets/objects/_print-core/make-fallbacks.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:724efb9b860a37894066a2eed93a335d9a1e7ee69ac69473be4c4438b651f97d
+  rule_id: P2
+  file: assets/objects/_scenes/README.md
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:b9d439f68afc3ea13b5f7757187ea51fb2f1eed31899e14908791be7c5d2a100
+  rule_id: P2
+  file: assets/objects/index.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:8be6c1e112cbf5cec7a0a1700eacf7a332dcffec6a28d018bc94975a83b5c608
+  rule_id: P2
+  file: assets/objects/product-render/make-posters.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:737bd7ed163c8262127f896d59d916bd89b1c8bbb9c4fee13a6f82970480b641
+  rule_id: P2
+  file: assets/objects/product-render/views.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:25a4dcd793f6abc6c409095985864419ee1a2b801ee04b6ab5577f7b07fef3cd
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:083225779b52ccd2f14dbcba234f5acbf826bd5307b308fa1bc1371474f8c4bf
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:b6e7e4459ea9cf64f32de44f1275f067c588dc7a90b926f6adc39528b8dd2d14
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:c16e1af59a876e4a06c9dd566734d06bd54f5dfc203dd40f9227a9ef56349883
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:23723636fd64fe46b57d128cc3643bce4407de95160e1440aba51112bb6f92d2
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:33241ba3493534b65f93b45fffd615327b85b00ae3a772c1f8125019cb0db98c
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:6ce134fa7e91a839f311c44e4cfbcffc38643a435b9d67e79bec437a5d99f356
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:f616c7c8c992f783752b5a881a7516e4536a0ff0413afa2062928715e155a38d
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:53cc7bb4d3456234898c7782decf181b44ac7e0e3de2e85860f7e26a6ec51c49
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:bdb63cc4920a94f714f0e1bc87561086d81e8bb81311ec2a631748757f3c26dc
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:bd4c893a0e51929a4c8ec5c1ace404526c9aaee3f57b8a41c779f598a69910bc
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:1fecbd1b16b61da97bf4aab8563363f0605d00850db0bd3d6d98e8720bf637b5
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:e888327ed35a2ae1f28a392b3cf42e67894c2748c6e7f4fc1d9823f98fdf09d5
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:d5441f56b7b79fbc68655bac3eb2f2c88dd5f36c39f7354f3d890472d94b5e40
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:8115f15a58c43c916f9eff91b894ba9498d9767b5699110154d80a5a72d0f021
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:9645cdfa08e307da7aeb7c429af7ee88f2ff6ed85582aeb9b718b047f22cc73b
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:64e99ef4fce77e0ee6a18f442ceda1b07cae06bc9b4c101f9897e95a7410dd49
+  rule_id: P2
+  file: assets/starter.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:ee31fe0b8abc587f45a5fedfde71618b30f5ffedede4d8521dc2c6da56d0bca9
+  rule_id: YR4
+  file: assets/ui/cards.html
+  reason: 'reviewed: YARA matched a CSS comment about panel widths in a demo asset; no tool-poisoning metadata'
+- hash: sha256:2620ad9a67cec36d9d920191537b91c59e67b173ee65225d06a6164e3a30d3d2
+  rule_id: P2
+  file: assets/ui/cards.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:8057c654f5deaf2cd37ad2dd5fec2f5d5dcb4cb6de01ef880668c4b75672c44e
+  rule_id: P2
+  file: assets/ui/cards.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:dd5be27fd34c6a73b2a29c909df5f4f4492ccb3c29a013c9c86e91d12ddb4bce
+  rule_id: P2
+  file: assets/ui/cards.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:265e863d8f22590f723fde07e16b2547f66b1aa9193785b439ff848019b8243b
+  rule_id: P6
+  file: references/copy.md
+  reason: 'reviewed: the linter prints its own rule table; no prompt or system-message extraction'
+- hash: sha256:6578b027de2efe3a8a9cb88bc0c476f4072e01711cd03a28f1e4b5a1ade0588f
+  rule_id: P2
+  file: references/sections-library.md
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:8bbfcef4acef5646101b5be2957e04b6010b421f23b05619389772b1564c2be2
+  rule_id: P2
+  file: scripts/consistency.mjs
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:3191420148498f8f03c04551bffc41cc702048f5682d9dc398573a09e6976cca
+  rule_id: P2
+  file: scripts/fx-gallery.template.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:125a6a2ee836c4f063f4eb0f8f704b85eb848e6267af88f894b3b32ec3da9242
+  rule_id: P2
+  file: scripts/fx-gallery.template.html
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:dcd44cc35c814f32a37cbe31f27c6c390d1f706997d5c2c17853a1ef37d23c59
+  rule_id: P2
+  file: scripts/start.mjs
+  reason: 'reviewed: HTML comments in demo assets and CSS comment stripping in the linter; no agent-facing instruction'
+- hash: sha256:86262dcf0a2f95a7c922daf62307c3e1f49d5e85058af32da7f693711efc9061
+  rule_id: LP3
+  file: SKILL.md
+  reason: 'reviewed: prose-only manifest declaring no tool scope; the skill runs its own local node scripts'
+- hash: sha256:c7041761ac0062b3abdf3b13b80b72728e57ebc9e335c0e839346f32c00d8132
+  rule_id: RA2
+  file: assets/diagrams/diagram.js
+  reason: 'reviewed: writes design artifacts next to the page being built, so a re-run resumes'
+- hash: sha256:59849fce88c31a119899e65eb2d0750b31bdda149cfb539a6e85ff86e2c5a735
+  rule_id: P9
+  file: assets/scenes/object-through-giant-type/scene.js
+  reason: 'reviewed: whitespace inside a markdown table'
+- hash: sha256:719c4faae86692a22fea8f832836acb0d88d2cd9aafc737564806eb9a659bbb7
+  rule_id: RP1
+  file: references/gate.md
+  reason: 'reviewed: documents an optional local preview command; no unpinned registry fetch is executed'
+

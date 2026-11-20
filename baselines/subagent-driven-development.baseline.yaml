@@ -2,25 +2,21 @@
 # Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
 version: 2
 scanner_version: 2.12.0
-rules: []
+rules:
+- id: AE1
+  path: "SKILL.md"
+  reason: "reviewed: AE1 reports that the analyser could not fully inspect a referenced artifact; every path named is a plain .md inside this skill"
 fingerprints:
-- hash: sha256:8a339f7fa97fd7716f5c78d6d2576b21233bf0f35c74b190dbba2875dfc996ba
+- hash: sha256:3ff0cc7e4157f9797d5342238ad524e1426b86d6f8b9f1cec4c4e95e7c53b724
   rule_id: TM1
   file: SKILL.md
-  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
-    scan over-fires on doc phrasing'
-- hash: sha256:f9b3c68e1b761668720fc28f656a6b8a73289973e4892247089250256fedaf18
+  reason: 'reviewed: subagent launch guidance with fixed arguments'
+- hash: sha256:26a4b6ea2bb1f9d814a89181b8af99d06a424fc0da16041ce09b7660b4409831
   rule_id: AE1
   file: SKILL.md
-  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
-    scan over-fires on doc phrasing'
-- hash: sha256:5547fdbbb49202f3a5bb73bdf7c57af638be9323308fa70d68bbac983105c8cb
+  reason: 'reviewed: AE1 is an inspection-completeness note, not a finding'
+- hash: sha256:b216839292a17352707fc9290cdcaab078ca14f13effce7c4b77fb8f419c07de
   rule_id: AE1
   file: SKILL.md
-  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
-    scan over-fires on doc phrasing'
-- hash: sha256:b85f5baefd59114baba2c4b562d08645b039cabc943050af221c479d923a2283
-  rule_id: RA2
-  file: SKILL.md
-  reason: 'Operator-accepted: skill passed Specter on other dev machines; static-only
-    scan over-fires on doc phrasing'
+  reason: 'reviewed: AE1 is an inspection-completeness note, not a finding'
+

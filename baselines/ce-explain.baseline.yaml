@@ -1,0 +1,30 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules:
+- id: AE1
+  path: "SKILL.md"
+  reason: "reviewed: AE1 reports that the analyser could not fully inspect a referenced artifact; every path named is a plain .md inside this skill"
+fingerprints:
+- hash: sha256:9f4b404adf704c4399fb186a4d5a260ba3beac9fe41e34cc0258b2e6031a0cab
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: matched references are plain .md inside the skill'
+- hash: sha256:8b71742f78953c2951885736e9743335ca1a125ee85fd51d5f22fc5723e17d1c
+  rule_id: AR2
+  file: references/check-in.md
+  reason: 'reviewed: prohibits claiming success without evidence'
+- hash: sha256:85ed563ceb4ccb36f7462eee133bd1079d6d6a7f1c95e27d240dd93e0933a420
+  rule_id: PE3
+  file: references/publishing.md
+  reason: 'reviewed: text describes secret-hygiene rules to follow, not a credential read'
+- hash: sha256:d1ec313f550b6db83e840916bef9302e5b39deafda618206378ede0c4b19fcb6
+  rule_id: PE2
+  file: references/orchestration.md
+  reason: 'reviewed: no root escalation; matched text documents audit checks'
+- hash: sha256:b729ffcf63a593b1caffb669b43ba9a10810159795b13b08665a3a3fd9df06ea
+  rule_id: PE2
+  file: references/orchestration.md
+  reason: 'reviewed: no root escalation; matched text documents audit checks'
+

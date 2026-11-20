@@ -1,0 +1,409 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules:
+- id: AE1
+  path: "SKILL.md"
+  reason: "reviewed: every path named on these lines is a plain .md or .py inside this vendored payload; AE1 only reports that the static analyser could not fully inspect them"
+- id: AR2
+  path: "scripts/*.py"
+  reason: "reviewed: the matched text warns against guessing codec/timecode values and requires an explicit ask; it constrains the agent, it does not bypass review"
+- id: AST4
+  path: "scripts/**/*.py"
+  reason: "reviewed: subprocess is the product here - ffmpeg/ffprobe launched with a fixed argument vector built by the tool, never a shell string"
+- id: AST7
+  path: "scripts/*.py"
+  reason: "reviewed: getattr() resolves ffmpeg filter and format option tables keyed by literal names defined in the same module"
+- id: EA2
+  path: "scripts/**/*.py"
+  reason: "reviewed: every write path is gated behind an explicit --dry-run plan and the skill's ask-before-guessing rule"
+- id: EA2
+  path: "scripts/*.py"
+  reason: "reviewed: every write path is gated behind an explicit --dry-run plan and the skill's ask-before-guessing rule"
+- id: AST4
+  path: "scripts/*.py"
+  reason: "reviewed: subprocess is the product here - ffmpeg/ffprobe launched with a fixed argument vector built by the tool, never a shell string"
+- id: AST7
+  path: "scripts/**/*.py"
+  reason: "reviewed: getattr() resolves ffmpeg filter and format option tables keyed by literal names defined in the same module"
+- id: MP3
+  path: "scripts/render.py"
+  reason: "reviewed: the matched text describes ffmpeg buffer and loudness flags, not instruction-file manipulation"
+- id: P9
+  path: "scripts/_contract.py"
+  reason: "reviewed: whitespace padding inside the generated contract table"
+- id: PE2
+  path: "scripts/*.py"
+  reason: "reviewed: no sudo or root escalation - matches are process-listing and port-probe helpers used to detect a stale local server"
+- id: PE2
+  path: "scripts/**/*.py"
+  reason: "reviewed: no sudo or root escalation - matches are process-listing and port-probe helpers used to detect a stale local server"
+- id: RP1
+  path: "scripts/_contract.py"
+  reason: "reviewed: the snippet documents the repo's optional local MCP server command; no unpinned registry fetch is executed"
+fingerprints:
+- hash: sha256:c979384914fa33cb350186a238146b53a31e45cf1710bb3bec36c3ea919105cd
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 only means the static analyser could not fully inspect a referenced artifact; every path it names is a plain .md or .py inside this vendored payload'
+- hash: sha256:7925f68e555245168b44d7d086eaea6426e8b0ec8dbb34611646453362e4619b
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 only means the static analyser could not fully inspect a referenced artifact; every path it names is a plain .md or .py inside this vendored payload'
+- hash: sha256:a97a01b7eba3cfb1ec5e47c7a3616c0f86101b8709154f7c6eaa022d2412003d
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 only means the static analyser could not fully inspect a referenced artifact; every path it names is a plain .md or .py inside this vendored payload'
+- hash: sha256:b9a5937a93ed5d68a27e31f8c51fb45870a66b864437611b21230eec5dca6baa
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 only means the static analyser could not fully inspect a referenced artifact; every path it names is a plain .md or .py inside this vendored payload'
+- hash: sha256:5563c3b1290b12cbd90532017cdfc1398f7d9110676a8f32f8064e3f28165ae8
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 only means the static analyser could not fully inspect a referenced artifact; every path it names is a plain .md or .py inside this vendored payload'
+- hash: sha256:ade0075f20e5501b4b903c4f719285435aa44a9c0305beb81f70fa23cca8e51c
+  rule_id: AE1
+  file: SKILL.md
+  reason: 'reviewed: AE1 only means the static analyser could not fully inspect a referenced artifact; every path it names is a plain .md or .py inside this vendored payload'
+- hash: sha256:c6f4719ad3c4e2ab8f478ba896e9176d23c1abd082319e8cf065930e59c55cee
+  rule_id: P2
+  file: references/gotchas.md
+  reason: 'reviewed: HTML comment markers and Indic ZWJ/ZWNJ orthography notes in reference prose; no hidden instructions'
+- hash: sha256:2800143d44ddbbc581bcbfeb207cc71a87fe9eb0c71c2148142ec52759a38e1b
+  rule_id: TM1
+  file: references/process-pitfalls.md
+  reason: 'reviewed: subprocess calls pass a fixed ffmpeg/ffprobe argument vector built by the tool; no shell string interpolation'
+- hash: sha256:99a1618e442a0ee80c31eb8f2b79240d1a0a7c630906df52aec84e48bba59350
+  rule_id: P2
+  file: references/scripts.md
+  reason: 'reviewed: HTML comment markers and Indic ZWJ/ZWNJ orthography notes in reference prose; no hidden instructions'
+- hash: sha256:c910efecc4adb07b77b8702d3f039fb80ee2a89211502ebc621239c50e457259
+  rule_id: P2
+  file: references/scripts.md
+  reason: 'reviewed: HTML comment markers and Indic ZWJ/ZWNJ orthography notes in reference prose; no hidden instructions'
+- hash: sha256:cf50ea172cacb1bdd41098ea6476eefead734e8596597669c782fdbadcc3ab5f
+  rule_id: P2
+  file: references/scripts.md
+  reason: 'reviewed: HTML comment markers and Indic ZWJ/ZWNJ orthography notes in reference prose; no hidden instructions'
+- hash: sha256:257e36d5505f74a9fc0581ca9208e7204b5b3bb45daec37456be53e544a0020f
+  rule_id: AR2
+  file: references/scripts.md
+  reason: 'reviewed: guidance that warns against guessing codec/timecode values; it constrains rather than bypasses review'
+- hash: sha256:e6800e57165a733d7eba1ffd1f3dbb0b874cdf6fe38bd624cdae08153dc584c4
+  rule_id: AR1
+  file: references/scripts.md
+  reason: 'reviewed: prose listing the ffmpeg tool table; no autonomous action is requested'
+- hash: sha256:cb7e9eb26193d91f007d127236920fbc9b0ff69886d85a96f21eecb983a7c567
+  rule_id: P6
+  file: references/scripts.md
+  reason: 'reviewed: the skill prints its own --help/contract text; no prompt or system-message extraction'
+- hash: sha256:002c32e4d5e2321db45e1f4996e041a821796bb186565f8d1f14228b3baf8900
+  rule_id: MP3
+  file: references/scripts.md
+  reason: 'reviewed: memory notes describe ffmpeg buffer/loudness flags, not instruction-file manipulation'
+- hash: sha256:2f241c0f684903f3a93c8c4f95555a901d837f5ac22e31271858cf4c0ed47d0e
+  rule_id: E2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: code reads ffmpeg/ffprobe paths and its own FFMPEG_SKILL_* variables; no ambient credential harvesting'
+- hash: sha256:da06d004c9b7294a1beacd281c58d09f5725909adda18e5582c177ca1077b997
+  rule_id: TM2
+  file: scripts/_contract.py
+  reason: 'reviewed: subprocess invocation with list-form arguments and a resolved binary path'
+- hash: sha256:0e88852807b46716e789c87c31927e60a93bfc9c34abe2fdc5fffb08e09797ee
+  rule_id: E2
+  file: scripts/batch.py
+  reason: 'reviewed: code reads ffmpeg/ffprobe paths and its own FFMPEG_SKILL_* variables; no ambient credential harvesting'
+- hash: sha256:d8484591e2cff0c9792cf8b61f6a64f1fff51c803268b18d6b5c5826379d3906
+  rule_id: AR2
+  file: scripts/join.py
+  reason: 'reviewed: guidance that warns against guessing codec/timecode values; it constrains rather than bypasses review'
+- hash: sha256:bfbd819592bf0b6d9a50c4c6b86726aefbe102b119c46237c075d4fa84aa2120
+  rule_id: E2
+  file: scripts/render.py
+  reason: 'reviewed: code reads ffmpeg/ffprobe paths and its own FFMPEG_SKILL_* variables; no ambient credential harvesting'
+- hash: sha256:8094a56741e6c659877094e1e86f3d44214435973c1c747b1d29a1d70fc1ea59
+  rule_id: LP3
+  file: SKILL.md
+  reason: 'reviewed: manifest declares no tool scope because the skill runs local python only'
+- hash: sha256:8011094563ceb67e85e301e22853ffdccb3eb43c705152a44fec5f3d057aa548
+  rule_id: AS3
+  file: references/process-pitfalls.md
+  reason: 'reviewed: the skill lists its own 42 tool names so the agent can route requests'
+- hash: sha256:e1f7b775740b3ea7d0b0c93a9d372f3570ef2446b3c66f9ef8fa3d2cc4483e54
+  rule_id: OH3
+  file: references/scripts.md
+  reason: 'reviewed: --overwrite is required to replace an existing file; the default refuses'
+- hash: sha256:01b24f3ffa4d9115967944f9c1e0bd0706251f451f2cc46309e1b7eadcdd5c5f
+  rule_id: EA2
+  file: scripts/_common/__init__.py
+  reason: 'reviewed: tool chains are gated behind an explicit --dry-run plan and a user-facing ask rule'
+- hash: sha256:f23707b8f14d070c0a10d7bd386f0a7c1c5a12c91326af6f08a71290ca75a586
+  rule_id: AST4
+  file: scripts/_common/alpha.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:ebb67d34068aaa568d20c047adad828483a34203f5ed7cd5037ce664710b7f71
+  rule_id: RA2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: render state is written next to the output being produced, so an interrupted render resumes'
+- hash: sha256:51baf7ba34252c69a685dff0d32dc47df5b51104ddf1ce0cdea8d8baff90d7dc
+  rule_id: RA2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: render state is written next to the output being produced, so an interrupted render resumes'
+- hash: sha256:d85a2c128b5cf04aad760b29857f4bfcb8ad7e1bf1eb45c105e6ac70e9243bf1
+  rule_id: TT2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: caption/ASR assets are read from paths the user names'
+- hash: sha256:20885fe730c48cf8010598fbd75a18b53f23120cd1ce30023d8b9f6aea956bb0
+  rule_id: AST4
+  file: scripts/_common/asr.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:7097bacc02a6d883f146bc0cb7988f66767589e0ce853dcb75226a3c00148254
+  rule_id: TT2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: caption/ASR assets are read from paths the user names'
+- hash: sha256:144d896be2ddecdbb637e64cf221a7beef632159f17f278394af0dd1f24c385c
+  rule_id: EA2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: tool chains are gated behind an explicit --dry-run plan and a user-facing ask rule'
+- hash: sha256:abcc3bbaa6ea913a3feae7f2eceb407948f6151a8cfef00c9022e336eda92ddd
+  rule_id: RA2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: render state is written next to the output being produced, so an interrupted render resumes'
+- hash: sha256:9791d0422b35c555bc542c5f386e8ecc2c55bc632e11b4506cbd1d5cd73c85d3
+  rule_id: RA2
+  file: scripts/_common/asr.py
+  reason: 'reviewed: render state is written next to the output being produced, so an interrupted render resumes'
+- hash: sha256:514415b31663bf7a1d16a6a26714c4b8493ad20b4ac72201f496caa7259fb6c6
+  rule_id: AST4
+  file: scripts/_common/drawtext.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:9981915e47e5204927186ebc1aae8b38b4d3f600de0625b795dc852d086be07c
+  rule_id: AST4
+  file: scripts/_common/emoji.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:a15728bf8de9f6952db8abd8fd13fb5eb572252b842b7b1f5b93178ec41e2558
+  rule_id: AST4
+  file: scripts/_common/emoji.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:37576a50a6e487453c0afeaeda6fe2f329285f5c4ec4ee650268760e21a0e20c
+  rule_id: AST4
+  file: scripts/_common/emoji.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:8aadbfd67ae681bf892706da9c09a94500bba55702f4929f5970795c58294a82
+  rule_id: AST4
+  file: scripts/_common/fonts.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:dec92b3c5c83b20e66eab19ec0247436ceee95263902afa72722db327d3093bb
+  rule_id: AST4
+  file: scripts/_common/fonts.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:3d47ab7ee6c5f9f0d86675dc1de62ae1aaa4d604c01335792d53b20bca61bb4f
+  rule_id: AST4
+  file: scripts/_common/fonts.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:b75f239372cd130c1a8eab7e4f170d7f60b9e5e8a705f86d25b3a4f5e634ceac
+  rule_id: AST4
+  file: scripts/_common/fonts.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:68b86df20d79cb422322a0e3d25a378936d0d226ff305cfb4cbe93e9d3906405
+  rule_id: AST4
+  file: scripts/_common/fonts.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:e6ceb6369a7f1944f6478b8594051344d1d7ee16d1033bd152358a2ae4983c4f
+  rule_id: AST4
+  file: scripts/_common/fonts.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:4e8f976760631a38ce2e0b2b4f42196f9197822d46c8abe2d99fc3de04125f96
+  rule_id: TT2
+  file: scripts/_common/fonts.py
+  reason: 'reviewed: caption/ASR assets are read from paths the user names'
+- hash: sha256:ef3a3a03378bb13e8d1be54012bfdd14632c1e28d488f4596cae2c740649844c
+  rule_id: PE2
+  file: scripts/_common/runner.py
+  reason: 'reviewed: no sudo/root path; matches are on ffmpeg filter names and docs mentioning system packages'
+- hash: sha256:f3c52e244f1588f4882303fb9aa291a9fa1b0ae4842c3b91d58089c6c30abaf2
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:b3c4f389c3df88c4a6b78b253e47a9a16c8d396f050340c7dc58540e819fbc0b
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:f0f47d316d43898d11eead3b6cac7767d52e3ff3d23e722bbfe9211aaf63728b
+  rule_id: TT2
+  file: scripts/_common/runner.py
+  reason: 'reviewed: caption/ASR assets are read from paths the user names'
+- hash: sha256:08e5bc180cc082358563616df2955b22f1e17d67c31cc897548c5f2b7578537d
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:25500aba393d27754f66623e2e52fc04039b9e1b7eb334fd6c2f414e7b9d2c56
+  rule_id: TT2
+  file: scripts/_common/runner.py
+  reason: 'reviewed: caption/ASR assets are read from paths the user names'
+- hash: sha256:ea659551985535d783e5a20902dac431c61e704604fd1bf0efed53ee1ba78738
+  rule_id: TT2
+  file: scripts/_common/runner.py
+  reason: 'reviewed: caption/ASR assets are read from paths the user names'
+- hash: sha256:a17a0cfe72bde27aac53cccaa4c43e0c0f2a3e3f5c61340ebd3b7b11320e8b0b
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:aa8064c48d7f8ff4c41f0cf870718991009401a756d39e96c42e3ed9c375adb7
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:65a0e8d2653176c769b8dc98057edf297b34d1638939ebf51c947e4b327159f2
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:02d572fa54a0cc9b85deb9fb6a8327ea8b309461feabf7555869f52c1969b12a
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:511f50442a61f73cc351ff02457e64755cb80f13e8b3195cb37ecfaf18064b95
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:3fe224745567f950e2b6998ab0f6c096037bcfb82c9c7b4deebc6d1f60e5519d
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:7312514fb4673dd022d95855b1c1e78da65c6a16795e2e61d48153a38eab4ffd
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:426033c4a086d511236ca8d9be9dd22db58c53639b546ade13b072fa632bb921
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:f7d06e668231f6fab436e67744367620be4af7c098d12661d01b3739add78e44
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:8149680edac63d2f41c3e1d7cee344af9e987d730724e9a861b5696c76b83450
+  rule_id: TM3
+  file: scripts/_common/runner.py
+  reason: 'reviewed: unsafe defaults are avoided - lossless paths are preferred and re-encodes warn'
+- hash: sha256:d54f9f2d62014c8e76b3dc1ca9c5dba89aafe8c9327a0070e3465fcce03fd976
+  rule_id: AST4
+  file: scripts/_common/runner.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:13c9293bac84dc9720a6fef811e422139de4dda110b8e07aba03022a3f94857c
+  rule_id: P9
+  file: scripts/_contract.py
+  reason: 'reviewed: whitespace padding inside markdown tables'
+- hash: sha256:d37122ec0dbe93e65ef5829484f1e05be3395f25be11822bf5f06507fa32ddcd
+  rule_id: RP1
+  file: scripts/_contract.py
+  reason: 'reviewed: the repository-owned optional MCP snippet pins the local server command; no unpinned registry fetch'
+- hash: sha256:c9e39a490785baac8e4c3aa9fbd8565ce0f8a6cdffca24678b00a4446e627560
+  rule_id: AST4
+  file: scripts/_contract.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:1a27dc50f825dd37d628b61986f9737ffc842084e7bbc96a596d86934a0cadda
+  rule_id: AST4
+  file: scripts/_contract.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:00da8e939d89ef471f1b6d592c10757a11196931407ff6fd1507b6001f9c9caf
+  rule_id: AST4
+  file: scripts/_contract.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:3d7c147136fcfd488b13f5e7b4a6a9b8be53360c33ac5fac38165aebb16f3e31
+  rule_id: AST4
+  file: scripts/_contract.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:71b89f3a29c91cc1e81efbf48fe15fba5b56975565eca1ef1fdbc6a9c853afdd
+  rule_id: AST4
+  file: scripts/_contract.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:84cb9ea84f7a5a0512446b505913bcaafa432ef0bebef76fae871e3b9493d0dc
+  rule_id: AST4
+  file: scripts/_contract.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:cd47b81ea4036d2e40ad4519f74471cd36925332bac9f66051453e56aec86453
+  rule_id: RP1
+  file: scripts/_contract.py
+  reason: 'reviewed: the repository-owned optional MCP snippet pins the local server command; no unpinned registry fetch'
+- hash: sha256:0335896000a159d61cbeeb1d7454ff369d33426b110dc0b74caed1c5d2e4724e
+  rule_id: P9
+  file: scripts/_contract.py
+  reason: 'reviewed: whitespace padding inside markdown tables'
+- hash: sha256:7124ed919bc67813e7f9b21d9e72f72db54212b2ce4c7879ac2c13403ad0645d
+  rule_id: RP1
+  file: scripts/_contract.py
+  reason: 'reviewed: the repository-owned optional MCP snippet pins the local server command; no unpinned registry fetch'
+- hash: sha256:b4c4301792cb7f2646ba13a8e25418310a3269fb74db86fedd9e6935e05df122
+  rule_id: AST4
+  file: scripts/render.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:d1ecfabf2ffd1f9d436b587c1645cb0293aec750dfca2beb44f62db1f7316afe
+  rule_id: OH3
+  file: scripts/reverse.py
+  reason: 'reviewed: --overwrite is required to replace an existing file; the default refuses'
+- hash: sha256:7fa3fc4977fb6608ea9a7ad16a3d278b72b2a584890ca55920ee5aac87f7e3cf
+  rule_id: AST4
+  file: scripts/verify.py
+  reason: 'reviewed: subprocess use is the product (ffmpeg driver), invoked with fixed argument lists'
+- hash: sha256:72cc73071a2c6da0985fbc96e48ac91fe382ac078dfbfcf5009cc1e00b670ca1
+  rule_id: AST7
+  file: scripts/_common/__init__.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:91fe258acc8855ff2814b65324781541051f323bc48ba139132abe51b771f077
+  rule_id: AST7
+  file: scripts/_common/emit.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:38c3275aef6b4711c17d20c3a3a6d3fa2298e949def25c6f5512e940384e76f8
+  rule_id: AST7
+  file: scripts/_common/emit.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:71f559c9dc3fce9ff90b5f945b060a6179c467f610801b920d14c8be8a9e345d
+  rule_id: AST7
+  file: scripts/_common/emit.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:357c1c8c46fdfe6ac9512ac6a69e23f454543a151d621a5688642d1ca3e89271
+  rule_id: AST7
+  file: scripts/_common/runner.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:d6ab3b46a95a34f8ddeba68fe10148640af26ae1c49a8ae87a8167ef797c3d2a
+  rule_id: AST7
+  file: scripts/_common/runner.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:806a6b79441b328a1f3cd40e53e0eaa78146cf8c9ed361d6562353f8b1eba70c
+  rule_id: AST7
+  file: scripts/audio.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:6ad01a07a2958fd00872610a3a017ac13f933be6fca4feee40f6cdc0d80bb114
+  rule_id: AST7
+  file: scripts/audio.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:0e1f78e6cf8d40070c9e4caed431a5a487690fbee645a4b632ed504b91891e5f
+  rule_id: AST7
+  file: scripts/audio.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:05e08498d382664ea902a88979890353e190c55bf722a700c10a1c56e31605a7
+  rule_id: AST7
+  file: scripts/audio.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:74d1369a42906be389d907004038326744702d8412bbaaf216308d4c6eb1ced0
+  rule_id: AST7
+  file: scripts/audio.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:bd145f2548cba0d1f0cde8aab90e74223e1995347d4bac95caf687d76d5f8e24
+  rule_id: AST7
+  file: scripts/caption.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:d4a65f98ac0e0552b3cabe9b8b16d4f94bd41ffc977faac4286447340bf06799
+  rule_id: AST7
+  file: scripts/color.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+- hash: sha256:981f024cb4e74b4097df76fe90772c8ae09afa8626f93150c36d070f1b8e1f4a
+  rule_id: AST7
+  file: scripts/graphics.py
+  reason: 'reviewed: path joins are confined to the skill directory and the user-supplied output path'
+
+
+
+

@@ -1,0 +1,32 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 2
+scanner_version: 2.12.0
+rules: []
+fingerprints:
+- hash: sha256:effccef625d7ffffb55c819d0a99fab3c3703a83451a191ec4cb21f75d281ed4
+  rule_id: P2
+  file: scripts/server.cjs
+  reason: 'reviewed: inline <script> in the served HTML template sets a sessionStorage key then redirects; no credential access, no external host'
+- hash: sha256:aa39719ad3dd4638181d67c08abc8087af746c4eaf7828492e2931d8726a60d8
+  rule_id: TM1
+  file: scripts/stop-server.sh
+  reason: 'reviewed: script refuses to signal any PID it cannot prove belongs to this session (per-start instance id, fail-closed stale_pid); it does not execute caller-supplied commands'
+- hash: sha256:b5ee9e5f5625397fc183d049f9f0a31dc923bdf8640822d95ee2bfce46c95579
+  rule_id: LP3
+  file: SKILL.md
+  reason: 'reviewed: prose-only manifest declaring no tool scope; the skill itself only runs the two local scripts above'
+- hash: sha256:3aafe716e04b9e89180643d6f7f9a8afefe2b88a6cf81eb2de1eaaeadf7f3caa
+  rule_id: RA2
+  file: scripts/start-server.sh
+  reason: 'reviewed: writes its own pid/instance-id/log under the caller-supplied state dir so stop-server.sh can verify ownership; session-scoped, not persistent state'
+- hash: sha256:0238e32dfdafe643e1f26c6cc125eb87aedff2f4ff79fa2521a0a42c7b0320f1
+  rule_id: PE2
+  file: scripts/start-server.sh
+  reason: 'reviewed: no sudo/root escalation; the match is on process-listing and port-probe helpers used to detect a stale local server'
+- hash: sha256:844f55af72a48ae978743ca1305bae548244c07ef0fe3fe61498b19299d441c5
+  rule_id: RA2
+  file: scripts/start-server.sh
+  reason: 'reviewed: writes its own pid/instance-id/log under the caller-supplied state dir so stop-server.sh can verify ownership; session-scoped, not persistent state'
+
+
